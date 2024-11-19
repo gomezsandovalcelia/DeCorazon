@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "rol": "admin",
+        "nombre": "Juan",
+        "apellidos": "Pérez",
+        "contraseña": "123456",
+        "email": "juan.perez@example.com"
+    },
+    {
+        "id": 2,
+        "rol": "usuario",
+        "nombre": "Ana",
+        "apellidos": "García",
+        "contraseña": "abcdef",
+        "email": "ana.garcia@example.com"
+    },
+    {
+        "id": 3,
+        "rol": "moderador",
+        "nombre": "Luis",
+        "apellidos": "Martínez",
+        "contraseña": "luis2023",
+        "email": "luis.martinez@example.com"
+    }
+]

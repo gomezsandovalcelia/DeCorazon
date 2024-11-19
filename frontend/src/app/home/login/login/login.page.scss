@@ -1,0 +1,29 @@
+.container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* Espaciado entre los campos */
+}
+
+ion-button {
+    //--background: black;
+    --background: #1f1b1b;
+    //--background-hover: #2c7450;
+    --background-activated: #6b1a0b;
+    --background-focused: #6b1a0b;
+    color: white;
+    margin-bottom: 20px;
+}
+
+  /* Estilo para alinear el título y la imagen */
+.title-container {
+    display: flex;
+    align-items: center; /* Alineación vertical centrada */
+    gap: 10px; /* Espaciado entre el logo y el texto */
+  }
+  
+  .logo {
+    width: 70px; /* Ajusta el tamaño del logo */
+    height: auto; /* Mantiene la proporción de la imagen */
+  }
+  

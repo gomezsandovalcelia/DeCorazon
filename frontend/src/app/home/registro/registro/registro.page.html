@@ -1,0 +1,82 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <!--<ion-title>Inicia Sesión</ion-title>-->
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Header colapsable -->
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">
+        <!-- Contenedor flex para alinear imagen y texto -->
+        <div class="title-container">
+          <img src="assets/logo.png" alt="Logo de la aplicación" class="logo">
+          Regístrate
+        </div>
+      </ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+
+
+  <!-- Contenido principal -->
+  <div class="container">
+    <ion-input
+      id="custom-input"
+      label="Nombre"
+      labelPlacement="floating"
+      type="text" 
+      [counter]="true"
+      maxlength="20"
+      [counterFormatter]="customCounterFormatter">
+    </ion-input>
+    <ion-input
+      id="custom-input"
+      label="Apellidos"
+      labelPlacement="floating"
+      type="text" 
+      [counter]="true"
+      maxlength="20"
+      [counterFormatter]="customCounterFormatter">
+    </ion-input>
+    <ion-input
+      type="email"
+      fill="solid"
+      label="Email"
+      labelPlacement="floating"
+      helperText="Escriba un correo válido"
+      errorText="Invalid email"
+      ngModel
+      email
+    ></ion-input>
+
+    <ion-input
+      id="custom-input"
+      label="Contraseña"
+      labelPlacement="floating"
+      type="password" 
+      [counter]="true"
+      maxlength="20"
+      [counterFormatter]="customCounterFormatter">
+    </ion-input>
+    <ion-input
+      id="custom-input"
+      label="Repetir contraseña"
+      labelPlacement="floating"
+      type="password" 
+      [counter]="true"
+      maxlength="20"
+      [counterFormatter]="customCounterFormatter">
+    </ion-input>
+    
+    <p style="color: gray; margin-bottom: 40px;">¿Ya estás registrado?  
+      <a href="/home/login" style="color: #6b1a0b;">Inicia sesión</a>
+    </p>
+    <div class="button-container">
+      <ion-button expand="block" >Aceptar</ion-button>
+      <ion-button expand="block" routerLink="/home">Volver</ion-button>
+    </div>
+
+  </div>
+</ion-content>
