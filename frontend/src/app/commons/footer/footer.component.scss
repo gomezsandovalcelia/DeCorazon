@@ -1,0 +1,13 @@
+.custom-footer {
+  background-color: #f8f9fa; /* Fondo del footer */
+  color: #333; /* Color del texto */
+  font-size: 14px; /* Tamaño de fuente */
+  text-align: center; /* Centrar el texto */
+  border-top: 1px solid #ddd; /* Línea superior del footer */
+}
+
+.custom-toolbar {
+  --background: transparent; /* Fondo del toolbar (puede ser transparente o de otro color) */
+  --ion-color-primary: #007bff; /* Color primario si usas colores de Ionic */
+  padding: 0.5rem 1rem; /* Espaciado interno */
+}

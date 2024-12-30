@@ -1,13 +1,14 @@
 const { response } = require('express');
 const bcrypt = require('bcryptjs');
 const Usuario = require('../models/usuarios');
+const { generarJWT } = require('../helpers/jwt');
 
 const login = async(req, res = response) => {
 
     const { email, password } = req.body;
 
     try {
-        const usuarioBD = await Usuario.findOne({ email }, ' password');
+        const usuarioBD = await Usuario.findOne({ email }, '_id rol password');
         if (!usuarioBD) {
             return res.status(400).json({
                 ok: false,
@@ -23,10 +24,14 @@ const login = async(req, res = response) => {
                 token: ''
             });
         }
+        const { _id, rol } = usuarioBD;
+        const token = await generarJWT(usuarioBD._id, usuarioBD.rol);
         res.json({
             ok: true,
             msg: 'login',
-            token: 'token'
+            _id,
+            rol,
+            token
         });   
     } catch (error) {
         console.log(error);

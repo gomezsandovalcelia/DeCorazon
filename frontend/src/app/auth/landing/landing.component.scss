@@ -1,0 +1,31 @@
+#container {
+    text-align: center;
+    padding: 20px;
+  
+    img {
+      width: 200px;
+      height: auto;
+      border-radius: 10px;
+    }
+  
+    strong {
+      font-size: 1.2em;
+    }
+  
+    p {
+      color: gray;
+      margin-bottom: 40px;
+    }
+  
+    ion-button {
+      //--background: black;
+      --background: #1f1b1b;
+      //--background-hover: #2c7450;
+      --background-activated: #6b1a0b;
+      --background-focused: #6b1a0b;
+      color: white;
+      margin-bottom: 20px;
+    }
+    
+  }
+  

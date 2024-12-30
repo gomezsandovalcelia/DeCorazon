@@ -1,0 +1,35 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <!--<ion-title>Inicia Sesión</ion-title>-->
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Header colapsable -->
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">
+        <!-- Contenedor flex para alinear imagen y texto -->
+        <div class="title-container">
+          <img src="assets/logo.png" alt="Logo de la aplicación" class="logo">
+          Inicia Sesión
+        </div>
+      </ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Contenido principal -->
+  <div class="container">
+    <form (ngSubmit)="login()" [formGroup]="loginForm" >
+      <ion-input type="email" formControlName="email" fill="solid" label="Email" labelPlacement="floating" helperText="Escriba un correo válido" errorText="Email no válido"></ion-input>
+      <ion-input id="custom-input" formControlName="password"  label="Contraseña" labelPlacement="floating"  helperText="Escriba una contraseña" errorText="Contraseña no válida" type="password" [counter]="true" maxlength="20"></ion-input>
+      <p style="color: gray; margin-bottom: 40px;">¿No tienes una cuenta?  
+        <a href="/registro" style="color: #6b1a0b;">Regístrate</a>
+      </p>
+      <div class="button-container">
+        <ion-button expand="block" type="submit" >Aceptar</ion-button>
+        <ion-button expand="block" routerLink="/auth/landing">Volver</ion-button>
+      </div>
+  </form>
+  </div>
+</ion-content>

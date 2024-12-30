@@ -8,9 +8,25 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
+
+import { FooterComponent } from './commons/footer/footer.component';
+import { AuthModule } from './auth/auth.module';
+import { PagesModule } from './pages/pages.module';
+
 @NgModule({
-  declarations: [AppComponent],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, HttpClientModule],
+  declarations: [
+    AppComponent,
+    FooterComponent,
+  ],
+  imports: [
+    BrowserModule,
+    IonicModule.forRoot(),
+    AppRoutingModule, 
+    HttpClientModule, 
+    AuthModule,
+    PagesModule
+  ],
+  exports: [ FooterComponent ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],
 })

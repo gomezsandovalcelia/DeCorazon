@@ -2,15 +2,17 @@ import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-registro',
-  templateUrl: './registro.page.html',
-  styleUrls: ['./registro.page.scss'],
+  templateUrl: './registro.component.html',
+  styleUrls: ['./registro.component.scss'],
 })
-export class RegistroPage  {
+export class RegistroComponent  implements OnInit {
+
+  constructor() { }
   customCounterFormatter(length: number, maxlength: number): string {
     return `${length} de ${maxlength} caracteres usados`;
   }
-  constructor() { }
-
-  
+  ngOnInit() {
+    console.log('RegistroComponent initialized');
+  }
 
 }
