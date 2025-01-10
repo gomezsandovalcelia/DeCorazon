@@ -1,0 +1,44 @@
+
+.small-image {
+    width: 180px; 
+    height: auto; 
+    display: block;
+    margin: 0 auto; 
+}
+  
+.image-container {
+    text-align: center;
+}
+  
+.task-title {
+    font-size: 17px; 
+    font-weight: bold; 
+    color: #333; 
+    margin-top: 10px; 
+    text-align: center; 
+}
+  
+ion-button {
+    //--background: black;
+    --background: #1f1b1b;
+    //--background-hover: #2c7450;
+    --background-activated: #6b1a0b;
+    --background-focused: #6b1a0b;
+    color: white;
+    margin-top: 20px;
+}   
+ion-label {
+    font-size: 16px; 
+    color: #333; 
+  }
+  ion-list {
+    padding: 10px; 
+  }
+  
+  ion-item {
+    margin-bottom: 15px; 
+    --background: #fff; 
+    border-width: 0px; 
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+  }

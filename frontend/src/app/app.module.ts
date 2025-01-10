@@ -23,7 +23,6 @@ import { PagesModule } from './pages/pages.module';
     IonicModule.forRoot(),
     AppRoutingModule, 
     HttpClientModule, 
-    AuthModule,
     PagesModule
   ],
   exports: [ FooterComponent ],

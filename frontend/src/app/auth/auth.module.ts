@@ -10,6 +10,7 @@ import { RecoveryComponent } from './recovery/recovery.component';
 import { RegistroComponent } from './registro/registro.component';
 import { LandingComponent } from './landing/landing.component';
 import { AppModule } from '../app.module';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { AppModule } from '../app.module';
     RouterModule,
     IonicModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HttpClientModule
   ]
 })
 export class AuthModule { }

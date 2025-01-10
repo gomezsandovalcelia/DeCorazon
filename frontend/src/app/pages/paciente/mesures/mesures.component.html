@@ -1,0 +1,37 @@
+<ion-content class="ion-padding">
+  <!-- Imagen pequeña en la parte superior -->
+  <div class="image-container">
+    <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
+  </div>
+
+  <h2 class="task-title">Registra tus datos de hoy</h2>
+  <form  #healthForm="ngForm">
+
+    <!-- Campo de Peso -->
+    <ion-item>
+      <ion-label position="floating">Peso (kg)</ion-label>
+      <ion-input type="number" name="peso"  required></ion-input>
+    </ion-item>
+
+    <!-- Campo de Tensión -->
+    <ion-item>
+      <ion-label position="floating">Tensión (mmHg)</ion-label>
+      <ion-input type="text" name="tension" required></ion-input>
+    </ion-item>
+
+    <!-- Campo de Frecuencia Cardiaca -->
+    <ion-item>
+      <ion-label position="floating">Frecuencia Cardiaca (lpm)</ion-label>
+      <ion-input type="number" name="frecuenciaCardiaca"  required></ion-input>
+    </ion-item>
+
+    <!-- Botón de Enviar -->
+    <ion-button expand="block" type="submit" [disabled]="!healthForm.valid">
+      Enviar
+    </ion-button>
+    <ion-button expand="block" type="submit" routerLink="/home1">
+      Volver
+    </ion-button>
+  </form>
+  
+</ion-content>

@@ -1,0 +1,16 @@
+ion-tab-bar {
+  background-color: #ffffff;
+  display: flex;
+  justify-content: space-around; /* Para separar los botones uniformemente */
+
+  ion-tab-button {
+    flex: 1; /* Asegura que cada botón ocupe el mismo ancho */
+    display: flex;
+    justify-content: center; /* Centra el contenido del botón */
+    align-items: center;
+    background-color: #ffffff;
+    ion-icon {
+      font-size: 24px; /* Cambia el tamaño del icono */
+    }
+  }
+}
