@@ -11,8 +11,8 @@ const validarJWT = (req, res, next) => {
         });
     }
     try {
-        const { uid, rol, ...object } = jwt.verify(token, process.env.JWTSECRET);
-        req.uid = uid;
+        const { _id, rol, ...object } = jwt.verify(token, process.env.JWTSECRET);
+        req._id = _id;
         req.rol = rol;
         next();
     } catch (err) {

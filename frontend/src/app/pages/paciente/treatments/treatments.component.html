@@ -4,18 +4,22 @@
     <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
   </div>
 
-  <h2 class="task-title">Tus tratamientos de hoy</h2>
+  <h2 class="task-title">Tus tratamientos</h2>
   
   <ion-list>
-    <ion-item>
-      <ion-label>Mañana: Pastilla X</ion-label>
+    <ion-item *ngFor="let treatment of treatments">
+      <ion-label>
+        <p>{{ treatment.date }}</p>
+        <h2>{{ treatment.description }}</h2>
+      </ion-label>
     </ion-item>
-    <ion-item>
-      <ion-label>Noche: Pastilla Y</ion-label>
-    </ion-item>
-    
-</ion-list>
-  <ion-button expand="block" type="submit" routerLink="/home1">
+  </ion-list>
+  <ion-item *ngIf="treatments.length === 0">
+    <ion-label>
+      <p>No hay tratamientos disponibles.</p>
+    </ion-label>
+  </ion-item>
+  <!--<ion-button expand="block" type="submit" routerLink="/home1">
     Volver
-  </ion-button>
+  </ion-button>-->
 </ion-content>

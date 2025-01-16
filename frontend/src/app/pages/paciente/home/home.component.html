@@ -11,24 +11,33 @@
 
     <h2 class="task-title" routerLink="/ejercicios">Tareas Pendientes</h2>
     <ion-list>
-        <ion-item>
-          <ion-label>Tarea 1: Correr 30 minutos</ion-label>
-        </ion-item>
-        <ion-item>
-          <ion-label>Tarea 2: Paseo de 1 hora</ion-label>
-        </ion-item>
-        <ion-item>
-          <ion-label>Tarea 3: Bicicleta 20 minutos</ion-label>
-        </ion-item>
+      <ion-item *ngFor="let ex of exercise">
+        <ion-label>
+          <p>{{ ex.date }}</p>
+          <h2>{{ ex.description }}</h2>
+        </ion-label>
+        <ion-checkbox slot="end" [(ngModel)]="ex.checkpoint" (ionChange)="updateCheckpoint(ex)"></ion-checkbox>
+        
+      </ion-item>
     </ion-list>
+    <ion-item *ngIf="exercise.length === 0">
+      <ion-label>
+        <p>No hay ejercicios disponibles.</p>
+      </ion-label>
+    </ion-item>
     <h2 class="task-title" routerLink="/tratamiento">Tratamiento de hoy</h2>
     <ion-list>
-        <ion-item>
-          <ion-label>Mañana: Pastilla X</ion-label>
-        </ion-item>
-        <ion-item>
-          <ion-label>Noche: Pastilla Y</ion-label>
-        </ion-item>
+      <ion-item *ngFor="let treatment of treatments">
+        <ion-label>
+          <p>{{ treatment.date }}</p>
+          <h2>{{ treatment.description }}</h2>
+        </ion-label>
+      </ion-item>
     </ion-list>
+    <ion-item *ngIf="treatments.length === 0">
+      <ion-label>
+        <p>No hay tratamientos disponibles.</p>
+      </ion-label>
+    </ion-item>
 </ion-content>
   

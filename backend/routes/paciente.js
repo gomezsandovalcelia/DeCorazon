@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { obtenerPacientes, crearPaciente, actualizarPaciente, borrarPaciente } = require('../controllers/paciente');
+const { obtenerPacientes, crearPaciente, actualizarPaciente, borrarPaciente, obtenerTratamientos, obtenerEjercicios, actualizarCheckpoint, obtenerPacientePorId, obtenerMedidas } = require('../controllers/paciente');
 const { check } = require('express-validator');
 const { validarCampos } = require('../middleware/validar-campos');
 const { validarRol } = require('../middleware/validar-rol');
@@ -35,5 +35,20 @@ router.delete('/:id', [
     check('id', 'El identificador no es válido').isMongoId(),
     validarCampos
 ], borrarPaciente);
+
+router.get('/:id/treatments', validarJWT, obtenerTratamientos);
+
+router.get('/:id/exercise_routines', validarJWT, obtenerEjercicios);
+
+router.get('/:id', validarJWT, obtenerPacientePorId);
+
+router.get('/:id/measurements', validarJWT, obtenerMedidas);
+
+router.put('/:id/exercise_routines/:exerciseId',[
+    //check('checkpoint', 'El argumento checkpoint es obligatorio').not().isEmpty(),
+    validarJWT,
+    validarRol
+],
+    actualizarCheckpoint);
 
 module.exports = router;

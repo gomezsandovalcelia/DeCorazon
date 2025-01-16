@@ -1,16 +1,30 @@
-ion-tab-bar {
-  background-color: #ffffff;
-  display: flex;
-  justify-content: space-around; /* Para separar los botones uniformemente */
 
-  ion-tab-button {
-    flex: 1; /* Asegura que cada botón ocupe el mismo ancho */
-    display: flex;
-    justify-content: center; /* Centra el contenido del botón */
-    align-items: center;
-    background-color: #ffffff;
-    ion-icon {
-      font-size: 24px; /* Cambia el tamaño del icono */
-    }
-  }
+ion-toolbar {
+  --background: #ffffff;
+  --border-color: #ffffff;
+  border-bottom: 1px solid var(--ion-color-medium);
+  display: flex;
+  justify-content: center;
 }
+
+.navbar-buttons {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.navbar-buttons ion-button {
+  margin: 0 16px;
+}
+
+.navbar-buttons span {
+  font-size: 25px;
+  color: #1f1b1b;
+  
+}
+
+.navbar-buttons ion-button.active span {
+  color: #b30000;
+  --ionicon-stroke-width: 47px;
+}
+

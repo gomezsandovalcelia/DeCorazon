@@ -1,24 +1,32 @@
-
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<ion-header>
   <ion-toolbar>
-    <ion-tabs>
-      <ion-tab-bar slot="bottom">
-
-        <ion-tab-button tab="home">
-          <ion-icon name="home-outline"></ion-icon>
-        </ion-tab-button>
-
-        <ion-tab-button tab="write">
-          <ion-icon name="pencil-outline"></ion-icon>
-        </ion-tab-button>
-
-        <ion-tab-button tab="pill">
-          <ion-icon name="medkit-outline"></ion-icon>
-        </ion-tab-button>
-
-        <ion-tab-button tab="run">
-          <ion-icon name="walk-outline"></ion-icon>
-        </ion-tab-button>
-
-      </ion-tab-bar>
-    </ion-tabs>
+    <ion-buttons slot="primary" class="navbar-buttons">
+      <ion-button routerLink="/home" routerLinkActive="active">
+        <span class="material-symbols-outlined">
+          home
+          </span>
+      </ion-button>
+      <ion-button routerLink="/medidas" routerLinkActive="active">
+        <span class="material-symbols-outlined">
+          monitor_weight
+          </span>
+      </ion-button>
+      <ion-button routerLink="/tratamiento" routerLinkActive="active">
+        <span class="material-symbols-outlined">
+          pill
+          </span>
+      </ion-button>
+      <ion-button routerLink="/ejercicios" routerLinkActive="active">
+        <span class="material-symbols-outlined">
+          exercise
+          </span>
+      </ion-button>
+      <ion-button routerLink="/perfil" routerLinkActive="active">
+        <span class="material-symbols-outlined">
+          account_circle
+          </span>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
+</ion-header>

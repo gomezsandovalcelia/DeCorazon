@@ -7,12 +7,21 @@
   <h2 class="task-title">Tus ejercicios de la semana</h2>
   
   <ion-list>
-    <ion-item *ngFor="let item of items; let i = index">
-      <ion-label>{{ item.name }}</ion-label>
-      <ion-checkbox slot="start" [(ngModel)]="item.checked"></ion-checkbox>
+    <ion-item *ngFor="let ex of exercise">
+      <ion-label>
+        <p>{{ ex.date }}</p>
+        <h2>{{ ex.description }}</h2>
+      </ion-label>
+      <ion-checkbox slot="end" [(ngModel)]="ex.checkpoint" (ionChange)="updateCheckpoint(ex)"></ion-checkbox>
+      
     </ion-item>
   </ion-list>
-  <ion-button expand="block" type="submit" routerLink="/home1">
+  <ion-item *ngIf="exercise.length === 0">
+    <ion-label>
+      <p>No hay ejercicios disponibles.</p>
+    </ion-label>
+  </ion-item>
+  <!--<ion-button expand="block" type="submit" routerLink="/home1">
     Volver
-  </ion-button>
+  </ion-button>-->
 </ion-content>

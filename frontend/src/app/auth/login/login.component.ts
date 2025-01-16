@@ -38,6 +38,8 @@ export class LoginComponent  implements OnInit {
           console.log('respuesta al sub:', res);
           //AQUI ALMACENAMOS EL TOKEN EN EL LOCALSTORAGE
           localStorage.setItem('token', res.token);
+          localStorage.setItem('pacienteId', res._id);
+          localStorage.setItem('rol', res.rol);
           this.router.navigateByUrl('/home1');
         }, (err) => {
           console.warn('error respuesta api');

@@ -1,5 +1,24 @@
 const { Schema, model } = require('mongoose');
 
+const TreatmentSchema = new Schema({
+    date: { type: String, required: true },
+    description: { type: String, required: true }
+});
+
+const MeasurementSchema = new Schema({
+    date: { type: String},
+    weight: { type: Number },
+    heart_rate: { type: Number},
+    blood_preassure: { type: String}
+});
+
+const ExerciseSchema = new Schema({
+    _id: { type: Number, required: true },
+    date: { type: String, required: true },
+    description: { type: String, required: true },
+    checkpoint: { type: Boolean }
+});
+
 const PacienteSchema = Schema({
     nombre: {
         type: String,
@@ -23,6 +42,14 @@ const PacienteSchema = Schema({
         required: true,
         default: 'PACIENTE'
     },
+    medico_id: {
+        type: Number,
+        ref: 'Medico',
+        required: true
+    },
+    treatments: [TreatmentSchema], 
+    measurements: [MeasurementSchema],
+    exercise_routines: [ExerciseSchema]
 }, { collection: 'Pacientes' });
 /*
 PacienteSchema.method('toJSON', function() {

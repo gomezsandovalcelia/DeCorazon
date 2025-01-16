@@ -20,6 +20,10 @@
   ion-list {
     padding: 10px; 
   }
+  ion-item {
+    --border-color: transparent; /* Elimina el borde si proviene del color */
+  }
+  
   
   ion-item {
     margin-bottom: 15px; 
@@ -38,4 +42,12 @@
     color: white;
     margin-top: 20px;
 }   
+ion-checkbox {
+  --border-color: #000000; 
+  --background: transparent; 
+  --checkbox-background-checked:#b30000;
+  --border-color-checked: #b30000;
+  --checkmark-color:#ffffff;
+}
+
   

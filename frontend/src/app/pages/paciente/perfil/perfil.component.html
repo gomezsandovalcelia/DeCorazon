@@ -1,0 +1,33 @@
+<ion-content class="ion-padding">
+  <div class="image-container">
+    <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
+  </div>
+
+  <h2 class="task-title">Tu información</h2>
+  <ion-item *ngIf="paciente">
+    <ion-label>
+      <p><strong>Nombre:</strong> {{ paciente.nombre }} {{ paciente.apellidos }}</p>
+      <p><strong>Correo:</strong> {{ paciente.email }}</p>
+    </ion-label>
+  </ion-item>
+
+  <h2 class="task-title" style=" margin-top: 20px;">Tus medidas</h2>
+  <ion-item  *ngIf="paciente.measurements && paciente.measurements.length > 0; else noMeasurements">
+    <ion-label  *ngFor="let measurement of paciente.measurements">
+      <p><strong>Fecha:</strong> {{ measurement.date }}</p>
+      <p><strong>Peso:</strong> {{ measurement.weight }} kg</p>
+      <p><strong>Frecuencia Cardíaca:</strong> {{ measurement.heart_rate }} cm</p>
+      <p><strong>Presión Arterial:</strong> {{ measurement.blood_pressure }} cm</p>
+      <hr>
+    </ion-label>
+  </ion-item>
+  <ng-template #noMeasurements>
+    <p>No hay mediciones disponibles.</p>
+  </ng-template>
+  <ion-button expand="block" style="--background: #6b1a0b; margin-top: 20px;" type="submit" routerLink="/home1">
+    Cerrar Sesión
+  </ion-button>
+  <!--<ion-button expand="block" type="submit" routerLink="/home1">
+    Volver
+  </ion-button>-->
+</ion-content>

@@ -1,24 +1,24 @@
 
 .small-image {
-    width: 180px; 
-    height: auto; 
-    display: block;
-    margin: 0 auto; 
+  width: 180px; 
+  height: auto; 
+  display: block;
+  margin: 0 auto; 
 }
   
 .image-container {
-    text-align: center;
+  text-align: center;
 }
   
 
 ion-button {
-    //--background: black;
-    --background: #1f1b1b;
-    //--background-hover: #2c7450;
-    --background-activated: #6b1a0b;
-    --background-focused: #6b1a0b;
-    color: white;
-    margin-bottom: 20px;
+  //--background: black;
+  --background: #1f1b1b;
+  //--background-hover: #2c7450;
+  --background-activated: #6b1a0b;
+  --background-focused: #6b1a0b;
+  color: white;
+  margin-bottom: 20px;
 }
 
   .task-title {
@@ -30,7 +30,7 @@ ion-button {
   }
 
   .task-title:active {
-    color: #6b1a0b; /* Color mientras se pulsa */
+    color: #6b1a0b; 
   }
   ion-label {
     font-size: 16px; 
@@ -47,3 +47,17 @@ ion-button {
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
   }
+
+  ion-checkbox {
+    --border-color: #000000; 
+    --background: transparent; 
+    --checkbox-background-checked:#b30000;
+    --border-color-checked: #b30000;
+    --checkmark-color:#ffffff;
+  }
+
+  
+  ion-item {
+    --border-color: transparent; 
+  }
+  

@@ -9,6 +9,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MesuresComponent } from './paciente/mesures/mesures.component';
 import { TreatmentsComponent } from './paciente/treatments/treatments.component';
 import { RoutineComponent } from './paciente/routine/routine.component';
+import { PerfilComponent } from './paciente/perfil/perfil.component';
 
 
 
@@ -19,7 +20,8 @@ import { RoutineComponent } from './paciente/routine/routine.component';
     HomeComponent,
     MesuresComponent,
     TreatmentsComponent,
-    RoutineComponent
+    RoutineComponent,
+    PerfilComponent
   ],
   imports: [
     CommonModule,

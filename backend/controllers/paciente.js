@@ -2,6 +2,7 @@ const Paciente = require('../models/paciente');
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 
+
 const obtenerPacientes = async (req, res) => {
 
     const pacientes = await Paciente.find({});
@@ -134,4 +135,151 @@ const borrarPaciente = async(req, res = response) => {
     });*/
 }
 
-module.exports = { obtenerPacientes, crearPaciente, actualizarPaciente, borrarPaciente }
+const obtenerTratamientos = async (req, res) => {
+    try {
+        const patientId = req.params.id;
+        const paciente = await Paciente.findById(patientId).select('treatments'); // Selecciona solo 'treatments'
+
+        if (!paciente) {
+            return res.status(404).json({ 
+                ok: false, 
+                message: 'Paciente no encontrado' 
+            });
+        }
+        //console.log('Ejercicios del paciente:', paciente.treatments);
+        res.json({
+            ok: true,
+            treatments: paciente.treatments // Envía el array de tratamientos
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            message: 'Error del servidor'
+        });
+    }
+};
+
+const obtenerEjercicios = async (req, res) => {
+    try {
+        const patientId = req.params.id;
+        const paciente = await Paciente.findById(patientId).select('exercise_routines');
+
+        if (!paciente) {
+            return res.status(404).json({ 
+                ok: false, 
+                message: 'Paciente no encontrado' 
+            });
+        }
+
+        //console.log('Ejercicios del paciente:', paciente.exercise_routines);
+
+        res.json({
+            ok: true,
+            exercise_routines: paciente.exercise_routines 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            message: 'Error del servidor'
+        });
+    }
+};
+
+const actualizarCheckpoint = async (req, res) => {
+    const patientId = req.params.id;
+    const exerciseId = req.params.exerciseId;
+    //console.log('patientId:', patientId);
+    //console.log('exerciseId:', exerciseId);
+    const { checkpoint } = req.body; 
+
+    try {
+        const paciente = await Paciente.findById(patientId);
+
+        if (!paciente) {
+            return res.status(404).json({
+                ok: false,
+                message: 'Paciente no encontrado'
+            });
+        }
+        const exerciseIndex = paciente.exercise_routines.findIndex(ex => ex._id.toString() === exerciseId);
+
+        if (exerciseIndex === -1) {
+            return res.status(404).json({
+                ok: false,
+                message: 'Ejercicio no encontrado'
+            });
+        }
+       
+        paciente.exercise_routines[exerciseIndex].checkpoint = checkpoint;
+
+        await paciente.save();
+
+        res.json({
+            ok: true,
+            message: 'Checkpoint actualizado',
+            updatedExercise: paciente.exercise_routines[exerciseIndex]
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            message: 'Error actualizando el checkpoint'
+        });
+    }
+};
+
+const obtenerPacientePorId = async (req, res) => {
+    try {
+        const patientId = req.params.id;
+        const paciente = await Paciente.findById(patientId); // Selecciona solo 'treatments'
+
+        if (!paciente) {
+            return res.status(404).json({ 
+                ok: false, 
+                message: 'Paciente no encontrado' 
+            });
+        }
+        //console.log('Ejercicios del paciente:', paciente.treatments);
+        res.json({
+            ok: true,
+            paciente // Envía el array de tratamientos
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            message: 'Error del servidor'
+        });
+    }
+};
+
+const obtenerMedidas = async (req, res) => {
+    try {
+        const patientId = req.params.id;
+        const paciente = await Paciente.findById(patientId).select('measurements');
+
+        if (!paciente) {
+            return res.status(404).json({ 
+                ok: false, 
+                message: 'Paciente no encontrado' 
+            });
+        }
+
+        //console.log('Ejercicios del paciente:', paciente.exercise_routines);
+
+        res.json({
+            ok: true,
+            measurements: paciente.measurements 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            message: 'Error del servidor'
+        });
+    }
+};
+
+module.exports = { obtenerPacientes, crearPaciente, actualizarPaciente, borrarPaciente, obtenerTratamientos, obtenerEjercicios, actualizarCheckpoint, obtenerPacientePorId, obtenerMedidas }
