@@ -1,5 +1,7 @@
 const { Router } = require('express');
-const { obtenerPacientes, crearPaciente, actualizarPaciente, borrarPaciente, obtenerTratamientos, obtenerEjercicios, actualizarCheckpoint, obtenerPacientePorId, obtenerMedidas } = require('../controllers/paciente');
+const { obtenerPacientes, crearPaciente, actualizarPaciente, 
+    borrarPaciente, obtenerTratamientos, obtenerEjercicios, actualizarCheckpoint, 
+    obtenerPacientePorId, obtenerMedidas, cambiarMedidas } = require('../controllers/paciente');
 const { check } = require('express-validator');
 const { validarCampos } = require('../middleware/validar-campos');
 const { validarRol } = require('../middleware/validar-rol');
@@ -50,5 +52,9 @@ router.put('/:id/exercise_routines/:exerciseId',[
     validarRol
 ],
     actualizarCheckpoint);
+
+router.put('/:id/measurements', [
+    validarJWT
+], cambiarMedidas);
 
 module.exports = router;

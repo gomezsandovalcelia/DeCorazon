@@ -5,24 +5,24 @@
   </div>
 
   <h2 class="task-title">Registra tus datos de hoy</h2>
-  <form  #healthForm="ngForm">
+  <form (ngSubmit)="registrarMedidas()"  #healthForm="ngForm" [formGroup]="measureForm" >
 
     <!-- Campo de Peso -->
     <ion-item>
       <ion-label position="floating">Peso (kg)</ion-label>
-      <ion-input type="number" name="peso"  required></ion-input>
+      <ion-input formControlName="weight" type="number" name="weight"  required></ion-input>
     </ion-item>
 
     <!-- Campo de Tensión -->
     <ion-item>
       <ion-label position="floating">Tensión (mmHg)</ion-label>
-      <ion-input type="text" name="tension" required></ion-input>
+      <ion-input formControlName="blood_pressure" type="text" name="blood_pressure" required></ion-input>
     </ion-item>
 
     <!-- Campo de Frecuencia Cardiaca -->
     <ion-item>
       <ion-label position="floating">Frecuencia Cardiaca (lpm)</ion-label>
-      <ion-input type="number" name="frecuenciaCardiaca"  required></ion-input>
+      <ion-input formControlName="heart_rate" type="number" name="heart_rate"  required></ion-input>
     </ion-item>
 
     <!-- Botón de Enviar -->

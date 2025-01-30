@@ -282,4 +282,45 @@ const obtenerMedidas = async (req, res) => {
     }
 };
 
-module.exports = { obtenerPacientes, crearPaciente, actualizarPaciente, borrarPaciente, obtenerTratamientos, obtenerEjercicios, actualizarCheckpoint, obtenerPacientePorId, obtenerMedidas }
+const cambiarMedidas = async (req, res) => {
+    const patientId = req.params.id;
+    const { weight, heart_rate, blood_pressure } = req.body; 
+
+    try {
+        const paciente = await Paciente.findById(patientId);
+        if (!paciente) {
+            return res.status(404).json({
+                ok: false,
+                message: 'Paciente no encontrado'
+            });
+        }
+        const newMeasurement = {
+            date: new Date().toISOString().split('T')[0], // Formato 'YYYY-MM-DD'
+            weight,
+            heart_rate,
+            blood_pressure
+        };
+
+        paciente.measurements.push(newMeasurement);
+
+        await paciente.save();
+
+        return res.status(200).json({
+            ok: true,
+            message: 'Medidas actualizadas exitosamente',
+            measurements: paciente.measurements
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            message: 'Error del servidor'
+        });
+    }
+};
+
+module.exports = { obtenerPacientes, crearPaciente, 
+    actualizarPaciente, borrarPaciente, obtenerTratamientos, 
+    obtenerEjercicios, actualizarCheckpoint, obtenerPacientePorId, 
+    obtenerMedidas, cambiarMedidas }

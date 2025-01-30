@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { measureForm } from '../interfaces/measurements-form.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -53,5 +54,10 @@ export class PacienteService {
   updateExerciseCheckpoint(patientId: string, exerciseId: string, checkpoint: boolean) {
     this.getHeader();
     return this.http.put(`${this.apiUrl}/paciente/${patientId}/exercise_routines/${exerciseId}`, { checkpoint }, this.httpOptions);
+  }
+
+  updateNewMeasurements(patientId: string, formData: measureForm): Observable<any> {
+    this.getHeader();
+    return this.http.put<any>(`${this.apiUrl}/paciente/${patientId}/measurements`, formData, this.httpOptions);
   }
 }

@@ -40,7 +40,8 @@ export class LoginComponent  implements OnInit {
           localStorage.setItem('token', res.token);
           localStorage.setItem('pacienteId', res._id);
           localStorage.setItem('rol', res.rol);
-          this.router.navigateByUrl('/home1');
+          localStorage.setItem('showForm', 'true');
+          this.router.navigateByUrl('/home');
         }, (err) => {
           console.warn('error respuesta api');
           Swal.fire({ 

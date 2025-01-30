@@ -3,11 +3,48 @@
     <div class="image-container">
       <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
     </div>
+    
+
+    <form *ngIf="showFormAux" (ngSubmit)="registrarMedidas()" #healthForm="ngForm" [formGroup]="measureForm">
+      <h2 class="task-title">Introduce tus medidas</h2>
+      <!-- Campo de Peso -->
+      <ion-item  class="custom-item" *ngIf="showWeight">
+        <ion-label position="floating">Peso (kg)</ion-label>
+        <ion-input formControlName="weight" type="number"  required></ion-input>
+      </ion-item>
   
+      <!-- Botón de Enviar para Peso -->
+      <ion-button *ngIf="showWeight" expand="block" (click)="submitWeight()">
+        Enviar Peso
+      </ion-button>
+  
+      <!-- Campo de Frecuencia Cardiaca (aparece después de ingresar el peso) -->
+      <ion-item *ngIf="showHeartRate">
+        <ion-label position="floating">Frecuencia Cardíaca (lpm)</ion-label>
+        <ion-input formControlName="heart_rate" type="number" required></ion-input>
+      </ion-item>
+  
+      <!-- Botón de Enviar para Frecuencia Cardiaca -->
+      <ion-button *ngIf="showHeartRate" expand="block" (click)="submitHeartRate()">
+        Enviar Frecuencia Cardíaca
+      </ion-button>
+  
+      <!-- Campo de Presión Arterial (aparece después de ingresar la frecuencia cardiaca) -->
+      <ion-item *ngIf="showBloodPressure">
+        <ion-label position="floating">Presión Arterial (mmHg)</ion-label>
+        <ion-input formControlName="blood_pressure" type="text" required></ion-input>
+      </ion-item>
+  
+      <!-- Botón de Enviar para Presión Arterial -->
+      <ion-button *ngIf="showBloodPressure" expand="block" type="submit">
+        Enviar Presión Arterial
+      </ion-button>
+  
+    </form>
     <!-- Botón negro debajo de la imagen -->
-    <ion-button expand="block" class="register-button"  routerLink="/medidas">
+    <!--<ion-button expand="block" class="register-button"  routerLink="/medidas">
       Registra tus datos
-    </ion-button>
+    </ion-button>-->
 
     <h2 class="task-title" routerLink="/ejercicios">Tareas Pendientes</h2>
     <ion-list>

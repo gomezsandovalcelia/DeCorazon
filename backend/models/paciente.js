@@ -9,8 +9,8 @@ const MeasurementSchema = new Schema({
     date: { type: String},
     weight: { type: Number },
     heart_rate: { type: Number},
-    blood_preassure: { type: String}
-});
+    blood_pressure: { type: String}
+}, { _id: false });
 
 const ExerciseSchema = new Schema({
     _id: { type: Number, required: true },

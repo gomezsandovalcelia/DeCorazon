@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { Validators, FormBuilder } from '@angular/forms';
 import { PacienteService } from 'src/app/services/paciente.service';
+import { StateService } from 'src/app/services/state.service';
 
 @Component({
   selector: 'app-home',
@@ -10,15 +12,52 @@ export class HomeComponent  implements OnInit {
   treatments: any[] = [];
   exercise: any[] = [];
   pacienteId: any;
-  constructor(private pacienteService: PacienteService) { }
+
+  public measureForm = this.fb.group({
+    weight: ['', Validators.required],
+    heart_rate: ['', Validators.required],
+    blood_pressure: ['', Validators.required]
+  });
+
+  showWeight = true;
+  showHeartRate = false;
+  showBloodPressure = false;
+  showFormAux = false;
+
+  constructor(private stateService: StateService, private fb: FormBuilder, private pacienteService: PacienteService) { }
 
   ngOnInit() {
-    const pacienteId = localStorage.getItem('pacienteId'); // Obtener el ID del paciente desde localStorage
+    const pacienteId = localStorage.getItem('pacienteId');
     if (pacienteId) {
       this.getTreatments(pacienteId);
       this.getExercises(pacienteId);
     }
+    const showForm = localStorage.getItem('showForm');
+    if(showForm){
+      this.showFormAux = true;
+    }
   }
+
+  get showForm() {
+    return this.stateService.showForm;
+  }
+
+  submitWeight() {
+    if (this.measureForm.get('weight')?.valid) {
+      console.log('Peso registrado:', this.measureForm.value.weight);
+      this.showWeight = false;
+      this.showHeartRate = true;
+    }
+  }
+
+  submitHeartRate() {
+    if (this.measureForm.get('heart_rate')?.valid) {
+      console.log('Frecuencia Cardíaca registrada:', this.measureForm.value.heart_rate);
+      this.showHeartRate = false;
+      this.showBloodPressure = true;
+    }
+  }
+  
 
   private getTreatments(pacienteId: string): void {
     this.pacienteService.getTreatments(pacienteId).subscribe(
@@ -74,4 +113,52 @@ export class HomeComponent  implements OnInit {
       );
     }
   }
+
+  registrarMedidas() {
+    if (this.measureForm.get('blood_pressure')?.valid) {
+      console.log('Presión Arterial registrada:', this.measureForm.value.blood_pressure);
+     
+      const formData = {
+        weight: Number(this.measureForm.value.weight),
+        heart_rate: Number(this.measureForm.value.heart_rate),
+        blood_pressure: String(this.measureForm.value.blood_pressure)
+      };
+  
+      const pacienteId = localStorage.getItem('pacienteId');
+  
+      if (pacienteId) {
+        this.pacienteService.updateNewMeasurements(pacienteId, formData).subscribe(
+          response => {
+            console.log('Medidas actualizadas:', response);
+            this.hideForm();
+          },
+          error => {
+            console.error('Error al actualizar medidas:', error);
+            //alert('Hubo un error al registrar las medidas.');
+          }
+        );
+      }
+    }
+  }
+
+  hideForm() {
+    console.log('Ocultando formulario...'); 
+    localStorage.setItem('showForm', 'false'); 
+    this.showFormAux = false;
+    setTimeout(() => {
+      console.log('Mostrando formulario después de 10 minutos...'); 
+      this.resetForm();
+      
+      localStorage.setItem('showForm', 'true'); 
+    }, 10 * 1000); //10 * 60 * 1000 <--- 10 minutos
+  }
+
+  resetForm() {
+    this.showFormAux = true;
+    this.measureForm.reset();
+    this.showWeight = true;
+    this.showHeartRate = false;
+    this.showBloodPressure = false;
+  }
+
 }
