@@ -295,7 +295,7 @@ const cambiarMedidas = async (req, res) => {
             });
         }
         const newMeasurement = {
-            date: new Date().toISOString().split('T')[0], // Formato 'YYYY-MM-DD'
+            date: new Date().toISOString(), // Formato 'YYYY-MM-DD'
             weight,
             heart_rate,
             blood_pressure

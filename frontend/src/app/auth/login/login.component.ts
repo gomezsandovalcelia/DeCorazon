@@ -41,6 +41,7 @@ export class LoginComponent  implements OnInit {
           localStorage.setItem('pacienteId', res._id);
           localStorage.setItem('rol', res.rol);
           localStorage.setItem('showForm', 'true');
+          localStorage.setItem('preguntadeldia', 'true');
           this.router.navigateByUrl('/home');
         }, (err) => {
           console.warn('error respuesta api');

@@ -24,6 +24,9 @@ app.listen(process.env.PORT, () => {
     console.log('Server on port ', process.env.PORT);
 });
 
+const questionRoutes = require("./routes/pregunta");
+app.use("/api/pregunta", questionRoutes);
+
 /*app.get('/', (req, res) => {
     res.json({ 
         ok: true, 

@@ -14,7 +14,7 @@
   <h2 class="task-title" style=" margin-top: 20px;">Tus medidas</h2>
   <ion-item  *ngIf="paciente.measurements && paciente.measurements.length > 0; else noMeasurements">
     <ion-label  *ngFor="let measurement of paciente.measurements.slice(-1)">
-      <p><strong>Fecha:</strong> {{ measurement.date }}</p>
+      <p><strong>Fecha:</strong> {{ measurement.date | date:'dd/MM/yyyy HH:mm' }}</p>
       <p><strong>Peso:</strong> {{ measurement.weight }} kg</p>
       <p><strong>Frecuencia Cardíaca:</strong> {{ measurement.heart_rate }} cm</p>
       <p><strong>Presión Arterial:</strong> {{ measurement.blood_pressure }} cm</p>

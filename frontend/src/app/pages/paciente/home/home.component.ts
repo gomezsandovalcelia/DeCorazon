@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder } from '@angular/forms';
 import { PacienteService } from 'src/app/services/paciente.service';
+import { QuestionService } from 'src/app/services/question.service';
 import { StateService } from 'src/app/services/state.service';
 
 @Component({
@@ -13,6 +14,10 @@ export class HomeComponent  implements OnInit {
   exercise: any[] = [];
   pacienteId: any;
 
+  question: any = null;
+  selectedAnswer: string = '';
+
+
   public measureForm = this.fb.group({
     weight: ['', Validators.required],
     heart_rate: ['', Validators.required],
@@ -23,19 +28,77 @@ export class HomeComponent  implements OnInit {
   showHeartRate = false;
   showBloodPressure = false;
   showFormAux = false;
+  showAnsweredAux = false;
 
-  constructor(private stateService: StateService, private fb: FormBuilder, private pacienteService: PacienteService) { }
+  constructor(private stateService: StateService, private fb: FormBuilder, 
+    private pacienteService: PacienteService, private questionService: QuestionService) { }
 
   ngOnInit() {
     const pacienteId = localStorage.getItem('pacienteId');
     if (pacienteId) {
+      //this.pacienteId = pacienteId;
       this.getTreatments(pacienteId);
       this.getExercises(pacienteId);
+      this.loadQuestion();
     }
     const showForm = localStorage.getItem('showForm');
     if(showForm){
       this.showFormAux = true;
     }
+    const showAnswered = localStorage.getItem('preguntadeldia');
+    if(showAnswered){
+      this.showAnsweredAux = true;
+    }
+  }
+
+  loadQuestion() {
+    if (this.showAnsweredAux) {
+      console.log('⏳ Ya se respondió la pregunta hoy.');
+      return;
+    }
+
+    this.questionService.getQuestionOfTheDay(this.pacienteId).subscribe(
+      (res) => {
+        if (res.ok) {
+          this.question = res.question;
+          //console.log(" Pregunta cargada:", this.question); // Verificar en la consola
+          /*if (this.question) {
+            console.log("ID de la pregunta:", this.question?._id); // Verificar en la consola
+          } else {
+            console.error("La pregunta llegó vacía.");
+          }*/
+        } else {
+          //console.log("No hay pregunta hoy:", res.msg);
+        }
+      },
+      (error) => console.error("Error obteniendo la pregunta:", error)
+    );
+  }
+
+  submitAnswer() {
+    if (!this.selectedAnswer || !this.question) return;
+    this.pacienteId = localStorage.getItem('pacienteId');
+    const requestBody = {
+      patientId: this.pacienteId, 
+      questionId: this.question._id, 
+      answer: this.selectedAnswer
+    };
+
+    console.log("📤 Enviando datos al backend:", requestBody);
+
+    this.questionService.saveResponse(this.pacienteId, this.question._id, this.selectedAnswer).subscribe(
+      (res) => {
+        if (res.ok) {
+          console.log('Respuesta guardada con éxito.');
+          //localStorage.setItem('answeredToday', 'true'); 
+          this.question = null;
+          this.hideQuestion();
+        } else {
+          console.log(res.msg);
+        }
+      },
+      (error) => console.error('Error guardando la respuesta:', error)
+    );
   }
 
   get showForm() {
@@ -139,6 +202,22 @@ export class HomeComponent  implements OnInit {
         );
       }
     }
+  }
+
+  hideQuestion() {
+    console.log('Ocultando formulario...'); 
+    localStorage.setItem('preguntadeldia', 'false'); 
+    this.showAnsweredAux = false;
+    setTimeout(() => {
+      console.log('Mostrando formulario después de 10 minutos...'); 
+      this.resetQuestion();
+      
+      localStorage.setItem('preguntadeldia', 'true'); 
+    }, 24 * 60 * 60 * 1000); //10 * 1000 <--- 10 seg 24 * 60 * 60 * 1000
+  }
+
+  resetQuestion() {
+    this.showAnsweredAux = true;
   }
 
   hideForm() {

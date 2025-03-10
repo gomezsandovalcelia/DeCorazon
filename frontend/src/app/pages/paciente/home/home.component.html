@@ -3,8 +3,30 @@
     <div class="image-container">
       <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
     </div>
+    <!-- PREGUNTA DIARIA -->
+     <ion-content *ngIf="showAnsweredAux" class="ion-padding">
+      <div *ngIf="question">
+        <h2>{{ question.question }}</h2>
     
-
+        <ion-list>
+          <ion-radio-group [(ngModel)]="selectedAnswer">
+            <ion-item *ngFor="let option of question.options">
+              <ion-radio slot="start" [value]="option"></ion-radio>
+              <ion-label>{{ option }}</ion-label>
+            </ion-item>
+          </ion-radio-group>
+        </ion-list>
+    
+        <ion-button expand="full" (click)="submitAnswer()" [disabled]="!selectedAnswer">
+          Enviar Respuesta
+        </ion-button>
+      </div>
+    
+      <div *ngIf="!question">
+        <p>Ya respondiste la pregunta de hoy. ¡Vuelve mañana!</p>
+      </div>
+    </ion-content>
+    
     <form *ngIf="showFormAux" (ngSubmit)="registrarMedidas()" #healthForm="ngForm" [formGroup]="measureForm">
       <h2 class="task-title">Introduce tus medidas</h2>
       <!-- Campo de Peso -->
@@ -50,7 +72,7 @@
     <ion-list>
       <ion-item *ngFor="let ex of exercise">
         <ion-label>
-          <p>{{ ex.date }}</p>
+          <p>{{ ex.date | date:'dd/MM/yyyy HH:mm'}}</p>
           <h2>{{ ex.description }}</h2>
         </ion-label>
         <ion-checkbox slot="end" [(ngModel)]="ex.checkpoint" (ionChange)="updateCheckpoint(ex)"></ion-checkbox>
@@ -66,7 +88,7 @@
     <ion-list>
       <ion-item *ngFor="let treatment of treatments">
         <ion-label>
-          <p>{{ treatment.date }}</p>
+          <p>{{ treatment.date | date:'dd/MM/yyyy HH:mm' }}</p>
           <h2>{{ treatment.description }}</h2>
         </ion-label>
       </ion-item>
