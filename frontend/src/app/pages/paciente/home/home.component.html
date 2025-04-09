@@ -4,24 +4,27 @@
       <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
     </div>
     <!-- PREGUNTA DIARIA -->
-     <ion-content *ngIf="showAnsweredAux" class="ion-padding">
+    <ion-content *ngIf="showAnsweredAux" class="ion-padding">
       <div *ngIf="question">
         <h2>{{ question.question }}</h2>
-    
-        <ion-list>
+        
+        <ion-list lines="none">
           <ion-radio-group [(ngModel)]="selectedAnswer">
-            <ion-item *ngFor="let option of question.options">
+            <ion-item *ngFor="let option of question.options" 
+                      lines="none" 
+                      class="radio-item" 
+                      (click)="selectedAnswer = option">
               <ion-radio slot="start" [value]="option"></ion-radio>
               <ion-label>{{ option }}</ion-label>
             </ion-item>
           </ion-radio-group>
         </ion-list>
-    
-        <ion-button expand="full" (click)="submitAnswer()" [disabled]="!selectedAnswer">
-          Enviar Respuesta
+        
+        <ion-button expand="block" (click)="submitAnswer()" [disabled]="!selectedAnswer">
+          Enviar
         </ion-button>
       </div>
-    
+      
       <div *ngIf="!question">
         <p>Ya respondiste la pregunta de hoy. ¡Vuelve mañana!</p>
       </div>
@@ -30,7 +33,7 @@
     <form *ngIf="showFormAux" (ngSubmit)="registrarMedidas()" #healthForm="ngForm" [formGroup]="measureForm">
       <h2 class="task-title">Introduce tus medidas</h2>
       <!-- Campo de Peso -->
-      <ion-item  class="custom-item" *ngIf="showWeight">
+      <ion-item class="formulario" *ngIf="showWeight">
         <ion-label position="floating">Peso (kg)</ion-label>
         <ion-input formControlName="weight" type="number"  required></ion-input>
       </ion-item>
@@ -41,18 +44,18 @@
       </ion-button>
   
       <!-- Campo de Frecuencia Cardiaca (aparece después de ingresar el peso) -->
-      <ion-item *ngIf="showHeartRate">
+      <ion-item class="formulario" *ngIf="showHeartRate">
         <ion-label position="floating">Frecuencia Cardíaca (lpm)</ion-label>
         <ion-input formControlName="heart_rate" type="number" required></ion-input>
       </ion-item>
   
       <!-- Botón de Enviar para Frecuencia Cardiaca -->
-      <ion-button *ngIf="showHeartRate" expand="block" (click)="submitHeartRate()">
+      <ion-button  *ngIf="showHeartRate" expand="block" (click)="submitHeartRate()">
         Enviar Frecuencia Cardíaca
       </ion-button>
   
       <!-- Campo de Presión Arterial (aparece después de ingresar la frecuencia cardiaca) -->
-      <ion-item *ngIf="showBloodPressure">
+      <ion-item class="formulario" *ngIf="showBloodPressure">
         <ion-label position="floating">Presión Arterial (mmHg)</ion-label>
         <ion-input formControlName="blood_pressure" type="text" required></ion-input>
       </ion-item>
@@ -70,10 +73,10 @@
 
     <h2 class="task-title" routerLink="/ejercicios">Tareas Pendientes</h2>
     <ion-list>
-      <ion-item *ngFor="let ex of exercise">
+      <ion-item class="itemx" *ngFor="let ex of exercise">
         <ion-label>
           <p>{{ ex.date | date:'dd/MM/yyyy HH:mm'}}</p>
-          <h2>{{ ex.description }}</h2>
+          <h3>{{ ex.description }}</h3>
         </ion-label>
         <ion-checkbox slot="end" [(ngModel)]="ex.checkpoint" (ionChange)="updateCheckpoint(ex)"></ion-checkbox>
         
@@ -86,10 +89,10 @@
     </ion-item>
     <h2 class="task-title" routerLink="/tratamiento">Tratamiento de hoy</h2>
     <ion-list>
-      <ion-item *ngFor="let treatment of treatments">
+      <ion-item class="itemx" *ngFor="let treatment of treatments">
         <ion-label>
           <p>{{ treatment.date | date:'dd/MM/yyyy HH:mm' }}</p>
-          <h2>{{ treatment.description }}</h2>
+          <h3>{{ treatment.description }}</h3>
         </ion-label>
       </ion-item>
     </ion-list>

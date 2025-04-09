@@ -25,6 +25,11 @@ const routes: Routes = [
       { path: '', component: RegistroComponent }
     ]
   },
+  { 
+    path: '', 
+    redirectTo: '/landing', 
+    pathMatch: 'full' 
+  }
   /*{ path: '**', redirectTo: '/landing'}*/
 ];
 

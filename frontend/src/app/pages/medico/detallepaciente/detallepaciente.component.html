@@ -1,0 +1,160 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title *ngIf="paciente">{{ paciente.nombre }} {{ paciente.apellidos }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div *ngIf="!paciente" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>Cargando información del paciente...</p>
+  </div>
+
+  <div *ngIf="paciente">
+    <ion-segment [(ngModel)]="segmento" (ionChange)="cambiarSegmento($event)">
+      <ion-segment-button value="informacion">
+        <ion-label>Información</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="tratamientos">
+        <ion-label>Tratamientos</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="ejercicios">
+        <ion-label>Ejercicios</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <!-- Sección de Información -->
+    <div *ngIf="segmento === 'informacion'">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Datos Personales</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item lines="none">
+            <ion-label>
+              <h2>Nombre: {{ paciente.nombre }} {{ paciente.apellidos }}</h2>
+              <p>Email: {{ paciente.email }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Últimas Mediciones</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list *ngIf="paciente.measurements && paciente.measurements.length > 0">
+            <ion-item *ngFor="let medicion of paciente.measurements.slice().reverse().slice(0, 3)">
+              <ion-label>
+                <h3>Fecha: {{ medicion.date | date: 'dd/MM/yyyy' }}</h3>
+                <p>Peso: {{ medicion.weight }} kg</p>
+                <p>Frecuencia Cardíaca: {{ medicion.heart_rate }} ppm</p>
+                <p>Presión Arterial: {{ medicion.blood_pressure }}</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+          <p *ngIf="!paciente.measurements || paciente.measurements.length === 0">
+            No hay mediciones disponibles
+          </p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Sección de Tratamientos -->
+    <div *ngIf="segmento === 'tratamientos'">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Nuevo Tratamiento</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <form [formGroup]="tratamientoForm" (ngSubmit)="agregarTratamiento()">
+            <ion-item>
+              <ion-label position="floating">Descripción</ion-label>
+              <ion-textarea formControlName="description" rows="3"></ion-textarea>
+            </ion-item>
+            <ion-item>
+              <ion-label>Fecha</ion-label>
+              <ion-datetime displayFormat="DD/MM/YYYY" formControlName="date"></ion-datetime>
+            </ion-item>
+            <ion-button expand="block" type="submit" [disabled]="!tratamientoForm.valid" class="ion-margin-top">
+              Agregar Tratamiento
+            </ion-button>
+          </form>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Historial de Tratamientos</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list *ngIf="paciente.treatments && paciente.treatments.length > 0">
+            <ion-item *ngFor="let tratamiento of paciente.treatments.slice().reverse()">
+              <ion-label>
+                <h3>Fecha: {{ tratamiento.date | date: 'dd/MM/yyyy' }}</h3>
+                <p>{{ tratamiento.description }}</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+          <p *ngIf="!paciente.treatments || paciente.treatments.length === 0">
+            No hay tratamientos registrados
+          </p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Sección de Ejercicios -->
+    <div *ngIf="segmento === 'ejercicios'">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Nuevo Ejercicio</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <form [formGroup]="ejercicioForm" (ngSubmit)="agregarEjercicio()">
+            <ion-item>
+              <ion-label position="floating">Descripción</ion-label>
+              <ion-textarea formControlName="description" rows="3"></ion-textarea>
+            </ion-item>
+            <ion-item>
+              <ion-label>Fecha</ion-label>
+              <ion-datetime displayFormat="DD/MM/YYYY" formControlName="date"></ion-datetime>
+            </ion-item>
+            <ion-item>
+              <ion-label>Completado</ion-label>
+              <ion-checkbox slot="end" formControlName="checkpoint"></ion-checkbox>
+            </ion-item>
+            <ion-button expand="block" type="submit" [disabled]="!ejercicioForm.valid" class="ion-margin-top">
+              Agregar Ejercicio
+            </ion-button>
+          </form>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Historial de Ejercicios</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list *ngIf="paciente.exercise_routines && paciente.exercise_routines.length > 0">
+            <ion-item *ngFor="let ejercicio of paciente.exercise_routines.slice().reverse()">
+              <ion-label>
+                <h3>Fecha: {{ ejercicio.date | date: 'dd/MM/yyyy' }}</h3>
+                <p>{{ ejercicio.description }}</p>
+              </ion-label>
+              <ion-badge slot="end" [color]="ejercicio.checkpoint ? 'success' : 'warning'">
+                {{ ejercicio.checkpoint ? 'Completado' : 'Pendiente' }}
+              </ion-badge>
+            </ion-item>
+          </ion-list>
+          <p *ngIf="!paciente.exercise_routines || paciente.exercise_routines.length === 0">
+            No hay ejercicios registrados
+          </p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+</ion-content>

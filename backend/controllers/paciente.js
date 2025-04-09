@@ -1,7 +1,7 @@
 const Paciente = require('../models/paciente');
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
-
+const { response } = require("express");
 
 const obtenerPacientes = async (req, res) => {
 
@@ -320,7 +320,230 @@ const cambiarMedidas = async (req, res) => {
     }
 };
 
+const addExercise = async (req, res = response) => {
+    const { patientId } = req.params;
+    const exerciseData = req.body;
+
+    try {
+        // Buscar el paciente
+        const paciente = await Paciente.findById(patientId);
+        
+        if (!paciente) {
+            return res.status(404).json({
+                ok: false,
+                msg: "Paciente no encontrado"
+            });
+        }
+
+        // Inicializar el array de ejercicios si no existe
+        if (!paciente.exercise_routines) {
+            paciente.exercise_routines = [];
+        }
+
+        // Añadir el nuevo ejercicio
+        paciente.exercise_routines.push(exerciseData);
+
+        // Guardar el paciente actualizado
+        await paciente.save();
+
+        return res.status(200).json({
+            ok: true,
+            msg: "Ejercicio añadido con éxito",
+            exercise: exerciseData
+        });
+
+    } catch (error) {
+        console.error("Error al añadir ejercicio:", error);
+        return res.status(500).json({
+            ok: false,
+            msg: "Error del servidor al añadir ejercicio"
+        });
+    }
+};
+const getExercises = async (req, res = response) => {
+    const { patientId } = req.params;
+
+    try {
+        // Buscar el paciente
+        const paciente = await Paciente.findById(patientId);
+        
+        if (!paciente) {
+            return res.status(404).json({
+                ok: false,
+                msg: "Paciente no encontrado"
+            });
+        }
+
+        // Devolver sus ejercicios
+        return res.status(200).json({
+            ok: true,
+            exercises: paciente.exercise_routines || []
+        });
+
+    } catch (error) {
+        console.error("Error al obtener ejercicios:", error);
+        return res.status(500).json({
+            ok: false,
+            msg: "Error del servidor al obtener ejercicios"
+        });
+    }
+};
+
+
+const addExerciseRoute = async (req, res = response) => {
+    const { patientId } = req.params;
+    const exerciseData = req.body;
+
+    try {
+        // Buscar el paciente por ID
+        const paciente = await Paciente.findById(patientId);
+        
+        if (!paciente) {
+            return res.status(404).json({
+                ok: false,
+                msg: "Paciente no encontrado"
+            });
+        }
+
+        // Asegurarse de que exercise_routines existe
+        if (!paciente.exercise_routines) {
+            paciente.exercise_routines = [];
+        }
+
+        // Crear un nuevo ejercicio
+        const newExercise = {
+            _id: exerciseData._id || Date.now().toString(), // Usar el ID proporcionado o generar uno nuevo
+            date: exerciseData.date || new Date().toISOString(),
+            description: exerciseData.description,
+            checkpoint: exerciseData.checkpoint || false
+        };
+
+        // Añadir el ejercicio al array
+        paciente.exercise_routines.push(newExercise);
+
+        // Guardar el paciente actualizado
+        await paciente.save();
+
+        // Responder con éxito
+        return res.status(200).json({
+            ok: true,
+            msg: "Ejercicio añadido con éxito",
+            exercise: newExercise
+        });
+
+    } catch (error) {
+        console.error("Error al añadir ejercicio:", error);
+        return res.status(500).json({
+            ok: false,
+            msg: "Error del servidor al añadir ejercicio"
+        });
+    }
+};
+
+//nuevo para medico 
+
+// Agregar tratamiento a un paciente
+const agregarTratamiento = async (req, res) => {
+    try {
+        const pacienteId = req.params.id;
+        const { description, date } = req.body;
+
+        // Validar los campos requeridos
+        if (!description || !date) {
+            return res.status(400).json({
+                ok: false,
+                message: 'La descripción y la fecha son campos requeridos',
+            });
+        }
+
+        // Buscar el paciente
+        const paciente = await Paciente.findById(pacienteId);
+        if (!paciente) {
+            return res.status(404).json({
+                ok: false,
+                message: 'Paciente no encontrado',
+            });
+        }
+
+        // Agregar el nuevo tratamiento
+        paciente.treatments.push({
+            date,
+            description
+        });
+
+        // Guardar el paciente actualizado
+        await paciente.save();
+
+        res.json({
+            ok: true,
+            message: 'Tratamiento agregado correctamente',
+            paciente
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            message: 'Error del servidor',
+        });
+    }
+};
+
+// Agregar ejercicio a un paciente
+const agregarEjercicio = async (req, res) => {
+    try {
+        const pacienteId = req.params.id;
+        const { description, date, checkpoint } = req.body;
+
+        // Validar los campos requeridos
+        if (!description || !date) {
+            return res.status(400).json({
+                ok: false,
+                message: 'La descripción y la fecha son campos requeridos',
+            });
+        }
+
+        // Buscar el paciente
+        const paciente = await Paciente.findById(pacienteId);
+        if (!paciente) {
+            return res.status(404).json({
+                ok: false,
+                message: 'Paciente no encontrado',
+            });
+        }
+
+        // Generar un ID único para el ejercicio (puedes usar alguna librería como uuid)
+        const ejercicioId = Date.now().toString();
+
+        // Agregar el nuevo ejercicio
+        paciente.exercise_routines.push({
+            _id: ejercicioId,
+            date,
+            description,
+            checkpoint: checkpoint || false
+        });
+
+        // Guardar el paciente actualizado
+        await paciente.save();
+
+        res.json({
+            ok: true,
+            message: 'Ejercicio agregado correctamente',
+            paciente
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            message: 'Error del servidor',
+        });
+    }
+};
+
+
 module.exports = { obtenerPacientes, crearPaciente, 
     actualizarPaciente, borrarPaciente, obtenerTratamientos, 
     obtenerEjercicios, actualizarCheckpoint, obtenerPacientePorId, 
-    obtenerMedidas, cambiarMedidas }
+    obtenerMedidas, cambiarMedidas,
+    addExercise, getExercises, addExerciseRoute,
+
+agregarTratamiento, agregarEjercicio };

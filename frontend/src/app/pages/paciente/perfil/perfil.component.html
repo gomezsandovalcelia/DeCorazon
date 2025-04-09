@@ -24,7 +24,14 @@
   <ng-template #noMeasurements>
     <p>No hay mediciones disponibles.</p>
   </ng-template>
-  <ion-button expand="block" style="--background: #6b1a0b; margin-top: 20px;" type="submit" routerLink="/home1">
+  <ion-item>
+    <p style="text-align: center; width: 100%;">
+      <a href="/preguntas-frecuentes"><strong>Preguntas frecuentes</strong></a>
+    </p>
+  </ion-item>
+  
+  
+  <ion-button expand="block" (click)="logout()" style="--background: #6b1a0b; margin-top: 20px;" type="submit" routerLink="/home1">
     Cerrar Sesión
   </ion-button>
   <!--<ion-button expand="block" type="submit" routerLink="/home1">

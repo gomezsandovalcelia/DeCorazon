@@ -9,7 +9,7 @@ const generarJWT = (uid, rol) => {
             expiresIn: '1y'
         }, (err, token) => {
             if (err) {
-                console.log(err);
+                console.error('Error al generar JWT:', err);
                 reject('No se pudo generar el JWT');
             } else {
                 resolve(token);

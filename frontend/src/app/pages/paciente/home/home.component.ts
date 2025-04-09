@@ -3,6 +3,7 @@ import { Validators, FormBuilder } from '@angular/forms';
 import { PacienteService } from 'src/app/services/paciente.service';
 import { QuestionService } from 'src/app/services/question.service';
 import { StateService } from 'src/app/services/state.service';
+import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-home',
@@ -16,7 +17,12 @@ export class HomeComponent  implements OnInit {
 
   question: any = null;
   selectedAnswer: string = '';
+  isProcessing: boolean = false;
 
+  badResponses = [
+    'Cansado', 'Muy cansado', 'Mal', 'Muy mal', 'Con dolor', 'Mareado', 
+    'Con dificultad para respirar', 'Regular', 'Débil', 'Regular'
+  ];
 
   public measureForm = this.fb.group({
     weight: ['', Validators.required],
@@ -31,7 +37,8 @@ export class HomeComponent  implements OnInit {
   showAnsweredAux = false;
 
   constructor(private stateService: StateService, private fb: FormBuilder, 
-    private pacienteService: PacienteService, private questionService: QuestionService) { }
+    private pacienteService: PacienteService, private questionService: QuestionService, 
+    private toastController: ToastController) { }
 
   ngOnInit() {
     const pacienteId = localStorage.getItem('pacienteId');
@@ -75,10 +82,43 @@ export class HomeComponent  implements OnInit {
     );
   }
 
-  submitAnswer() {
-    if (!this.selectedAnswer || !this.question) return;
+  async submitAnswer() {
+    if (!this.selectedAnswer || !this.question || this.isProcessing ) return;
+
+    this.isProcessing = true;
+
     this.pacienteId = localStorage.getItem('pacienteId');
-    const requestBody = {
+
+    try {
+      const response = await this.questionService.saveResponse(
+        this.pacienteId, 
+        this.question._id, 
+        this.selectedAnswer
+      ).toPromise();
+
+      if (response.ok) {
+        console.log('Respuesta guardada con éxito.');
+        
+        // 2. Comprobar si la respuesta es "mala"
+        if (this.isBadResponse(this.selectedAnswer)) {
+          await this.handleBadResponse();
+        }
+
+        // 3. Actualizar la UI
+        this.question = null;
+        this.hideQuestion();
+        this.isProcessing = false;
+      } else {
+        console.log(response.msg);
+        this.isProcessing = false;
+      }
+        
+     
+    } catch (error) {
+      console.error('Error al enviar la respuesta:', error);
+      this.isProcessing = false;
+    }
+    /*const requestBody = {
       patientId: this.pacienteId, 
       questionId: this.question._id, 
       answer: this.selectedAnswer
@@ -98,7 +138,47 @@ export class HomeComponent  implements OnInit {
         }
       },
       (error) => console.error('Error guardando la respuesta:', error)
+    );*/
+  }
+
+  isBadResponse(answer: string): boolean {
+    return this.badResponses.some(badResponse => 
+      answer.toLowerCase().includes(badResponse.toLowerCase())
     );
+  }
+
+  async handleBadResponse() {
+    try {
+      const result = await this.pacienteService.addRestExercise(this.pacienteId).toPromise();
+      
+      if (result.ok) {
+        // Actualizar la lista de ejercicios para mostrar el nuevo
+        this.getExercises(this.pacienteId);
+        
+        // Mostrar notificación al usuario
+        this.showNotification(
+          'Se ha añadido un ejercicio de reposo a tu plan debido a tu respuesta. Cuídate y descansa.'
+        );
+      }
+    } catch (error) {
+      console.error('Error al añadir ejercicio de reposo:', error);
+    }
+  }
+
+  async showNotification(message: string) {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 5000,
+      position: 'middle',
+      color: 'primary',
+      buttons: [
+        {
+          text: 'OK',
+          role: 'cancel'
+        }
+      ]
+    });
+    toast.present();
   }
 
   get showForm() {
@@ -213,7 +293,7 @@ export class HomeComponent  implements OnInit {
       this.resetQuestion();
       
       localStorage.setItem('preguntadeldia', 'true'); 
-    }, 24 * 60 * 60 * 1000); //10 * 1000 <--- 10 seg 24 * 60 * 60 * 1000
+    }, 24 * 60 * 60 * 1000  ); //10 * 1000 <--- 10 seg 24 * 60 * 60 * 1000
   }
 
   resetQuestion() {
@@ -239,5 +319,7 @@ export class HomeComponent  implements OnInit {
     this.showHeartRate = false;
     this.showBloodPressure = false;
   }
-
+  onOptionSelect(option: string) {
+    this.selectedAnswer = option;
+  }
 }

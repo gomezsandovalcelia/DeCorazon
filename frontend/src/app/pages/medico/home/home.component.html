@@ -1,0 +1,30 @@
+<ion-content class="ion-padding">
+  <!-- Imagen pequeña en la parte superior -->
+  <div class="image-container">
+    <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
+  </div>
+  <h2 class="task-title" routerLink="/ejercicios">Tus Pacientes</h2>
+  <ion-content class="ion-padding">
+    <ion-list>
+      <ion-item class="itemx" *ngFor="let paciente of pacientes" (click)="verDetallePaciente(paciente._id)">
+        <ion-label>
+          <h3 class="paciente-nombre">{{ paciente.nombre }} {{ paciente.apellidos }}</h3>
+          <div class="mediciones">
+            <p *ngIf="paciente.measurements.length > 0">
+              <strong>Peso:</strong> {{ paciente.measurements.slice(-1)[0].weight }} kg
+            </p>
+            <p *ngIf="paciente.measurements.length > 0">
+              <strong>Frecuencia Cardíaca:</strong> {{ paciente.measurements.slice(-1)[0].heart_rate }} cm
+            </p>
+            <p *ngIf="paciente.measurements.length > 0">
+              <strong>Presión Arterial:</strong> {{ paciente.measurements.slice(-1)[0].blood_pressure }} cm
+            </p>
+            <p *ngIf="paciente.measurements.length === 0">
+              No hay mediciones disponibles.
+            </p>
+          </div>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-content>

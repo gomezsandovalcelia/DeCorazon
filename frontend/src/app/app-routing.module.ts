@@ -4,10 +4,12 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 import { AuthRoutingModule } from './auth/auth.routing';
 import { PagesRoutingModule } from './pages/pages.routing';
+import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
   // /login /registro /landing -> auth.routing.ts
-  { path: 'admin', component: AdminLayoutComponent }
+  { path: '', redirectTo: '/landing', pathMatch: 'full' },
+  { path: '**', redirectTo: '/landing' }
 ]
 
 @NgModule({

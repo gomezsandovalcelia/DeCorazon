@@ -16,9 +16,11 @@ dbConnection();
 app.use(cors());
 app.use(express.json());
 
+app.use('/api/pregunta', require('./routes/pregunta'));
 app.use('/api/usuarios', require('./routes/usuarios'));
 app.use('/api/paciente', require('./routes/paciente'));
 app.use('/api/login', require('./routes/auth'));
+app.use('/api/medico', require('./routes/medico'));
 
 app.listen(process.env.PORT, () => {
     console.log('Server on port ', process.env.PORT);

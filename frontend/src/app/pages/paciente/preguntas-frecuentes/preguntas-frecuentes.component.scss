@@ -1,0 +1,96 @@
+/* faq.component.scss */
+.faq-container {
+    padding: 16px;
+    
+    h1 {
+      color: #6b1a0b;
+      margin-bottom: 24px;
+      font-size: 24px;
+    }
+  }
+  
+  .faq-section {
+    margin-bottom: 16px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .section-header {
+    background-color:#6b1a0b;
+    padding: 2px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    
+    p{
+        font-size: 15px; 
+        color: #fff; 
+    }
+   
+    ion-icon {
+      font-size: 20px;
+      color: var(--ion-color-primary-contrast);
+    }
+  }
+  
+  .section-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    background-color: var(--ion-color-light);
+    
+    &.open {
+      max-height: 1000px; // Un valor alto para permitir que se muestre todo el contenido
+    }
+  }
+  
+  
+  .accordion-content {
+    padding: 16px;
+    
+   
+  }
+  
+  .video-container {
+    margin-top: 12px;
+    width: 100%;
+    
+    video {
+      width: 100%;
+      border-radius: 4px;
+    }
+  }
+  
+  ion-accordion {
+    margin-bottom: 8px;
+  }
+.small-image {
+    width: 180px; 
+    height: auto; 
+    display: block;
+    margin: 0 auto; 
+}
+  
+.image-container {
+    text-align: center;
+}
+.task-title {
+    font-size: 17px; 
+    font-weight: bold; 
+    color: #333; 
+    margin-top: 10px; 
+    margin-bottom: 15px;
+    text-align: center; 
+  }
+
+  ion-button {
+    //--background: black;
+    --background: #1f1b1b;
+    //--background-hover: #2c7450;
+    --background-activated: #6b1a0b;
+    --background-focused: #6b1a0b;
+    color: white;
+    margin-bottom: 20px;
+}

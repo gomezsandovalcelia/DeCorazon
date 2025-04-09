@@ -4,12 +4,16 @@ import { RouterModule } from '@angular/router';
 import { AdminLayoutComponent } from '../layouts/admin-layout/admin-layout.component';
 import { MenuComponent } from '../commons/menu/menu.component';
 import { HomeComponent } from './paciente/home/home.component';
+import { HomeComponent as MedicoHomeComponent} from './medico/home/home.component';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MesuresComponent } from './paciente/mesures/mesures.component';
 import { TreatmentsComponent } from './paciente/treatments/treatments.component';
 import { RoutineComponent } from './paciente/routine/routine.component';
 import { PerfilComponent } from './paciente/perfil/perfil.component';
+import { PerfilComponent as MedicoPerfilComponent} from './medico/perfil/perfil.component';
+import { PreguntasFrecuentesComponent } from './paciente/preguntas-frecuentes/preguntas-frecuentes.component';
+import { DetallepacienteComponent } from './medico/detallepaciente/detallepaciente.component';
 
 
 
@@ -21,7 +25,11 @@ import { PerfilComponent } from './paciente/perfil/perfil.component';
     MesuresComponent,
     TreatmentsComponent,
     RoutineComponent,
-    PerfilComponent
+    PerfilComponent,
+    PreguntasFrecuentesComponent,
+    MedicoHomeComponent,
+    MedicoPerfilComponent,
+    DetallepacienteComponent
   ],
   imports: [
     CommonModule,

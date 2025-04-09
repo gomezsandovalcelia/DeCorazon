@@ -38,4 +38,8 @@ export class PerfilComponent  implements OnInit {
     }
   }
 
+  logout(){
+    this.pacienteService.logout();
+  }
+
 }

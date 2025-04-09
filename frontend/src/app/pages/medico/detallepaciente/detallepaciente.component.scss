@@ -1,0 +1,45 @@
+ion-card {
+    margin-top: 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  ion-card-header {
+    background-color: #f4f5f8;
+  }
+  
+  ion-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+  }
+  
+  ion-segment {
+    padding-bottom: 10px;
+  }
+  
+  ion-segment-button {
+    --color-checked: #3880ff;
+    --indicator-color: #3880ff;
+  }
+  
+  ion-item {
+    --padding-start: 0;
+  }
+  
+  ion-badge {
+    padding: 8px;
+    border-radius: 4px;
+  }
+  
+  form {
+    padding: 10px 0;
+  }

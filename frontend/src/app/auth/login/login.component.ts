@@ -23,39 +23,58 @@ export class LoginComponent  implements OnInit {
     password: ['', Validators.required]
   });
 
-  constructor(private http: HttpClient, private navCtrl: NavController, private fb: FormBuilder, private authService: AuthService, private router: Router) { }
+  constructor(private http: HttpClient, 
+    private navCtrl: NavController, 
+    private fb: FormBuilder, 
+    private authService: AuthService, 
+    private router: Router
+  ) { }
 
   ngOnInit() {
     console.log('LoginComponent initialized');
   }
 
-  login() {
-    if (this.loginForm.valid) {
-      const { email, password } = this.loginForm.value;
-      
-      if (email && password) {
-        this.authService.login({ email, password } as loginForm).subscribe((res: any) => {
+  // En login.component.ts
+login() {
+  if (this.loginForm.valid) {
+    const { email, password } = this.loginForm.value;
+    
+    if (email && password) {
+      this.authService.login({ email, password } as loginForm).subscribe(
+        (res: any) => {
           console.log('respuesta al sub:', res);
-          //AQUI ALMACENAMOS EL TOKEN EN EL LOCALSTORAGE
+          
+          // Guardar datos en localStorage
           localStorage.setItem('token', res.token);
-          localStorage.setItem('pacienteId', res._id);
+          localStorage.setItem('userId', res._id);
           localStorage.setItem('rol', res.rol);
-          localStorage.setItem('showForm', 'true');
-          localStorage.setItem('preguntadeldia', 'true');
-          this.router.navigateByUrl('/home');
-        }, (err) => {
-          console.warn('error respuesta api');
-          Swal.fire({ 
+          
+          // Datos específicos según el rol
+          if (res.rol === 'MEDICO') {
+            // Redirigir a la dashboard del médico
+            this.router.navigateByUrl('/medico/dashboard');
+          } else if (res.rol === 'PACIENTE') {
+            // Guardar datos específicos de paciente
+            localStorage.setItem('pacienteId', res._id);
+            localStorage.setItem('showForm', 'true');
+            localStorage.setItem('preguntadeldia', 'true');
+            
+            // Redirigir a la página de inicio del paciente
+            this.router.navigateByUrl('/home');
+          }
+        },
+        (err) => {
+          console.warn('error respuesta api', err);
+          Swal.fire({
             title: 'Error',
             text: 'Usuario o contraseña incorrectos',
             icon: 'error',
             confirmButtonText: 'Ok',
             heightAuto: false
           });
-        });
-      }
-    } else {
-      console.log('ta mal');
+        }
+      );
     }
   }
+}
 }
