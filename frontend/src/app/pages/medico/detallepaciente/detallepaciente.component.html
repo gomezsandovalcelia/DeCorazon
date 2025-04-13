@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
+      <ion-back-button defaultHref="/medico/dashboard"></ion-back-button>
     </ion-buttons>
     <ion-title *ngIf="paciente">{{ paciente.nombre }} {{ paciente.apellidos }}</ion-title>
   </ion-toolbar>
@@ -14,7 +14,7 @@
   </div>
 
   <div *ngIf="paciente">
-    <ion-segment [(ngModel)]="segmento" (ionChange)="cambiarSegmento($event)">
+    <ion-segment [(ngModel)]="segmento" (ionChange)="cambiarSegmento($event)"  class="custom-segment">
       <ion-segment-button value="informacion">
         <ion-label>Información</ion-label>
       </ion-segment-button>
@@ -39,6 +39,28 @@
               <p>Email: {{ paciente.email }}</p>
             </ion-label>
           </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Gráfica de evolución del paciente -->
+      <ion-card *ngIf="paciente?.measurements?.length > 0">
+        <ion-card-header>
+          <ion-card-title>Evolución del estado de salud</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="chart-container">
+            <canvas #chartCanvas></canvas>
+          </div>
+          <div class="estado-explicacion">
+            <p><strong>Interpretación del gráfico:</strong></p>
+            <ul>
+              <li><span class="estado excelente"></span> 90-100: Excelente estado de salud</li>
+              <li><span class="estado bueno"></span> 75-89: Buen estado de salud</li>
+              <li><span class="estado regular"></span> 60-74: Estado de salud regular</li>
+              <li><span class="estado deficiente"></span> 40-59: Estado de salud deficiente</li>
+              <li><span class="estado alarmante"></span> 0-39: Estado de salud alarmante (requiere atención inmediata)</li>
+            </ul>
+          </div>
         </ion-card-content>
       </ion-card>
 
@@ -77,8 +99,8 @@
               <ion-textarea formControlName="description" rows="3"></ion-textarea>
             </ion-item>
             <ion-item>
-              <ion-label>Fecha</ion-label>
-              <ion-datetime displayFormat="DD/MM/YYYY" formControlName="date"></ion-datetime>
+              <ion-label position="stacked">Fecha</ion-label>
+              <input type="date" [ngClass]="'date-input'" formControlName="date">
             </ion-item>
             <ion-button expand="block" type="submit" [disabled]="!tratamientoForm.valid" class="ion-margin-top">
               Agregar Tratamiento
@@ -120,8 +142,8 @@
               <ion-textarea formControlName="description" rows="3"></ion-textarea>
             </ion-item>
             <ion-item>
-              <ion-label>Fecha</ion-label>
-              <ion-datetime displayFormat="DD/MM/YYYY" formControlName="date"></ion-datetime>
+              <ion-label position="stacked">Fecha</ion-label>
+              <input type="date" [ngClass]="'date-input'" formControlName="date">
             </ion-item>
             <ion-item>
               <ion-label>Completado</ion-label>

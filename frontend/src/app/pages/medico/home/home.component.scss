@@ -1,51 +1,128 @@
+.header-container {
+  position: relative;
+  text-align: center;
+  margin-top: 10px;
+}
+
 .small-image {
-    width: 180px; 
-    height: auto; 
-    display: block;
-    margin: 0 auto; 
-  }
-    
-  .image-container {
-    text-align: center;
-  }
-  h2{
-    text-align: center;
-    margin-top: 20px;
-    font-size: 20px;
-    font-weight: bold; 
-    color: #333;
-  }  
-  .itemx {
-    margin-bottom: 15px; 
-    --background: #fff; 
-    border-width: 0px; 
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
-    --border-color: transparent; 
-    --background: transparent;
-  }
-  .paciente-nombre {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333333;
-    margin-bottom: 5px;
-  }
-  
-  /* Estilo para el email del paciente */
-  .paciente-email {
-    font-size: 14px;
-    color: #666666;
-    margin-bottom: 10px;
-  }
-  
-  /* Estilo para las mediciones */
-  .mediciones p {
-    font-size: 14px;
-    color: #444444;
-    margin: 5px 0;
-  }
-  
-  /* Resaltar los títulos de las mediciones */
-  .mediciones strong {
-    color: #6b1a0b;
-  }
+  width: 180px;
+  height: auto;
+  display: inline-block;
+}
+
+.profile-icon {
+  position: absolute;
+  top: 0;
+  right: 10px;
+  font-size: 28px;
+  z-index: 10;
+}
+
+h2 {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+
+.image-container {
+  text-align: center;
+}
+
+h2 {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.itemx {
+  margin-bottom: 15px;
+  --background: #fff;
+  border-width: 0px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --border-color: transparent;
+  --background: transparent;
+  display: flex;
+  align-items: center;
+}
+
+.paciente-nombre {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 5px;
+}
+
+/* Estilo para el email del paciente */
+.paciente-email {
+  font-size: 14px;
+  color: #666666;
+  margin-bottom: 10px;
+}
+
+/* Estilo para las mediciones */
+.mediciones p {
+  font-size: 14px;
+  color: #444444;
+  margin: 5px 0;
+}
+
+/* Resaltar los títulos de las mediciones */
+.mediciones strong {
+  color: #6b1a0b;
+}
+
+/* Estilos para el indicador de estado simplificado */
+.estado-indicador-simple {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  text-align: center;
+  margin-right: 15px;
+}
+
+.estado-valor {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.estado-label {
+  font-size: 11px;
+  color: #333333;
+  text-transform: uppercase;
+}
+
+/* Colores para cada estado (solo aplicados al número) */
+.bien {
+  color: #00cc00; /* Verde */
+}
+
+.normal {
+  color: #cccc00; /* Amarillo */
+}
+
+.inestable {
+  color: #ff9900; /* Naranja */
+}
+
+.alarmante {
+  color: #ff0000; /* Rojo */
+}
+
+.sin-datos {
+  color: #999999; /* Gris */
+}
+
+/* Mejorar el espaciado del icono de flecha */
+ion-icon[name="chevron-forward-outline"] {
+  font-size: 20px;
+  color: #999;
+}

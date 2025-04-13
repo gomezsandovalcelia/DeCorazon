@@ -1,12 +1,29 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 <ion-content class="ion-padding">
   <!-- Imagen pequeña en la parte superior -->
-  <div class="image-container">
+  <div class="header-container">
     <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
+
+    <!-- Botón de perfil en la esquina superior derecha -->
+    <ion-button routerLink="/medico/perfil" class="profile-icon" fill="clear">
+      <ion-icon style="color: #6b1a0b;" name="person-circle-outline" slot="icon-only"></ion-icon>
+    </ion-button>
   </div>
-  <h2 class="task-title" routerLink="/ejercicios">Tus Pacientes</h2>
+
+  <h2 class="task-title">Tus Pacientes</h2>
   <ion-content class="ion-padding">
     <ion-list>
       <ion-item class="itemx" *ngFor="let paciente of pacientes" (click)="verDetallePaciente(paciente._id)">
+        <!-- Indicador de estado simplificado -->
+        <div class="estado-indicador-simple" slot="start">
+          <div class="estado-valor" [ngClass]="evaluarEstadoSalud(paciente).estado">
+            {{ evaluarEstadoSalud(paciente).puntuacion }}
+          </div>
+          <div class="estado-label">
+            {{ getEstadoLabel(evaluarEstadoSalud(paciente).estado) }}
+          </div>
+        </div>
+        
         <ion-label>
           <h3 class="paciente-nombre">{{ paciente.nombre }} {{ paciente.apellidos }}</h3>
           <div class="mediciones">
@@ -14,16 +31,18 @@
               <strong>Peso:</strong> {{ paciente.measurements.slice(-1)[0].weight }} kg
             </p>
             <p *ngIf="paciente.measurements.length > 0">
-              <strong>Frecuencia Cardíaca:</strong> {{ paciente.measurements.slice(-1)[0].heart_rate }} cm
+              <strong>Frecuencia Cardíaca:</strong> {{ paciente.measurements.slice(-1)[0].heart_rate }} ppm
             </p>
             <p *ngIf="paciente.measurements.length > 0">
-              <strong>Presión Arterial:</strong> {{ paciente.measurements.slice(-1)[0].blood_pressure }} cm
+              <strong>Presión Arterial:</strong> {{ paciente.measurements.slice(-1)[0].blood_pressure }}
             </p>
             <p *ngIf="paciente.measurements.length === 0">
               No hay mediciones disponibles.
             </p>
           </div>
         </ion-label>
+        
+        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
       </ion-item>
     </ion-list>
   </ion-content>

@@ -27,6 +27,7 @@
     "@capacitor/keyboard": "6.0.2",
     "@capacitor/status-bar": "6.0.1",
     "@ionic/angular": "^8.4.3",
+    "chart.js": "^4.4.8",
     "ionicons": "^7.0.0",
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.15.10",

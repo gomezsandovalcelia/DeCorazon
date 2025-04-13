@@ -2,4 +2,4 @@
     <router-outlet></router-outlet> <!-- Aquí se cargará el contenido dinámico -->
 </ion-content>
   
-<app-menu></app-menu> <!-- Aquí va el menú -->
+<app-menu *ngIf="role === 'PACIENTE'"></app-menu>

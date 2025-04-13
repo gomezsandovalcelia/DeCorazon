@@ -1,10 +1,23 @@
-
-.small-image {
-    width: 180px; 
-    height: auto; 
-    display: block;
-    margin: 0 auto; 
-}
+.header-container {
+    position: relative;
+    text-align: center;
+    margin-top: 10px;
+  }
+  
+  .small-image {
+    width: 180px;
+    height: auto;
+    display: inline-block;
+  }
+  
+  .profile-icon {
+    position: absolute;
+    top: 0;
+    right: 10px;
+    font-size:20px;
+    z-index: 10;
+  }
+  
   
 .image-container {
     text-align: center;
