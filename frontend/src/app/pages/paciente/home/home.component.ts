@@ -15,14 +15,20 @@ export class HomeComponent  implements OnInit {
   exercise: any[] = [];
   pacienteId: any;
 
+
+  currentQuestion: any = null;
+  showQuestionnaire: boolean = true;
+  questionsHistory: Array<{questionId: string, answer: string}> = [];
+  isLastQuestion: boolean = false;
+
   question: any = null;
   selectedAnswer: string = '';
   isProcessing: boolean = false;
 
-  badResponses = [
+  /*badResponses = [
     'Cansado', 'Muy cansado', 'Mal', 'Muy mal', 'Con dolor', 'Mareado', 
     'Con dificultad para respirar', 'Regular', 'Débil', 'Regular'
-  ];
+  ];*/
 
   public measureForm = this.fb.group({
     weight: ['', Validators.required],
@@ -41,24 +47,67 @@ export class HomeComponent  implements OnInit {
     private toastController: ToastController) { }
 
   ngOnInit() {
+    console.log('Iniciando componente Home');
     const pacienteId = localStorage.getItem('pacienteId');
+    this.pacienteId = pacienteId;
     if (pacienteId) {
+      console.log('ID de paciente encontrado:', this.pacienteId);
       //this.pacienteId = pacienteId;
       this.getTreatments(pacienteId);
       this.getExercises(pacienteId);
-      this.loadQuestion();
+      //this.loadQuestion();
+      this.showQuestionnaire = true;
+      console.log('Verificando cuestionario...');
+      this.loadFirstQuestion();
+    }else {
+      console.error('No se encontró ID de paciente');
     }
     const showForm = localStorage.getItem('showForm');
     if(showForm){
       this.showFormAux = true;
     }
-    const showAnswered = localStorage.getItem('preguntadeldia');
+    /*const showAnswered = localStorage.getItem('preguntadeldia');
     if(showAnswered){
       this.showAnsweredAux = true;
+    }*/
+  }
+  checkQuestionnaire() {
+    // Verificar si ya completó el cuestionario hoy
+    const completedToday = localStorage.getItem('questionnaireCompletedToday');
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (completedToday === today) {
+      console.log('⏳ Ya se respondió el cuestionario hoy.');
+      this.showQuestionnaire = false;
+      return;
     }
+    
+    // Si no ha completado el cuestionario, mostrar la primera pregunta
+    this.showQuestionnaire = true;
+    this.loadFirstQuestion();
+  } 
+
+  loadFirstQuestion() {
+    if (!this.showQuestionnaire) {
+      return;
+    }
+
+    this.questionService.getFirstQuestion(this.pacienteId).subscribe(
+      (res) => {
+        if (res.ok) {
+          this.currentQuestion = res.question;
+          this.questionsHistory = [];
+          this.isLastQuestion = false;
+          this.selectedAnswer = '';
+        } else {
+          console.log("No hay preguntas disponibles:", res.msg);
+        }
+      },
+      (error) => console.error("Error obteniendo la primera pregunta:", error)
+    );
   }
 
-  loadQuestion() {
+  /*loadQuestion() {
     if (this.showAnsweredAux) {
       console.log('⏳ Ya se respondió la pregunta hoy.');
       return;
@@ -74,78 +123,112 @@ export class HomeComponent  implements OnInit {
           } else {
             console.error("La pregunta llegó vacía.");
           }*/
-        } else {
+        /*} else {
           //console.log("No hay pregunta hoy:", res.msg);
         }
       },
       (error) => console.error("Error obteniendo la pregunta:", error)
     );
-  }
+  }*/
 
-  async submitAnswer() {
-    if (!this.selectedAnswer || !this.question || this.isProcessing ) return;
-
-    this.isProcessing = true;
-
-    this.pacienteId = localStorage.getItem('pacienteId');
-
-    try {
-      const response = await this.questionService.saveResponse(
-        this.pacienteId, 
-        this.question._id, 
-        this.selectedAnswer
-      ).toPromise();
-
-      if (response.ok) {
-        console.log('Respuesta guardada con éxito.');
-        
-        // 2. Comprobar si la respuesta es "mala"
-        if (this.isBadResponse(this.selectedAnswer)) {
-          await this.handleBadResponse();
+    async submitAnswer() {
+      console.log('Intentando enviar respuesta:', {
+        currentQuestion: this.currentQuestion,
+        selectedAnswer: this.selectedAnswer
+      });
+      if (!this.selectedAnswer || !this.currentQuestion || this.isProcessing) {
+        console.log('No se puede enviar: faltan datos o está procesando');
+        return;
+      }
+    
+      this.isProcessing = true;
+    
+      try {
+        const response = await this.questionService.saveResponse(
+          this.pacienteId, 
+          this.currentQuestion._id, 
+          this.selectedAnswer
+        ).toPromise();
+    
+        if (response.ok) {
+          // Guardar en historial
+          this.questionsHistory.push({
+            questionId: this.currentQuestion._id,
+            answer: this.selectedAnswer
+          });
+    
+          // Verificar si la respuesta requiere alerta
+          if (response.requiresAlert) {
+            await this.sendAlert(response.alertReason);
+          }
+    
+          // Si es la última pregunta, finalizar el cuestionario
+          if (this.isLastQuestion) {
+            await this.finishQuestionnaire();
+            return;
+          }
+    
+          // Cargar la siguiente pregunta
+          const nextResponse = await this.questionService.getNextQuestion(
+            this.pacienteId,
+            this.currentQuestion._id,
+            this.selectedAnswer
+          ).toPromise();
+    
+          if (nextResponse.ok && nextResponse.question) {
+            this.currentQuestion = nextResponse.question;
+            this.selectedAnswer = '';
+            this.isLastQuestion = nextResponse.isLastQuestion;
+          } else {
+            // Si no hay más preguntas, finalizar el cuestionario
+            await this.finishQuestionnaire();
+          }
+        } else {
+          console.log(response.msg);
         }
-
-        // 3. Actualizar la UI
-        this.question = null;
-        this.hideQuestion();
+        
         this.isProcessing = false;
-      } else {
-        console.log(response.msg);
+      } catch (error) {
+        console.error('Error al enviar la respuesta:', error);
         this.isProcessing = false;
       }
-        
-     
-    } catch (error) {
-      console.error('Error al enviar la respuesta:', error);
-      this.isProcessing = false;
     }
-    /*const requestBody = {
-      patientId: this.pacienteId, 
-      questionId: this.question._id, 
-      answer: this.selectedAnswer
-    };
 
-    console.log("📤 Enviando datos al backend:", requestBody);
-
-    this.questionService.saveResponse(this.pacienteId, this.question._id, this.selectedAnswer).subscribe(
-      (res) => {
-        if (res.ok) {
-          console.log('Respuesta guardada con éxito.');
-          //localStorage.setItem('answeredToday', 'true'); 
-          this.question = null;
-          this.hideQuestion();
-        } else {
-          console.log(res.msg);
-        }
-      },
-      (error) => console.error('Error guardando la respuesta:', error)
-    );*/
+  async sendAlert(reason: string) {
+    try {
+      const result = await this.questionService.sendAlert(this.pacienteId, reason).toPromise();
+      
+      if (result.ok) {
+        // Mostrar notificación al usuario
+        this.showNotification(
+          'Notificación enviada al personal sanitario. Gracias por reportar tu estado.'
+        );
+      }
+    } catch (error) {
+      console.error('Error al enviar alerta:', error);
+    }
   }
-
-  isBadResponse(answer: string): boolean {
+  async finishQuestionnaire() {
+    try {
+      await this.questionService.finishQuestionnaire(this.pacienteId).toPromise();
+      
+      // Marcar el cuestionario como completado para hoy
+      const today = new Date().toISOString().split('T')[0];
+      localStorage.setItem('questionnaireCompletedToday', today);
+      
+      this.showQuestionnaire = false;
+      this.currentQuestion = null;
+      
+      this.showNotification('Has completado el cuestionario diario. ¡Gracias!');
+    } catch (error) {
+      console.error('Error al finalizar cuestionario:', error);
+    }
+  }
+  /*isBadResponse(answer: string): boolean {
     return this.badResponses.some(badResponse => 
       answer.toLowerCase().includes(badResponse.toLowerCase())
     );
-  }
+  }*/
 
   async handleBadResponse() {
     try {

@@ -10,10 +10,20 @@ export class QuestionService {
 
   constructor(private http: HttpClient) {}
 
-  // Obtener la pregunta del día
-  getQuestionOfTheDay(patientId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/preguntadeldia/${patientId}`);
+  // Obtener la primera pregunta del cuestionario
+  getFirstQuestion(patientId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/first-question/${patientId}`);
   }
+  // Obtener la siguiente pregunta basada en la respuesta actual
+  getNextQuestion(patientId: string, currentQuestionId: string, answer: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/next-question/${patientId}/${currentQuestionId}/${answer}`);
+  }
+
+
+  // Obtener la pregunta del día
+  /*getQuestionOfTheDay(patientId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/preguntadeldia/${patientId}`);
+  }*/
 
   // Guardar la respuesta del usuario
   saveResponse(patientId: string, questionId: string, answer: string): Observable<any> {
@@ -23,6 +33,18 @@ export class QuestionService {
 
     return this.http.post(`${this.apiUrl}/save-response`, data, {
       headers: { 'Content-Type': 'application/json' } // Especifica el tipo de contenido
+    });
+  }
+  // Nuevo método para enviar alerta al sanitario
+  sendAlert(patientId: string, reason: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/send-alert`, { patientId, reason }, {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  // Finalizar el cuestionario
+  finishQuestionnaire(patientId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/finish-questionnaire`, { patientId }, {
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 }

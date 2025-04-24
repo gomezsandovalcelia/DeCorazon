@@ -3,7 +3,34 @@
     <div class="image-container">
       <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
     </div>
-    <!-- PREGUNTA DIARIA -->
+    <!-- CUESTIONARIO DIARIO -->
+    <!-- CUESTIONARIO DIARIO -->
+    <div *ngIf="showQuestionnaire">
+      <div *ngIf="currentQuestion">
+        <h2>{{ currentQuestion.question }}</h2>
+        
+        <ion-list lines="none">
+          <ion-radio-group [(ngModel)]="selectedAnswer">
+            <ion-item *ngFor="let option of currentQuestion.options" 
+                      lines="none" 
+                      class="radio-item" 
+                      (click)="selectedAnswer = option">
+              <ion-radio slot="start" [value]="option"></ion-radio>
+              <ion-label>{{ option }}</ion-label>
+            </ion-item>
+          </ion-radio-group>
+        </ion-list>
+        
+        <ion-button expand="block" (click)="submitAnswer()" [disabled]="!selectedAnswer">
+          {{ isLastQuestion ? 'Finalizar' : 'Siguiente' }}
+        </ion-button>
+      </div>
+      
+      <div *ngIf="!currentQuestion && showQuestionnaire">
+        <p>Ya respondiste el cuestionario de hoy. ¡Vuelve mañana!</p>
+      </div>
+    </div>
+    <!-- PREGUNTA DIARIA 
     <ion-content *ngIf="showAnsweredAux" class="ion-padding">
       <div *ngIf="question">
         <h2>{{ question.question }}</h2>
@@ -28,7 +55,7 @@
       <div *ngIf="!question">
         <p>Ya respondiste la pregunta de hoy. ¡Vuelve mañana!</p>
       </div>
-    </ion-content>
+    </ion-content>-->
     
     <form *ngIf="showFormAux" (ngSubmit)="registrarMedidas()" #healthForm="ngForm" [formGroup]="measureForm">
       <h2 class="task-title">Introduce tus medidas</h2>
