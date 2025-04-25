@@ -215,12 +215,7 @@ const getNextQuestion = async (req, res = response) => {
 const saveResponse = async (req, res = response) => {
     const { patientId, questionId, answer } = req.body;
     const today = new Date().toISOString().split("T")[0];
-    console.log('Datos recibidos:', {
-        patientId,
-        questionId,
-        answer,
-        typeOfId: typeof questionId
-    });
+
     try {
         if (!patientId || !questionId) {
             return res.status(400).json({
@@ -229,21 +224,10 @@ const saveResponse = async (req, res = response) => {
             });
         }
 
-        // Guardar la respuesta en la base de datos
-        const newResponse = new Respuesta({ 
-            patientId, 
-            questionId, 
-            answer, 
-            date: today 
-        });
-        await newResponse.save();
-
         // Verificar si la respuesta requiere alerta
         const question = await Pregunta.findById(questionId);
         
-        // Añade esta verificación
         if (!question) {
-            console.log(`No se encontró la pregunta con ID: ${questionId}`);
             return res.status(404).json({
                 ok: false,
                 msg: "Pregunta no encontrada"
@@ -253,11 +237,20 @@ const saveResponse = async (req, res = response) => {
         const requiresAlert = question.alertConditions && 
                              question.alertConditions.includes(answer);
 
+        // Guardar la respuesta en la base de datos con el campo de alerta
+        const newResponse = new Respuesta({ 
+            patientId, 
+            questionId, 
+            answer, 
+            date: today,
+            alerta: requiresAlert // Establecer el campo alerta
+        });
+        await newResponse.save();
+
         return res.json({
             ok: true,
             msg: "Respuesta guardada con éxito.",
-            requiresAlert,
-            alertReason: requiresAlert ? `Respuesta de riesgo: ${question.question} - ${answer}` : null
+            requiresAlert
         });
     } catch (error) {
         console.error("Error guardando la respuesta:", error);

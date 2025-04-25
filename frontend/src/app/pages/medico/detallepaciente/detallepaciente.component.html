@@ -24,9 +24,43 @@
       <ion-segment-button value="ejercicios">
         <ion-label>Ejercicios</ion-label>
       </ion-segment-button>
+      <ion-segment-button value="respuestas">
+        <ion-label>Respuestas</ion-label>
+      </ion-segment-button>
     </ion-segment>
 
     <!-- Sección de Información -->
+    <div *ngIf="segmento === 'respuestas'">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Últimas Respuestas del Paciente</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div *ngIf="cargandoRespuestas" class="loading-container">
+            <ion-spinner></ion-spinner>
+            <p>Cargando respuestas...</p>
+          </div>
+          
+          <ion-list *ngIf="!cargandoRespuestas && respuestas.length > 0">
+            <ion-item *ngFor="let respuesta of respuestas.slice(0, 10)" 
+                      [class.respuesta-alerta]="respuesta.alerta">
+              <ion-label>
+                <div class="respuesta-header">
+                  <h3>{{ obtenerTextoPregunta(respuesta.questionId) }}</h3>
+                  <ion-badge *ngIf="respuesta.alerta" color="danger">Alerta</ion-badge>
+                </div>
+                <p class="respuesta-content">{{ respuesta.answer }}</p>
+                <p class="respuesta-fecha">{{ respuesta.date | date: 'dd/MM/yyyy' }}</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+          
+          <p *ngIf="!cargandoRespuestas && respuestas.length === 0" class="mensaje-vacio">
+            Este paciente aún no ha respondido ninguna pregunta del cuestionario.
+          </p>
+        </ion-card-content>
+      </ion-card>
+    </div>
     <div *ngIf="segmento === 'informacion'">
       <ion-card>
         <ion-card-header>
@@ -179,4 +213,5 @@
       </ion-card>
     </div>
   </div>
+  
 </ion-content>

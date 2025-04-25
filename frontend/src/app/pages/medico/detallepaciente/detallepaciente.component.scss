@@ -178,3 +178,53 @@ ion-back-button {
     margin-bottom: 15px;
   }
 }
+
+// En detallepaciente.component.scss (añadir estos estilos)
+
+// Estilos para la sección de respuestas
+.respuesta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  
+  h3 {
+    margin: 0;
+    font-weight: bold;
+  }
+}
+
+.respuesta-content {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.respuesta-fecha {
+  font-size: 12px;
+  color: #777;
+  margin-top: 5px;
+}
+
+.respuesta-alerta {
+  border-left: 3px solid #ff4961;
+  background-color: rgba(255, 73, 97, 0.05);
+}
+
+.mensaje-vacio {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  
+  ion-spinner {
+    margin-bottom: 10px;
+  }
+}

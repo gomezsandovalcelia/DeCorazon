@@ -5,6 +5,7 @@ import { MedicoService } from 'src/app/services/medico.service';
 import { PacienteService } from 'src/app/services/paciente.service';
 import { ToastController } from '@ionic/angular';
 import { Chart, registerables } from 'chart.js';
+import { RespuestaService } from 'src/app/services/respuesta.service';
 
 Chart.register(...registerables);
 
@@ -32,16 +33,22 @@ export class DetallepacienteComponent  implements OnInit, AfterViewInit  {
   ejercicioForm!: FormGroup;
 
   chart!: Chart;
+  
+  respuestas: any[] = [];
+  cargandoRespuestas: boolean = true;
 
   constructor( private route: ActivatedRoute,
     private pacienteService: PacienteService,
     private formBuilder: FormBuilder,
-    private toastController: ToastController) { }
+    private toastController: ToastController,
+    private respuestaService: RespuestaService
+  ) { }
 
   ngOnInit() {
     this.pacienteId = this.route.snapshot.paramMap.get('id') || '';
     this.cargarPaciente();
-    
+    this.cargarRespuestas(); 
+
     this.inicializarFormularios();
   }
 
@@ -154,6 +161,42 @@ export class DetallepacienteComponent  implements OnInit, AfterViewInit  {
       }
     }, 100);
   }
+  cargarRespuestas() {
+    this.cargandoRespuestas = true;
+    this.respuestaService.obtenerRespuestasPaciente(this.pacienteId).subscribe(
+      response => {
+        if (response.ok) {
+          // Ordenar por fecha (más recientes primero)
+          this.respuestas = response.respuestas.sort((a: any, b: any) => 
+            new Date(b.date).getTime() - new Date(a.date).getTime()
+          );
+          console.log('Respuestas cargadas:', this.respuestas);
+        } else {
+          console.error('Error al cargar respuestas:', response.msg);
+        }
+        this.cargandoRespuestas = false;
+      },
+      error => {
+        console.error('Error al cargar respuestas:', error);
+        this.cargandoRespuestas = false;
+      }
+    );
+  }
+  obtenerTextoPregunta(questionId: string): string {
+    // Mapa de preguntas frecuentes
+    const preguntasComunes: {[key: string]: string} = {
+      'q1': '¿Cómo te encuentras hoy?',
+      'q2': '¿Notas ahogo en reposo?',
+      'q3': '¿Has subido el número de almohadas para dormir?',
+      'q4': '¿Y con los esfuerzos como caminar, tareas de casa...?',
+      'q5': '¿Las piernas están más hinchadas?',
+      // Añade más preguntas según las que tengas en la base de datos
+    };
+    
+    // Intenta obtener la pregunta del mapa
+    return preguntasComunes[questionId] || 'Pregunta clínica';
+  }
+
   // PARA LA GRAFICA
  
   // Función para evaluar el estado de salud basado en las tres métricas

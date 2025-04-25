@@ -2,6 +2,9 @@
 import { Component, OnInit } from '@angular/core';
 import { MedicoService } from 'src/app/services/medico.service';
 import { Router } from '@angular/router';
+import { RespuestaService } from 'src/app/services/respuesta.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -11,15 +14,21 @@ import { Router } from '@angular/router';
 export class HomeComponent implements OnInit {
   pacientes: any[] = []; // Lista de pacientes
   medicoId: string = ''; // ID del médico
+  alertas: any[] = [];
+  loading: boolean = true;
+  pacientesConAlertas: { [key: string]: boolean } = {}; 
   
-  constructor(private medicoService: MedicoService, private router: Router) { }
+  constructor( private respuestaService: RespuestaService, 
+    private medicoService: MedicoService, 
+    private router: Router) { }
   
   ngOnInit() {
-    this.medicoId = localStorage.getItem('userId') || ''; // Obtén el ID del médico desde localStorage
-    console.log('ID del médico:', this.medicoId); // Verifica que el ID se haya obtenido correctamente
+    this.medicoId = localStorage.getItem('userId') || ''; 
+    console.log('ID del médico:', this.medicoId); 
     if (this.medicoId) {
       this.getPacientes();
     }
+    this.cargarAlertas();
   }
   
   getPacientes() {
@@ -28,6 +37,7 @@ export class HomeComponent implements OnInit {
         if (response.ok) {
           this.pacientes = response.pacientes; // Asigna los pacientes a la propiedad
           console.log('Pacientes asignados:', this.pacientes);
+          this.verificarAlertasPacientes();
         } else {
           console.error('Error al obtener pacientes:', response.message);
         }
@@ -36,6 +46,40 @@ export class HomeComponent implements OnInit {
         console.error('Error en la solicitud:', error);
       }
     );
+  }
+
+  verificarAlertasPacientes() {
+    // Crear un array de observables para cada paciente
+    const verificaciones = this.pacientes.map(paciente => 
+      this.respuestaService.verificarAlertasPaciente(paciente._id).pipe(
+        map(res => ({ 
+          pacienteId: paciente._id, 
+          tieneAlertas: res.ok && res.tieneAlertas 
+        })),
+        catchError(error => {
+          console.error(`Error verificando alertas para paciente ${paciente._id}:`, error);
+          return of({ pacienteId: paciente._id, tieneAlertas: false });
+        })
+      )
+    );
+    
+    // Ejecutar todas las verificaciones en paralelo
+    if (verificaciones.length > 0) {
+      forkJoin(verificaciones).subscribe(
+        resultados => {
+          // Crear un mapa con los resultados
+          this.pacientesConAlertas = {};
+          resultados.forEach(resultado => {
+            this.pacientesConAlertas[resultado.pacienteId] = resultado.tieneAlertas;
+          });
+          console.log('Pacientes con alertas:', this.pacientesConAlertas);
+        }
+      );
+    }
+  }
+
+  pacienteTieneAlertas(pacienteId: string): boolean {
+    return this.pacientesConAlertas[pacienteId] || false;
   }
   
   verDetallePaciente(pacienteId: string) {
@@ -125,5 +169,22 @@ export class HomeComponent implements OnInit {
       case 'alarmante': return 'Alarmante';
       default: return 'Sin datos';
     }
+  }
+  cargarAlertas(): void {
+    this.loading = true;
+    this.respuestaService.getAlertas().subscribe(
+      (res) => {
+        if (res.ok) {
+          this.alertas = res.alertas;
+        } else {
+          console.error('Error obteniendo alertas:', res.msg);
+        }
+        this.loading = false;
+      },
+      (error) => {
+        console.error('Error en la petición de alertas:', error);
+        this.loading = false;
+      }
+    );
   }
 }

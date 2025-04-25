@@ -15,18 +15,28 @@
     <ion-list>
       <ion-item class="itemx" *ngFor="let paciente of pacientes" (click)="verDetallePaciente(paciente._id)">
         <!-- Indicador de estado simplificado -->
+        
         <div class="estado-indicador-simple" slot="start">
+          
           <div class="estado-valor" [ngClass]="evaluarEstadoSalud(paciente).estado">
             {{ evaluarEstadoSalud(paciente).puntuacion }}
           </div>
           <div class="estado-label">
             {{ getEstadoLabel(evaluarEstadoSalud(paciente).estado) }}
           </div>
+          <span class="alerta-badge" *ngIf="pacienteTieneAlertas(paciente._id)">
+            <ion-icon name="warning-outline"></ion-icon>
+          </span>
         </div>
         
         <ion-label>
-          <h3 class="paciente-nombre">{{ paciente.nombre }} {{ paciente.apellidos }}</h3>
+          <h3 class="paciente-nombre">
+            {{ paciente.nombre }} {{ paciente.apellidos }}
+            <!-- Mostrar alerta si el paciente tiene respuestas con alerta -->
+            
+          </h3>
           <div class="mediciones">
+            
             <p *ngIf="paciente.measurements.length > 0">
               <strong>Peso:</strong> {{ paciente.measurements.slice(-1)[0].weight }} kg
             </p>

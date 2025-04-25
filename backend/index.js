@@ -21,6 +21,7 @@ app.use('/api/usuarios', require('./routes/usuarios'));
 app.use('/api/paciente', require('./routes/paciente'));
 app.use('/api/login', require('./routes/auth'));
 app.use('/api/medico', require('./routes/medico'));
+app.use('/api/respuesta', require('./routes/respuesta'));
 
 app.listen(process.env.PORT, () => {
     console.log('Server on port ', process.env.PORT);
