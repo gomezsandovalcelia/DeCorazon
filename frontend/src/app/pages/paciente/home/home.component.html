@@ -3,33 +3,35 @@
     <div class="image-container">
       <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
     </div>
-    <!-- CUESTIONARIO DIARIO -->
-    <!-- CUESTIONARIO DIARIO -->
-    <div *ngIf="showQuestionnaire">
-      <div *ngIf="currentQuestion">
-        <h2>{{ currentQuestion.question }}</h2>
-        
-        <ion-list lines="none">
-          <ion-radio-group [(ngModel)]="selectedAnswer">
-            <ion-item *ngFor="let option of currentQuestion.options" 
-                      lines="none" 
-                      class="radio-item" 
-                      (click)="selectedAnswer = option">
-              <ion-radio slot="start" [value]="option"></ion-radio>
-              <ion-label>{{ option }}</ion-label>
-            </ion-item>
-          </ion-radio-group>
-        </ion-list>
-        
-        <ion-button expand="block" (click)="submitAnswer()" [disabled]="!selectedAnswer">
-          {{ isLastQuestion ? 'Finalizar' : 'Siguiente' }}
-        </ion-button>
+    <ion-content class="ion-padding">
+      <!-- Cuestionario diario -->
+      <div *ngIf="showQuestionnaire" class="questionnaire-section">
+        <ion-card>
+          <ion-card-content>
+            <div *ngIf="currentQuestion">
+              <h2 class="question-text">{{ currentQuestion.question }}</h2>
+              
+              <ion-list lines="none">
+                <ion-radio-group [(ngModel)]="selectedAnswer">
+                  <ion-item *ngFor="let option of currentQuestion.options" lines="none" class="radio-item" (click)="onOptionSelect(option)">
+                    <ion-radio slot="start" [value]="option"></ion-radio>
+                    <ion-label>{{ option }}</ion-label>
+                  </ion-item>
+                </ion-radio-group>
+              </ion-list>
+              
+              <ion-button expand="block" (click)="submitAnswer()" [disabled]="!selectedAnswer || isProcessing" class="submit-button">
+                <ion-spinner *ngIf="isProcessing" name="circles"></ion-spinner>
+                <span *ngIf="!isProcessing">{{ isLastQuestion ? 'Finalizar' : 'Siguiente' }}</span>
+              </ion-button>
+            </div>
+            
+            <div *ngIf="!currentQuestion && showQuestionnaire">
+              <p>Ya has respondido el cuestionario de hoy. ¡Vuelve mañana!</p>
+            </div>
+          </ion-card-content>
+        </ion-card>
       </div>
-      
-      <div *ngIf="!currentQuestion && showQuestionnaire">
-        <p>Ya respondiste el cuestionario de hoy. ¡Vuelve mañana!</p>
-      </div>
-    </div>
     <!-- PREGUNTA DIARIA 
     <ion-content *ngIf="showAnsweredAux" class="ion-padding">
       <div *ngIf="question">

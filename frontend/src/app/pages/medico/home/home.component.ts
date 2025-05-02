@@ -1,4 +1,4 @@
-// En home.component.ts
+// home.component.ts - para la vista del médico
 import { Component, OnInit } from '@angular/core';
 import { MedicoService } from 'src/app/services/medico.service';
 import { Router } from '@angular/router';
@@ -18,37 +18,59 @@ export class HomeComponent implements OnInit {
   loading: boolean = true;
   pacientesConAlertas: { [key: string]: boolean } = {}; 
   
-  constructor( private respuestaService: RespuestaService, 
+  constructor( 
+    private respuestaService: RespuestaService, 
     private medicoService: MedicoService, 
-    private router: Router) { }
+    private router: Router
+  ) { }
   
   ngOnInit() {
     this.medicoId = localStorage.getItem('userId') || ''; 
     console.log('ID del médico:', this.medicoId); 
+    
     if (this.medicoId) {
       this.getPacientes();
+    } else {
+      console.error('No se encontró el ID del médico en localStorage');
     }
+    
     this.cargarAlertas();
+    
+    // Configurar actualización periódica cada 5 minutos
+    setInterval(() => {
+      this.verificarAlertasPacientes();
+      this.cargarAlertas();
+    }, 5 * 60 * 1000);
   }
   
   getPacientes() {
+    this.loading = true;
     this.medicoService.getPacientesAsignados(this.medicoId).subscribe(
       (response) => {
         if (response.ok) {
-          this.pacientes = response.pacientes; // Asigna los pacientes a la propiedad
+          this.pacientes = response.pacientes;
           console.log('Pacientes asignados:', this.pacientes);
           this.verificarAlertasPacientes();
         } else {
           console.error('Error al obtener pacientes:', response.message);
         }
+        this.loading = false;
       },
       (error) => {
-        console.error('Error en la solicitud:', error);
+        console.error('Error en la solicitud de pacientes:', error);
+        this.loading = false;
       }
     );
   }
 
   verificarAlertasPacientes() {
+    console.log('Verificando alertas para', this.pacientes.length, 'pacientes');
+    
+    // Si no hay pacientes, no hay nada que verificar
+    if (!this.pacientes || this.pacientes.length === 0) {
+      return;
+    }
+    
     // Crear un array de observables para cada paciente
     const verificaciones = this.pacientes.map(paciente => 
       this.respuestaService.verificarAlertasPaciente(paciente._id).pipe(
@@ -83,7 +105,7 @@ export class HomeComponent implements OnInit {
   }
   
   verDetallePaciente(pacienteId: string) {
-    console.log('ID del paciente:', pacienteId); // Verifica que el ID se haya pasado correctamente
+    console.log('Navegando a detalle de paciente:', pacienteId);
     this.router.navigate(['/medico/detalle-paciente', pacienteId]);
   }
 
@@ -170,12 +192,14 @@ export class HomeComponent implements OnInit {
       default: return 'Sin datos';
     }
   }
+  
   cargarAlertas(): void {
     this.loading = true;
     this.respuestaService.getAlertas().subscribe(
       (res) => {
         if (res.ok) {
           this.alertas = res.alertas;
+          console.log('Alertas cargadas:', this.alertas.length);
         } else {
           console.error('Error obteniendo alertas:', res.msg);
         }

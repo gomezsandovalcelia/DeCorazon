@@ -1,38 +1,30 @@
-/*
-Importacion de modulos 
-*/
-const express = require('express');
-
+/* Importacion de modulos  */
+const express = require('express'); 
 const cors = require('cors');
 require('dotenv').config();
-const { dbConnection } = require('./database/configdb');
+const { dbConnection } = require('./database/configdb'); 
 
 //crear una app de express 
-const app = express();
+const app = express(); 
 
-dbConnection();
+dbConnection(); 
 
-//abrir la app en el puerto 3000
+//configurar middlewares
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); 
 
+// Registrar rutas (sólo una vez por ruta)
 app.use('/api/pregunta', require('./routes/pregunta'));
 app.use('/api/usuarios', require('./routes/usuarios'));
 app.use('/api/paciente', require('./routes/paciente'));
 app.use('/api/login', require('./routes/auth'));
 app.use('/api/medico', require('./routes/medico'));
-app.use('/api/respuesta', require('./routes/respuesta'));
+app.use('/api/respuesta', require('./routes/respuesta')); 
 
-app.listen(process.env.PORT, () => {
+// Eliminar esta parte redundante:
+// const questionRoutes = require("./routes/pregunta");
+// app.use("/api/pregunta", questionRoutes);
+
+app.listen(process.env.PORT, () => {    
     console.log('Server on port ', process.env.PORT);
 });
-
-const questionRoutes = require("./routes/pregunta");
-app.use("/api/pregunta", questionRoutes);
-
-/*app.get('/', (req, res) => {
-    res.json({ 
-        ok: true, 
-        msg: 'servidor activo'
-    });
-});*/

@@ -10,25 +10,18 @@ import { ToastController } from '@ionic/angular';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent  implements OnInit {
+export class HomeComponent implements OnInit {
   treatments: any[] = [];
   exercise: any[] = [];
   pacienteId: any;
-
 
   currentQuestion: any = null;
   showQuestionnaire: boolean = true;
   questionsHistory: Array<{questionId: string, answer: string}> = [];
   isLastQuestion: boolean = false;
 
-  question: any = null;
   selectedAnswer: string = '';
   isProcessing: boolean = false;
-
-  /*badResponses = [
-    'Cansado', 'Muy cansado', 'Mal', 'Muy mal', 'Con dolor', 'Mareado', 
-    'Con dificultad para respirar', 'Regular', 'Débil', 'Regular'
-  ];*/
 
   public measureForm = this.fb.group({
     weight: ['', Validators.required],
@@ -42,9 +35,13 @@ export class HomeComponent  implements OnInit {
   showFormAux = false;
   showAnsweredAux = false;
 
-  constructor(private stateService: StateService, private fb: FormBuilder, 
-    private pacienteService: PacienteService, private questionService: QuestionService, 
-    private toastController: ToastController) { }
+  constructor(
+    private stateService: StateService, 
+    private fb: FormBuilder, 
+    private pacienteService: PacienteService, 
+    private questionService: QuestionService, 
+    private toastController: ToastController
+  ) { }
 
   ngOnInit() {
     console.log('Iniciando componente Home');
@@ -52,25 +49,20 @@ export class HomeComponent  implements OnInit {
     this.pacienteId = pacienteId;
     if (pacienteId) {
       console.log('ID de paciente encontrado:', this.pacienteId);
-      //this.pacienteId = pacienteId;
       this.getTreatments(pacienteId);
       this.getExercises(pacienteId);
-      //this.loadQuestion();
       this.showQuestionnaire = true;
       console.log('Verificando cuestionario...');
-      this.loadFirstQuestion();
-    }else {
+      this.checkQuestionnaire();
+    } else {
       console.error('No se encontró ID de paciente');
     }
     const showForm = localStorage.getItem('showForm');
-    if(showForm){
+    if(showForm) {
       this.showFormAux = true;
     }
-    /*const showAnswered = localStorage.getItem('preguntadeldia');
-    if(showAnswered){
-      this.showAnsweredAux = true;
-    }*/
   }
+
   checkQuestionnaire() {
     // Verificar si ya completó el cuestionario hoy
     const completedToday = localStorage.getItem('questionnaireCompletedToday');
@@ -85,7 +77,7 @@ export class HomeComponent  implements OnInit {
     // Si no ha completado el cuestionario, mostrar la primera pregunta
     this.showQuestionnaire = true;
     this.loadFirstQuestion();
-  } 
+  }
 
   loadFirstQuestion() {
     if (!this.showQuestionnaire) {
@@ -107,92 +99,82 @@ export class HomeComponent  implements OnInit {
     );
   }
 
-  /*loadQuestion() {
-    if (this.showAnsweredAux) {
-      console.log('⏳ Ya se respondió la pregunta hoy.');
+  async submitAnswer() {
+    console.log('Intentando enviar respuesta:', {
+      currentQuestion: this.currentQuestion,
+      selectedAnswer: this.selectedAnswer
+    });
+    
+    if (!this.selectedAnswer || !this.currentQuestion || this.isProcessing) {
+      console.log('No se puede enviar: faltan datos o está procesando');
       return;
     }
-
-    this.questionService.getQuestionOfTheDay(this.pacienteId).subscribe(
-      (res) => {
-        if (res.ok) {
-          this.question = res.question;
-          //console.log(" Pregunta cargada:", this.question); // Verificar en la consola
-          /*if (this.question) {
-            console.log("ID de la pregunta:", this.question?._id); // Verificar en la consola
-          } else {
-            console.error("La pregunta llegó vacía.");
-          }*/
-        /*} else {
-          //console.log("No hay pregunta hoy:", res.msg);
+  
+    this.isProcessing = true;
+  
+    try {
+      // Guardar la respuesta actual
+      const response = await this.questionService.saveResponse(
+        this.pacienteId, 
+        this.currentQuestion._id, 
+        this.selectedAnswer
+      ).toPromise();
+  
+      console.log('Respuesta guardada:', response);
+  
+      if (response.ok) {
+        // Guardar en historial
+        this.questionsHistory.push({
+          questionId: this.currentQuestion._id,
+          answer: this.selectedAnswer
+        });
+  
+        // Verificar si la respuesta requiere alerta
+        if (response.requiresAlert) {
+          await this.sendAlert(response.alertReason);
         }
-      },
-      (error) => console.error("Error obteniendo la pregunta:", error)
-    );
-  }*/
-
-    async submitAnswer() {
-      console.log('Intentando enviar respuesta:', {
-        currentQuestion: this.currentQuestion,
-        selectedAnswer: this.selectedAnswer
-      });
-      if (!this.selectedAnswer || !this.currentQuestion || this.isProcessing) {
-        console.log('No se puede enviar: faltan datos o está procesando');
-        return;
-      }
-    
-      this.isProcessing = true;
-    
-      try {
-        const response = await this.questionService.saveResponse(
-          this.pacienteId, 
-          this.currentQuestion._id, 
+  
+        // Verificar si debemos finalizar según la configuración de la pregunta actual
+        const currentQuestionConfig = this.currentQuestion.nextQuestions[this.selectedAnswer];
+        console.log('Configuración de siguiente pregunta:', currentQuestionConfig);
+        
+        if (currentQuestionConfig && currentQuestionConfig.endQuestionnaire) {
+          console.log('Finalizando cuestionario según configuración');
+          await this.finishQuestionnaire();
+          return;
+        }
+  
+        // Cargar la siguiente pregunta
+        console.log('Obteniendo siguiente pregunta...');
+        const nextResponse = await this.questionService.getNextQuestion(
+          this.pacienteId,
+          this.currentQuestion._id,
           this.selectedAnswer
         ).toPromise();
-    
-        if (response.ok) {
-          // Guardar en historial
-          this.questionsHistory.push({
-            questionId: this.currentQuestion._id,
-            answer: this.selectedAnswer
-          });
-    
-          // Verificar si la respuesta requiere alerta
-          if (response.requiresAlert) {
-            await this.sendAlert(response.alertReason);
-          }
-    
-          // Si es la última pregunta, finalizar el cuestionario
-          if (this.isLastQuestion) {
-            await this.finishQuestionnaire();
-            return;
-          }
-    
-          // Cargar la siguiente pregunta
-          const nextResponse = await this.questionService.getNextQuestion(
-            this.pacienteId,
-            this.currentQuestion._id,
-            this.selectedAnswer
-          ).toPromise();
-    
-          if (nextResponse.ok && nextResponse.question) {
-            this.currentQuestion = nextResponse.question;
-            this.selectedAnswer = '';
-            this.isLastQuestion = nextResponse.isLastQuestion;
-          } else {
-            // Si no hay más preguntas, finalizar el cuestionario
-            await this.finishQuestionnaire();
-          }
+  
+        console.log('Respuesta de siguiente pregunta:', nextResponse);
+  
+        if (nextResponse.ok && nextResponse.question) {
+          this.currentQuestion = nextResponse.question;
+          this.selectedAnswer = '';
+          this.isLastQuestion = nextResponse.isLastQuestion;
+          console.log('Nueva pregunta cargada:', this.currentQuestion.question);
         } else {
-          console.log(response.msg);
+          // Si no hay más preguntas, finalizar el cuestionario
+          console.log('No hay más preguntas, finalizando cuestionario');
+          await this.finishQuestionnaire();
         }
-        
-        this.isProcessing = false;
-      } catch (error) {
-        console.error('Error al enviar la respuesta:', error);
-        this.isProcessing = false;
+      } else {
+        console.log('Error en la respuesta:', response.msg);
+        this.showNotification('Error al procesar la respuesta: ' + response.msg);
       }
+    } catch (error) {
+      console.error('Error al enviar la respuesta:', error);
+      this.showNotification('Ocurrió un error al procesar tu respuesta.');
+    } finally {
+      this.isProcessing = false;
     }
+  }
 
   async sendAlert(reason: string) {
     try {
@@ -208,6 +190,7 @@ export class HomeComponent  implements OnInit {
       console.error('Error al enviar alerta:', error);
     }
   }
+
   async finishQuestionnaire() {
     try {
       await this.questionService.finishQuestionnaire(this.pacienteId).toPromise();
@@ -224,11 +207,6 @@ export class HomeComponent  implements OnInit {
       console.error('Error al finalizar cuestionario:', error);
     }
   }
-  /*isBadResponse(answer: string): boolean {
-    return this.badResponses.some(badResponse => 
-      answer.toLowerCase().includes(badResponse.toLowerCase())
-    );
-  }*/
 
   async handleBadResponse() {
     try {
@@ -284,7 +262,6 @@ export class HomeComponent  implements OnInit {
     }
   }
   
-
   private getTreatments(pacienteId: string): void {
     this.pacienteService.getTreatments(pacienteId).subscribe(
       (response: any) => {
@@ -304,15 +281,14 @@ export class HomeComponent  implements OnInit {
     );
   }
 
-  private getExercises(pacienteId :string): void {
+  private getExercises(pacienteId: string): void {
     if (pacienteId) {
       this.pacienteService.getExercise(pacienteId).subscribe(
         (response: any) => {
           if (response.ok && Array.isArray(response.exercise_routines)) {
-            //console.log(response.exercise_routines);
             this.exercise = response.exercise_routines
-            .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()) 
-            .slice(0, 3); 
+              .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()) 
+              .slice(0, 3); 
           } else {
             console.error('No se pudieron obtener los ejercicios.');
             this.exercise = [];
@@ -328,7 +304,7 @@ export class HomeComponent  implements OnInit {
 
   updateCheckpoint(exercise: any) {
     const pacienteId = localStorage.getItem('pacienteId');
-    if(pacienteId){
+    if (pacienteId) {
       this.pacienteService.updateExerciseCheckpoint(pacienteId, exercise._id, exercise.checkpoint).subscribe(
         (response) => {
           console.log('Checkpoint actualizado:', response);
@@ -360,7 +336,6 @@ export class HomeComponent  implements OnInit {
           },
           error => {
             console.error('Error al actualizar medidas:', error);
-            //alert('Hubo un error al registrar las medidas.');
           }
         );
       }
@@ -372,11 +347,11 @@ export class HomeComponent  implements OnInit {
     localStorage.setItem('preguntadeldia', 'false'); 
     this.showAnsweredAux = false;
     setTimeout(() => {
-      console.log('Mostrando formulario después de 10 minutos...'); 
+      console.log('Mostrando formulario después de 24 horas...'); 
       this.resetQuestion();
       
       localStorage.setItem('preguntadeldia', 'true'); 
-    }, 24 * 60 * 60 * 1000  ); //10 * 1000 <--- 10 seg 24 * 60 * 60 * 1000
+    }, 24 * 60 * 60 * 1000);
   }
 
   resetQuestion() {
@@ -392,7 +367,7 @@ export class HomeComponent  implements OnInit {
       this.resetForm();
       
       localStorage.setItem('showForm', 'true'); 
-    }, 10 * 1000); //10 * 60 * 1000 <--- 10 minutos
+    }, 10 * 60 * 1000); // 10 minutos
   }
 
   resetForm() {
@@ -402,6 +377,7 @@ export class HomeComponent  implements OnInit {
     this.showHeartRate = false;
     this.showBloodPressure = false;
   }
+
   onOptionSelect(option: string) {
     this.selectedAnswer = option;
   }

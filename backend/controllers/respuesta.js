@@ -1,4 +1,4 @@
-// controllers/respuesta.controller.js
+// controllers/respuesta.js
 const { response } = require("express");
 const Respuesta = require("../models/respuesta");
 const Paciente = require("../models/paciente");
@@ -26,30 +26,45 @@ const obtenerRespuestasPaciente = async (req, res = response) => {
     const { pacienteId } = req.params;
     
     try {
-        // Obtener las respuestas del paciente
-        const respuestas = await Respuesta.find({ patientId: pacienteId })
+        // Obtener las respuestas del paciente (usando pacienteId en lugar de patientId)
+        const respuestas = await Respuesta.find({ pacienteId: pacienteId })
             .sort({ date: -1 });
         
-        // Obtener los IDs cortos de las preguntas
-        const questionShortIds = [...new Set(respuestas.map(r => r.questionId))];
+        console.log(`Encontradas ${respuestas.length} respuestas para el paciente ${pacienteId}`);
         
-        // Buscar todas las preguntas por shortId en lugar de _id
+        if (respuestas.length === 0) {
+            return res.json({
+                ok: true,
+                respuestas: []
+            });
+        }
+        
+        // Obtener los IDs de las preguntas
+        const questionIds = [...new Set(respuestas.map(r => r.questionId))];
+        
+        // Buscar todas las preguntas
         const preguntas = await Pregunta.find({ 
-            shortId: { $in: questionShortIds } 
+            _id: { $in: questionIds } 
         });
         
-        // Crear un mapa para acceder rápidamente a las preguntas por shortId
+        console.log(`Encontradas ${preguntas.length} preguntas relacionadas`);
+        
+        // Crear un mapa para acceder rápidamente a las preguntas por ID
         const preguntasMap = {};
         preguntas.forEach(pregunta => {
-            preguntasMap[pregunta.shortId] = pregunta;
+            preguntasMap[pregunta._id.toString()] = pregunta;
         });
         
         // Enriquecer las respuestas con información de las preguntas
         const respuestasCompletas = respuestas.map(respuesta => {
-            const pregunta = preguntasMap[respuesta.questionId] || {};
+            const questionIdStr = respuesta.questionId.toString();
+            const pregunta = preguntasMap[questionIdStr] || {};
+            
             return {
                 ...respuesta.toObject(),
-                questionText: pregunta.question || 'Pregunta no disponible'
+                questionText: pregunta.question || 'Pregunta no disponible',
+                // Usar triggeredAlert como fuente de alerta
+                alerta: respuesta.triggeredAlert
             };
         });
         
@@ -61,7 +76,8 @@ const obtenerRespuestasPaciente = async (req, res = response) => {
         console.error('Error obteniendo respuestas del paciente:', error);
         res.status(500).json({
             ok: false,
-            msg: 'Error del servidor al obtener respuestas'
+            msg: 'Error del servidor al obtener respuestas',
+            error: error.message
         });
     }
 };
@@ -69,10 +85,19 @@ const obtenerRespuestasPaciente = async (req, res = response) => {
 // Obtener respuestas con alertas para el panel del médico
 const getAlertasPacientes = async (req, res = response) => {
     try {
-        // Obtener respuestas con alerta, ordenadas por fecha descendente
-        const alertas = await Respuesta.find({ alerta: true })
+        // Obtener respuestas con alerta, usando triggeredAlert en lugar de alerta
+        const alertas = await Respuesta.find({ triggeredAlert: true })
             .sort({ date: -1 })
             .limit(50); // Limitar a las 50 más recientes
+        
+        console.log(`Encontradas ${alertas.length} alertas activas`);
+        
+        if (alertas.length === 0) {
+            return res.json({
+                ok: true,
+                alertas: []
+            });
+        }
         
         // Obtener información de las preguntas para cada respuesta
         const questionIds = [...new Set(alertas.map(alerta => alerta.questionId))];
@@ -81,32 +106,35 @@ const getAlertasPacientes = async (req, res = response) => {
         // Crear mapa de preguntas para acceso rápido
         const preguntaMap = {};
         preguntas.forEach(pregunta => {
-            preguntaMap[pregunta._id] = pregunta;
+            preguntaMap[pregunta._id.toString()] = pregunta;
         });
         
         // Obtener la información básica de cada paciente para mostrarla
-        const pacientesIds = [...new Set(alertas.map(alerta => alerta.patientId))];
+        const pacientesIds = [...new Set(alertas.map(alerta => alerta.pacienteId))];
         const pacientes = await Paciente.find({ _id: { $in: pacientesIds } })
             .select('nombre apellidos'); // Seleccionar solo los campos necesarios
         
         // Crear un mapa de pacientes para acceso rápido
         const pacienteMap = {};
         pacientes.forEach(paciente => {
-            pacienteMap[paciente._id] = paciente;
+            pacienteMap[paciente._id.toString()] = paciente;
         });
         
         // Agregar la información completa a cada alerta
         const alertasCompletas = alertas.map(alerta => {
-            const pregunta = preguntaMap[alerta.questionId] || { question: 'Pregunta no disponible' };
-            const paciente = pacienteMap[alerta.patientId] || { nombre: 'Desconocido', apellidos: '' };
+            const questionIdStr = alerta.questionId.toString();
+            const pacienteIdStr = alerta.pacienteId.toString();
+            
+            const pregunta = preguntaMap[questionIdStr] || { question: 'Pregunta no disponible' };
+            const paciente = pacienteMap[pacienteIdStr] || { nombre: 'Desconocido', apellidos: '' };
             
             return {
                 _id: alerta._id,
-                patientId: alerta.patientId,
+                pacienteId: alerta.pacienteId, // Usar nombre consistente
                 questionId: alerta.questionId,
                 answer: alerta.answer,
                 date: alerta.date,
-                alerta: alerta.alerta,
+                alerta: alerta.triggeredAlert, // Mapear triggeredAlert a alerta para compatibilidad
                 questionText: pregunta.question,
                 pacienteNombre: paciente.nombre,
                 pacienteApellidos: paciente.apellidos
@@ -121,7 +149,8 @@ const getAlertasPacientes = async (req, res = response) => {
         console.error("Error obteniendo alertas:", error);
         return res.status(500).json({
             ok: false,
-            msg: "Error interno del servidor"
+            msg: "Error interno del servidor",
+            error: error.message
         });
     }
 };
@@ -141,7 +170,8 @@ const actualizarAlertaRespuesta = async (req, res = response) => {
             });
         }
         
-        respuesta.alerta = alerta;
+        // Actualizar triggeredAlert en lugar de alerta
+        respuesta.triggeredAlert = alerta;
         await respuesta.save();
         
         res.json({
@@ -153,7 +183,8 @@ const actualizarAlertaRespuesta = async (req, res = response) => {
         console.error('Error actualizando estado de alerta:', error);
         res.status(500).json({
             ok: false,
-            msg: 'Error del servidor al actualizar estado de alerta'
+            msg: 'Error del servidor al actualizar estado de alerta',
+            error: error.message
         });
     }
 };
@@ -166,15 +197,17 @@ const verificarAlertasPaciente = async (req, res = response) => {
         const hoy = new Date();
         const ayer = new Date(hoy);
         ayer.setDate(hoy.getDate() - 1);
-        const fechaAyer = ayer.toISOString().split('T')[0];
-        const fechaHoy = hoy.toISOString().split('T')[0];
         
-        // Buscar respuestas con alerta del último día
+        console.log(`Verificando alertas para paciente ${pacienteId} desde ${ayer.toISOString()}`);
+        
+        // Buscar respuestas con alerta del último día (usando triggeredAlert en lugar de alerta)
         const respuestasConAlerta = await Respuesta.find({
-            patientId: pacienteId,
-            alerta: true,
-            date: { $gte: fechaAyer } // Respuestas desde ayer
+            pacienteId: pacienteId, // Usar pacienteId en lugar de patientId
+            triggeredAlert: true,
+            date: { $gte: ayer } // Respuestas desde ayer
         }).limit(1); // Solo necesitamos una para confirmar que hay alertas
+        
+        console.log(`Encontradas ${respuestasConAlerta.length} respuestas con alerta`);
         
         const tieneAlertas = respuestasConAlerta.length > 0;
         
@@ -188,7 +221,8 @@ const verificarAlertasPaciente = async (req, res = response) => {
         console.error("Error verificando alertas del paciente:", error);
         return res.status(500).json({
             ok: false,
-            msg: "Error interno del servidor"
+            msg: "Error interno del servidor",
+            error: error.message
         });
     }
 };
