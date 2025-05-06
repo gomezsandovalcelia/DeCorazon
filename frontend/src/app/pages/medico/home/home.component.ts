@@ -12,21 +12,19 @@ import { catchError, map } from 'rxjs/operators';
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
-  pacientes: any[] = []; // Lista de pacientes
-  medicoId: string = ''; // ID del médico
-  alertas: any[] = [];
+  pacientes: any[] = [];
+  medicoId: string = '';
   loading: boolean = true;
-  pacientesConAlertas: { [key: string]: boolean } = {}; 
+  pacientesConAlertas: { [key: string]: boolean } = {};
   
-  constructor( 
-    private respuestaService: RespuestaService, 
-    private medicoService: MedicoService, 
+  constructor(
+    private respuestaService: RespuestaService,
+    private medicoService: MedicoService,
     private router: Router
   ) { }
   
   ngOnInit() {
-    this.medicoId = localStorage.getItem('userId') || ''; 
-    console.log('ID del médico:', this.medicoId); 
+    this.medicoId = localStorage.getItem('userId') || '';
     
     if (this.medicoId) {
       this.getPacientes();
@@ -34,12 +32,9 @@ export class HomeComponent implements OnInit {
       console.error('No se encontró el ID del médico en localStorage');
     }
     
-    this.cargarAlertas();
-    
     // Configurar actualización periódica cada 5 minutos
     setInterval(() => {
       this.verificarAlertasPacientes();
-      this.cargarAlertas();
     }, 5 * 60 * 1000);
   }
   
@@ -49,7 +44,8 @@ export class HomeComponent implements OnInit {
       (response) => {
         if (response.ok) {
           this.pacientes = response.pacientes;
-          console.log('Pacientes asignados:', this.pacientes);
+          // Ordenar pacientes por puntuación (ascendente - los más preocupantes primero)
+          this.ordenarPacientesPorEstado();
           this.verificarAlertasPacientes();
         } else {
           console.error('Error al obtener pacientes:', response.message);
@@ -62,10 +58,19 @@ export class HomeComponent implements OnInit {
       }
     );
   }
+  
+  // Nuevo método para ordenar pacientes
+  ordenarPacientesPorEstado() {
+    this.pacientes.sort((a, b) => {
+      const estadoA = this.evaluarEstadoSalud(a);
+      const estadoB = this.evaluarEstadoSalud(b);
+      
+      // Ordenar de menor a mayor puntuación (más preocupante a menos preocupante)
+      return estadoA.puntuacion - estadoB.puntuacion;
+    });
+  }
 
   verificarAlertasPacientes() {
-    console.log('Verificando alertas para', this.pacientes.length, 'pacientes');
-    
     // Si no hay pacientes, no hay nada que verificar
     if (!this.pacientes || this.pacientes.length === 0) {
       return;
@@ -94,7 +99,9 @@ export class HomeComponent implements OnInit {
           resultados.forEach(resultado => {
             this.pacientesConAlertas[resultado.pacienteId] = resultado.tieneAlertas;
           });
-          console.log('Pacientes con alertas:', this.pacientesConAlertas);
+          
+          // Reordenar pacientes después de actualizar las alertas
+          this.ordenarPacientesPorEstado();
         }
       );
     }
@@ -105,7 +112,6 @@ export class HomeComponent implements OnInit {
   }
   
   verDetallePaciente(pacienteId: string) {
-    console.log('Navegando a detalle de paciente:', pacienteId);
     this.router.navigate(['/medico/detalle-paciente', pacienteId]);
   }
 
@@ -119,39 +125,55 @@ export class HomeComponent implements OnInit {
     const ultimaMedicion = paciente.measurements.slice(-1)[0];
     let puntuacion = 0;
     
-    // Evaluar peso (asumiendo valores normales entre 50-90kg)
-    const peso = ultimaMedicion.weight;
-    if (peso >= 50 && peso <= 90) {
-      puntuacion += 33; // Peso normal
-    } else if (peso >= 40 && peso < 50) {
-      puntuacion += 20; // Bajo peso
-    } else if (peso > 90 && peso <= 110) {
-      puntuacion += 20; // Sobrepeso
+    // Evaluar IMC si tenemos altura y peso
+    if (paciente.altura && ultimaMedicion.weight) {
+      // Calcular IMC: peso(kg) / (altura(m))²
+      const alturaEnMetros = paciente.altura / 100;
+      const imc = ultimaMedicion.weight / (alturaEnMetros * alturaEnMetros);
+      
+      // Evaluar el IMC (valores estándar de la OMS)
+      if (imc >= 18.5 && imc < 25) {
+        puntuacion += 25; // IMC normal
+      } else if ((imc >= 17 && imc < 18.5) || (imc >= 25 && imc < 30)) {
+        puntuacion += 15; // Bajo peso leve o sobrepeso
+      } else if ((imc >= 16 && imc < 17) || (imc >= 30 && imc < 35)) {
+        puntuacion += 10; // Bajo peso moderado u obesidad tipo I
+      } else {
+        puntuacion += 5; // Bajo peso severo u obesidad tipo II o mayor
+      }
     } else {
-      puntuacion += 10; // Peso preocupante
+      // Si no tenemos altura, mantenemos la evaluación de peso como antes
+      const peso = ultimaMedicion.weight;
+      if (peso >= 50 && peso <= 90) {
+        puntuacion += 25; // Peso normal
+      } else if (peso >= 40 && peso < 50) {
+        puntuacion += 15; // Bajo peso
+      } else if (peso > 90 && peso <= 110) {
+        puntuacion += 15; // Sobrepeso
+      } else {
+        puntuacion += 5; // Peso preocupante
+      }
     }
-    
     // Evaluar frecuencia cardíaca (normal: 60-100 ppm)
     const frecuencia = ultimaMedicion.heart_rate;
     if (frecuencia >= 60 && frecuencia <= 100) {
-      puntuacion += 33; // Frecuencia normal
+      puntuacion += 25; // Frecuencia normal
     } else if ((frecuencia >= 50 && frecuencia < 60) || (frecuencia > 100 && frecuencia <= 110)) {
-      puntuacion += 20; // Ligeramente anormal
+      puntuacion += 15; // Ligeramente anormal
     } else {
-      puntuacion += 10; // Frecuencia preocupante
+      puntuacion += 5; // Frecuencia preocupante
     }
     
     // Evaluar presión arterial
-    // Formato esperado: "120/80"
     const presion = ultimaMedicion.blood_pressure;
     try {
       const [sistolica, diastolica] = presion.split('/').map(Number);
       
       // Evaluar presión sistólica (normal: 90-120)
       if (sistolica >= 90 && sistolica <= 120) {
-        puntuacion += 17; // Normal
+        puntuacion += 25; // Normal
       } else if (sistolica > 120 && sistolica <= 139) {
-        puntuacion += 10; // Prehipertensión
+        puntuacion += 15; // Prehipertensión
       } else if (sistolica > 139) {
         puntuacion += 5; // Hipertensión
       } else if (sistolica < 90) {
@@ -160,9 +182,9 @@ export class HomeComponent implements OnInit {
       
       // Evaluar presión diastólica (normal: 60-80)
       if (diastolica >= 60 && diastolica <= 80) {
-        puntuacion += 17; // Normal
+        puntuacion += 25; // Normal
       } else if (diastolica > 80 && diastolica <= 89) {
-        puntuacion += 10; // Prehipertensión
+        puntuacion += 15; // Prehipertensión
       } else if (diastolica > 89) {
         puntuacion += 5; // Hipertensión
       } else if (diastolica < 60) {
@@ -193,22 +215,27 @@ export class HomeComponent implements OnInit {
     }
   }
   
-  cargarAlertas(): void {
-    this.loading = true;
-    this.respuestaService.getAlertas().subscribe(
-      (res) => {
-        if (res.ok) {
-          this.alertas = res.alertas;
-          console.log('Alertas cargadas:', this.alertas.length);
-        } else {
-          console.error('Error obteniendo alertas:', res.msg);
-        }
-        this.loading = false;
-      },
-      (error) => {
-        console.error('Error en la petición de alertas:', error);
-        this.loading = false;
-      }
-    );
+  // Calcular IMC para un paciente
+  calcularIMC(paciente: any): number {
+    if (!paciente.altura || !paciente.measurements || paciente.measurements.length === 0) {
+      return 0;
+    }
+    
+    const peso = paciente.measurements.slice(-1)[0].weight;
+    const alturaEnMetros = paciente.altura / 100;
+    return peso / (alturaEnMetros * alturaEnMetros);
+  }
+
+  // Obtener estado textual del IMC
+  getEstadoIMC(imc: number): string {
+    if (imc === 0) return 'No disponible';
+    if (imc < 16) return 'Delgadez severa';
+    if (imc < 17) return 'Delgadez moderada';
+    if (imc < 18.5) return 'Delgadez leve';
+    if (imc < 25) return 'Normal';
+    if (imc < 30) return 'Sobrepeso';
+    if (imc < 35) return 'Obesidad tipo I';
+    if (imc < 40) return 'Obesidad tipo II';
+    return 'Obesidad tipo III';
   }
 }

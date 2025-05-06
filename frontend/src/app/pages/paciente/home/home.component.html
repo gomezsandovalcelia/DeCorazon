@@ -3,7 +3,7 @@
     <div class="image-container">
       <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
     </div>
-    <ion-content class="ion-padding">
+    
       <!-- Cuestionario diario -->
       <div *ngIf="showQuestionnaire" class="questionnaire-section">
         <ion-card>
@@ -99,8 +99,47 @@
     <!--<ion-button expand="block" class="register-button"  routerLink="/medidas">
       Registra tus datos
     </ion-button>-->
-
-    <h2 class="task-title" routerLink="/ejercicios">Tareas Pendientes</h2>
+    <div *ngIf="pastilleroHoy" class="pastillero-hoy">
+      <h2 style="margin-top: 50px;" class="task-title">Medicación para hoy ({{ diaActual }})</h2>
+      <ion-card class="medication-card">
+        <ion-card-content>
+          <div class="time-slot" *ngIf="pastilleroHoy.morning">
+            <div class="time-header">
+              <ion-icon name="sunny-outline"></ion-icon>
+              <h3>Mañana</h3>
+            </div>
+            <p>{{ pastilleroHoy.morning }}</p>
+          </div>
+          
+          <div class="time-slot" *ngIf="pastilleroHoy.afternoon">
+            <div class="time-header">
+              <ion-icon name="partly-sunny-outline"></ion-icon>
+              <h3>Tarde</h3>
+            </div>
+            <p>{{ pastilleroHoy.afternoon }}</p>
+          </div>
+          
+          <div class="time-slot" *ngIf="pastilleroHoy.night">
+            <div class="time-header">
+              <ion-icon name="moon-outline"></ion-icon>
+              <h3>Noche</h3>
+            </div>
+            <p>{{ pastilleroHoy.night }}</p>
+          </div>
+          
+          <div *ngIf="!pastilleroHoy.morning && !pastilleroHoy.afternoon && !pastilleroHoy.night" class="no-medication">
+            <p>No hay medicación programada para hoy</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+      
+      <!-- Botón para ver el pastillero completo -->
+      <ion-button expand="block" routerLink="/tratamiento" class="small-button">
+        <ion-icon  name="calendar-outline"></ion-icon>
+        Ver pastillero semanal
+      </ion-button>
+    </div>
+    <h2 style="margin-top: 50px;" class="task-title" routerLink="/ejercicios">Tareas Pendientes</h2>
     <ion-list>
       <ion-item class="itemx" *ngFor="let ex of exercise">
         <ion-label>
@@ -116,19 +155,19 @@
         <p>No hay ejercicios disponibles.</p>
       </ion-label>
     </ion-item>
-    <h2 class="task-title" routerLink="/tratamiento">Tratamiento de hoy</h2>
-    <ion-list>
-      <ion-item class="itemx" *ngFor="let treatment of treatments">
+      <!--  <h2 class="task-title" routerLink="/tratamiento">Tratamiento de hoy</h2>
+      <ion-list>
+        <ion-item class="itemx" *ngFor="let treatment of treatments">
+          <ion-label>
+            <p>{{ treatment.date | date:'dd/MM/yyyy HH:mm' }}</p>
+            <h3>{{ treatment.description }}</h3>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+      <ion-item *ngIf="treatments.length === 0">
         <ion-label>
-          <p>{{ treatment.date | date:'dd/MM/yyyy HH:mm' }}</p>
-          <h3>{{ treatment.description }}</h3>
+          <p>No hay tratamientos disponibles.</p>
         </ion-label>
-      </ion-item>
-    </ion-list>
-    <ion-item *ngIf="treatments.length === 0">
-      <ion-label>
-        <p>No hay tratamientos disponibles.</p>
-      </ion-label>
-    </ion-item>
+      </ion-item>-->
 </ion-content>
   

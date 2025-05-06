@@ -538,12 +538,106 @@ const agregarEjercicio = async (req, res) => {
         });
     }
 };
+const obtenerPastillero = async (req, res) => {
+    try {
+        const patientId = req.params.id;
+        const paciente = await Paciente.findById(patientId).select('pastillero');
 
+        if (!paciente) {
+            return res.status(404).json({ 
+                ok: false, 
+                message: 'Paciente no encontrado' 
+            });
+        }
+
+        // Si el paciente no tiene pastillero, lo inicializamos
+        if (!paciente.pastillero || paciente.pastillero.length === 0) {
+            // Inicializamos el pastillero con los días de la semana
+            const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            paciente.pastillero = diasSemana.map(day => ({
+                day,
+                morning: '',
+                afternoon: '',
+                night: ''
+            }));
+            await paciente.save();
+        }
+
+        res.json({
+            ok: true,
+            pastillero: paciente.pastillero
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            message: 'Error del servidor'
+        });
+    }
+};
+
+// Actualizar la medicación de un día específico
+const actualizarMedicacionDia = async (req, res) => {
+    try {
+        const patientId = req.params.id;
+        const { day } = req.params;
+        const { morning, afternoon, night } = req.body;
+
+        const paciente = await Paciente.findById(patientId);
+
+        if (!paciente) {
+            return res.status(404).json({
+                ok: false,
+                message: 'Paciente no encontrado'
+            });
+        }
+
+        // Inicializar pastillero si no existe
+        if (!paciente.pastillero || paciente.pastillero.length === 0) {
+            const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            paciente.pastillero = diasSemana.map(d => ({
+                day: d,
+                morning: '',
+                afternoon: '',
+                night: ''
+            }));
+        }
+
+        // Encontrar el día en el pastillero y actualizarlo
+        const dayIndex = paciente.pastillero.findIndex(d => d.day.toLowerCase() === day.toLowerCase());
+        
+        if (dayIndex === -1) {
+            return res.status(404).json({
+                ok: false,
+                message: 'Día no encontrado'
+            });
+        }
+
+        // Actualizar los campos proporcionados
+        if (morning !== undefined) paciente.pastillero[dayIndex].morning = morning;
+        if (afternoon !== undefined) paciente.pastillero[dayIndex].afternoon = afternoon;
+        if (night !== undefined) paciente.pastillero[dayIndex].night = night;
+
+        await paciente.save();
+
+        res.json({
+            ok: true,
+            message: 'Medicación actualizada correctamente',
+            day: paciente.pastillero[dayIndex]
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            message: 'Error del servidor'
+        });
+    }
+};
 
 module.exports = { obtenerPacientes, crearPaciente, 
     actualizarPaciente, borrarPaciente, obtenerTratamientos, 
     obtenerEjercicios, actualizarCheckpoint, obtenerPacientePorId, 
     obtenerMedidas, cambiarMedidas,
     addExercise, getExercises, addExerciseRoute,
-
-agregarTratamiento, agregarEjercicio };
+    agregarTratamiento, agregarEjercicio, obtenerPastillero,
+    actualizarMedicacionDia};

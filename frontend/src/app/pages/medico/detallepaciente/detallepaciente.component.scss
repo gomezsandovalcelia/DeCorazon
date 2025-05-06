@@ -82,6 +82,7 @@ ion-card-header {
 }
 
 form {
+
   padding: 10px 0;
 }
 
@@ -227,4 +228,184 @@ ion-back-button {
   ion-spinner {
     margin-bottom: 10px;
   }
+}
+/* Estilos para la sección de respuestas */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  
+  ion-spinner {
+    margin-bottom: 10px;
+  }
+}
+
+.mensaje-vacio {
+  text-align: center;
+  color: var(--ion-color-medium);
+  padding: 20px;
+}
+
+/* Estilos para las respuestas */
+.respuesta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.pregunta-texto {
+  font-weight: 600;
+  color: var(--ion-color-primary);
+  margin-bottom: 5px;
+}
+
+.respuesta-content {
+  margin: 8px 0;
+  white-space: pre-line; /* Preserva los saltos de línea */
+}
+
+.respuesta-fecha {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+  margin-top: 5px;
+}
+
+/* Estilo para respuestas con alerta */
+.respuesta-alerta {
+  background-color: rgba(var(--ion-color-danger-rgb), 0.1);
+  border-left: 3px solid var(--ion-color-danger);
+}
+
+/* Estilos para el gráfico */
+.chart-container {
+  position: relative;
+  height: 250px;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+/* Estilos para la explicación del estado */
+.estado-explicacion {
+  margin-top: 15px;
+  font-size: 0.9rem;
+  
+  ul {
+    padding-left: 15px;
+  }
+  
+  li {
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .estado {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+  
+  .excelente {
+    background-color: rgba(0, 0, 255, 1);
+  }
+  
+  .bueno {
+    background-color: rgba(0, 255, 0, 1);
+  }
+  
+  .regular {
+    background-color: rgba(255, 255, 0, 1);
+  }
+  
+  .deficiente {
+    background-color: rgba(255, 165, 0, 1);
+  }
+  
+  .alarmante {
+    background-color: rgba(255, 0, 0, 1);
+  }
+}
+
+.date-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--ion-color-light);
+  border-radius: 4px;
+  background-color: var(--ion-background-color);
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.custom-segment {
+  margin-bottom: 16px;
+}
+
+
+.dias-semana {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  
+  ion-chip {
+    --background: #f4f5f8;
+    --color: #6b1a0b;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    
+    &.selected {
+      --background: #6b1a0b;
+      --color: white;
+      font-weight: bold;
+    }
+    
+    &:hover {
+      --background: #6b1a0b;
+      cursor: pointer;
+    }
+  }
+}
+
+.dia-title {
+  font-size: 18px;
+  color: #6b1a0b;
+  font-weight: 600;
+  margin: 16px 0 8px;
+  text-align: center;
+}
+
+ion-textarea {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  margin-bottom: 8px;
+}
+
+ion-item ion-label {
+  ion-icon {
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+}
+
+// Iconos específicos para cada momento del día
+ion-icon[name="sunny-outline"] {
+  color: #f39c12; /* Amarillo para la mañana */
+}
+
+ion-icon[name="partly-sunny-outline"] {
+  color: #e67e22; /* Naranja para la tarde */
+}
+
+ion-icon[name="moon-outline"] {
+  color: #34495e; /* Azul oscuro para la noche */
+}
+
+.no-medicacion {
+  color: #999;
+  font-style: italic;
 }

@@ -3,8 +3,8 @@ const { obtenerPacientes, crearPaciente, actualizarPaciente,
     borrarPaciente, obtenerTratamientos, obtenerEjercicios, actualizarCheckpoint, 
     obtenerPacientePorId, obtenerMedidas, cambiarMedidas,
     addExercise, getExercises, addExerciseRoute,
-
-agregarEjercicio, agregarTratamiento} = require('../controllers/paciente');
+    agregarEjercicio, agregarTratamiento, obtenerPastillero,
+    actualizarMedicacionDia} = require('../controllers/paciente');
 const { check } = require('express-validator');
 const { validarCampos } = require('../middleware/validar-campos');
 const { validarRol } = require('../middleware/validar-rol');
@@ -79,5 +79,9 @@ router.post('/:id/ejercicio', [
     validarJWT
     
 ], agregarEjercicio);
+
+router.get('/:id/pastillero', validarJWT, obtenerPastillero);
+
+router.put('/:id/pastillero/:day', validarJWT, actualizarMedicacionDia);
 
 module.exports = router;

@@ -1,5 +1,12 @@
 const { Schema, model } = require('mongoose');
 
+const PastilleroSchema = new Schema({
+    day: { type: String, required: true }, // Lunes, Martes, etc.
+    morning: { type: String, default: "" }, // Medicación por la mañana
+    afternoon: { type: String, default: "" }, // Medicación por la tarde
+    night: { type: String, default: "" } // Medicación por la noche
+}, { _id: false });
+
 const TreatmentSchema = new Schema({
     date: { type: String, required: true },
     description: { type: String, required: true }
@@ -37,6 +44,10 @@ const PacienteSchema = Schema({
         type: String,
         required: true,
     },
+    altura: {
+        type: Number,
+        default: null
+    },
     rol: {
         type: String,
         required: true,
@@ -48,14 +59,9 @@ const PacienteSchema = Schema({
         required: true
     },
     treatments: [TreatmentSchema], 
+    pastillero: [PastilleroSchema],
     measurements: [MeasurementSchema],
     exercise_routines: [ExerciseSchema]
 }, { collection: 'Pacientes' });
-/*
-PacienteSchema.method('toJSON', function() {
-    const { _id, password, ...object } = this.toObject();
-    object.uid = _id;
-    return object;
-})*/
 
 module.exports = model('Paciente', PacienteSchema);

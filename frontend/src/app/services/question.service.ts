@@ -16,10 +16,10 @@ export class QuestionService {
   }
 
  // En question.service.ts
-getNextQuestion(pacienteId: string, currentQuestionId: string, answer: string): Observable<any> {
-  console.log('Solicitando siguiente pregunta:', { pacienteId, currentQuestionId, answer });
-  return this.http.get(`${this.apiUrl}/next-question/${pacienteId}/${currentQuestionId}/${answer}`);
-}
+  getNextQuestion(pacienteId: string, currentQuestionId: string, answer: string): Observable<any> {
+    console.log('Solicitando siguiente pregunta:', { pacienteId, currentQuestionId, answer });
+    return this.http.get(`${this.apiUrl}/next-question/${pacienteId}/${currentQuestionId}/${answer}`);
+  }
 
   // Guardar la respuesta del usuario
   saveResponse(pacienteId: string, questionId: string, answer: string): Observable<any> {
@@ -43,5 +43,15 @@ getNextQuestion(pacienteId: string, currentQuestionId: string, answer: string): 
     return this.http.post(`${this.apiUrl}/finish-questionnaire`, { patientId }, {
       headers: { 'Content-Type': 'application/json' }
     });
+  }
+
+  // Método para obtener todas las preguntas
+  getAllQuestions(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/all-questions`);
+  }
+
+  // Método para obtener una pregunta por su ID
+  getQuestionById(questionId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/question/${questionId}`);
   }
 }

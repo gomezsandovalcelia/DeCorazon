@@ -410,6 +410,48 @@ const debugQuestions = async (req, res = response) => {
     });
   }
 };
+const getAllQuestions = async (req, res) => {
+  try {
+      const preguntas = await Pregunta.find();
+      
+      res.json({
+          ok: true,
+          preguntas
+      });
+  } catch (error) {
+      console.error('Error al obtener preguntas:', error);
+      res.status(500).json({
+          ok: false,
+          msg: 'Error al obtener las preguntas. Por favor, contacte al administrador.'
+      });
+  }
+};
+
+const getQuestionById = async (req, res) => {
+  const questionId = req.params.id;
+  
+  try {
+      const pregunta = await Pregunta.findById(questionId);
+      
+      if (!pregunta) {
+          return res.status(404).json({
+              ok: false,
+              msg: 'Pregunta no encontrada'
+          });
+      }
+      
+      res.json({
+          ok: true,
+          pregunta
+      });
+  } catch (error) {
+      console.error('Error al obtener pregunta:', error);
+      res.status(500).json({
+          ok: false,
+          msg: 'Error al obtener la pregunta. Por favor, contacte al administrador.'
+      });
+  }
+};
 
 module.exports = {
   getFirstQuestion,
@@ -417,5 +459,7 @@ module.exports = {
   saveResponse,
   sendAlert,
   finishQuestionnaire,
-  debugQuestions
+  debugQuestions,
+  getAllQuestions,
+  getQuestionById
 };

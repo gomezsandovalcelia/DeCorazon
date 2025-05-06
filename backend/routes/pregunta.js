@@ -7,7 +7,7 @@ const {
   saveResponse,
   sendAlert,
   finishQuestionnaire,
-  debugQuestions
+  debugQuestions, getAllQuestions, getQuestionById
 } = require('../controllers/pregunta');
 
 // Ruta para obtener la primera pregunta del cuestionario
@@ -27,5 +27,6 @@ router.post('/finish-questionnaire', finishQuestionnaire);
 
 // Ruta para debugging - visualizar el árbol de preguntas
 router.get('/debug-questions', debugQuestions);
-
+router.get('/all-questions', getAllQuestions);
+router.get('/question/:id', getQuestionById);
 module.exports = router;

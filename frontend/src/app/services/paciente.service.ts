@@ -45,7 +45,6 @@ export class PacienteService {
     this.router.navigateByUrl('/login');
   }
 
-
   getPacientePorId(patientId: string): Observable<any> {
     this.getHeader();
     return this.http.get<any>(`${this.apiUrl}/paciente/${patientId}`, this.httpOptions);
@@ -55,12 +54,12 @@ export class PacienteService {
     this.getHeader();
     return this.http.get<any>(`${this.apiUrl}/paciente/${patientId}/measurements`, this.httpOptions);
   }
- // Método para obtener los tratamientos del paciente
+
   getTreatments(patientId: string): Observable<any> {
     this.getHeader();
     return this.http.get<any>(`${this.apiUrl}/paciente/${patientId}/treatments`, this.httpOptions);
   }
- // Método para obtener los ejercicios del paciente
+
   getExercise(patientId: string): Observable<any> {
     this.getHeader();
     return this.http.get<any>(`${this.apiUrl}/paciente/${patientId}/exercise_routines`, this.httpOptions);
@@ -75,9 +74,9 @@ export class PacienteService {
     this.getHeader();
     return this.http.put<any>(`${this.apiUrl}/paciente/${patientId}/measurements`, formData, this.httpOptions);
   }
-  // metodo para añadir ejercicio de reposo si la pregunta es mala
+
   addRestExercise(pacienteId: string): Observable<any> {
-    // Crear un nuevo ejercicio de reposo
+
     const now = new Date();
     const restExercise = {
       _id: Date.now().toString(), // ID único
@@ -86,7 +85,6 @@ export class PacienteService {
       checkpoint: false
     };
 
-    // Enviar la solicitud al nuevo endpoint
     return this.http.post(`${this.apiUrl}/paciente/${pacienteId}/exercise`, restExercise)
       .pipe(
         catchError(error => {
@@ -96,17 +94,53 @@ export class PacienteService {
       );
   }
 
-  //nuevo para medico 
-  // Agregar tratamiento a un paciente
   agregarTratamiento(pacienteId: string, tratamiento: any): Observable<any> {
     this.getHeader();
     return this.http.post<any>(`${this.apiUrl}/paciente/${pacienteId}/tratamiento`, tratamiento, this.httpOptions);
   }
 
-  // Agregar ejercicio a un paciente
   agregarEjercicio(pacienteId: string, ejercicio: any): Observable<any> {
     this.getHeader();
     return this.http.post<any>(`${this.apiUrl}/paciente/${pacienteId}/ejercicio`, ejercicio, this.httpOptions);
   }
-  
+
+  updateDayMedication(patientId: string, day: string, medication: any): Observable<any> {
+    this.getHeader();
+    return this.http.put<any>(`${this.apiUrl}/paciente/${patientId}/pastillero/${day}`, medication, this.httpOptions)
+      .pipe(
+        catchError(error => {
+          console.error('Error actualizando medicación:', error);
+          return throwError(error);
+        })
+      );
+  }
+
+  getPastillero(patientId: string): Observable<any> {
+    this.getHeader();
+    return this.http.get<any>(`${this.apiUrl}/paciente/${patientId}/pastillero`, this.httpOptions)
+      .pipe(
+        catchError(error => {
+          console.error('Error obteniendo pastillero:', error);
+          return throwError(error);
+        })
+      );
+  }
+
+  getPastilleroToday(patientId: string): Observable<any> {
+    this.getHeader();
+    const today = new Date();
+    let day = today.getDay(); // 0 es domingo, 1 es lunes, etc.
+    
+    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const diaActual = diasSemana[day];
+    
+    return this.http.get<any>(`${this.apiUrl}/paciente/${patientId}/pastillero/${diaActual}`, this.httpOptions)
+      .pipe(
+        catchError(error => {
+          console.error('Error obteniendo pastillero del día:', error);
+          return throwError(error);
+        })
+      );
+  }
+
 }

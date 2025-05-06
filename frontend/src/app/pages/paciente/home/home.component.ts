@@ -14,6 +14,8 @@ export class HomeComponent implements OnInit {
   treatments: any[] = [];
   exercise: any[] = [];
   pacienteId: any;
+  pastilleroHoy: any = null; 
+  diaActual: string = '';
 
   currentQuestion: any = null;
   showQuestionnaire: boolean = true;
@@ -51,6 +53,7 @@ export class HomeComponent implements OnInit {
       console.log('ID de paciente encontrado:', this.pacienteId);
       this.getTreatments(pacienteId);
       this.getExercises(pacienteId);
+      this.getPastilleroToday(pacienteId);
       this.showQuestionnaire = true;
       console.log('Verificando cuestionario...');
       this.checkQuestionnaire();
@@ -61,6 +64,7 @@ export class HomeComponent implements OnInit {
     if(showForm) {
       this.showFormAux = true;
     }
+    this.obtenerDiaActual();
   }
 
   checkQuestionnaire() {
@@ -380,5 +384,44 @@ export class HomeComponent implements OnInit {
 
   onOptionSelect(option: string) {
     this.selectedAnswer = option;
+  }
+
+  obtenerDiaActual() {
+    const hoy = new Date();
+    const numeroDia = hoy.getDay(); // 0 es domingo, 1 es lunes, etc.
+    
+    // Convertir al formato español
+    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    this.diaActual = diasSemana[numeroDia];
+  }
+  private getPastilleroToday(pacienteId: string): void {
+    this.pacienteService.getPastillero(pacienteId).subscribe(
+      (response: any) => {
+        if (response.ok && Array.isArray(response.pastillero)) {
+          // Buscar el día actual en el pastillero
+          this.pastilleroHoy = response.pastillero.find(
+            (dia: any) => dia.day === this.diaActual
+          );
+          
+          if (!this.pastilleroHoy) {
+            console.log('No se encontró el día actual en el pastillero');
+            // Si no se encuentra, crear un objeto vacío
+            this.pastilleroHoy = {
+              day: this.diaActual,
+              morning: '',
+              afternoon: '',
+              night: ''
+            };
+          }
+        } else {
+          console.error('No se pudo obtener el pastillero o el formato es incorrecto.');
+          this.pastilleroHoy = null;
+        }
+      },
+      (error) => {
+        console.error('Error al obtener pastillero:', error);
+        this.pastilleroHoy = null;
+      }
+    );
   }
 }

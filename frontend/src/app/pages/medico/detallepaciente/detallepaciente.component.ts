@@ -1,11 +1,11 @@
 import { Component, OnInit, ElementRef, ViewChild, AfterViewInit} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MedicoService } from 'src/app/services/medico.service';
 import { PacienteService } from 'src/app/services/paciente.service';
 import { ToastController } from '@ionic/angular';
 import { Chart, registerables } from 'chart.js';
 import { RespuestaService } from 'src/app/services/respuesta.service';
+import { QuestionService } from 'src/app/services/question.service';
 
 Chart.register(...registerables);
 
@@ -16,13 +16,26 @@ interface Measurement {
   blood_pressure: string;
 }
 
+interface Question {
+  _id: string;
+  question: string;
+  shortId: string;
+}
+
+interface PastilleroDay {
+  day: string;
+  morning: string;
+  afternoon: string;
+  night: string;
+}
+
 @Component({
   selector: 'app-detallepaciente',
   templateUrl: './detallepaciente.component.html',
   styleUrls: ['./detallepaciente.component.scss'],
 })
 
-export class DetallepacienteComponent  implements OnInit, AfterViewInit  {
+export class DetallepacienteComponent implements OnInit, AfterViewInit {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef;
 
   pacienteId!: string;
@@ -31,29 +44,41 @@ export class DetallepacienteComponent  implements OnInit, AfterViewInit  {
   
   tratamientoForm!: FormGroup;
   ejercicioForm!: FormGroup;
+  pastilleroForm!: FormGroup;
 
   chart!: Chart;
   
   respuestas: any[] = [];
   cargandoRespuestas: boolean = true;
+  
+  preguntas: Question[] = [];
+  cargandoPreguntas: boolean = true;
 
-  constructor( private route: ActivatedRoute,
+  pastillero: PastilleroDay[] = [];
+  cargandoPastillero: boolean = false;
+  diaSeleccionado: string = '';
+  diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+
+  constructor(
+    private route: ActivatedRoute,
     private pacienteService: PacienteService,
     private formBuilder: FormBuilder,
     private toastController: ToastController,
-    private respuestaService: RespuestaService
+    private respuestaService: RespuestaService,
+    private questionService: QuestionService
   ) { }
 
   ngOnInit() {
     this.pacienteId = this.route.snapshot.paramMap.get('id') || '';
     this.cargarPaciente();
-    this.cargarRespuestas(); 
+    this.cargarRespuestas();
+    this.cargarPreguntas();
+    this.cargarPastillero();
 
     this.inicializarFormularios();
   }
 
   ngAfterViewInit() {
-    // El canvas podría no estar disponible inmediatamente si el segmento no es 'informacion'
     if (this.segmento === 'informacion' && this.paciente?.measurements?.length > 0) {
       this.inicializarGrafico();
     }
@@ -70,15 +95,102 @@ export class DetallepacienteComponent  implements OnInit, AfterViewInit  {
       date: [new Date().toISOString(), Validators.required],
       checkpoint: [false]
     });
+
+    this.pastilleroForm = this.formBuilder.group({
+      morning: [''],
+      afternoon: [''],
+      night: ['']
+    });
   }
 
+  cargarPastillero() {
+    this.cargandoPastillero = true;
+    
+    this.pacienteService.getPastillero(this.pacienteId).subscribe(
+      response => {
+        if (response.ok) {
+          this.pastillero = response.pastillero;
+          this.diaSeleccionado = this.diasSemana[0]; // Seleccionar el primer día por defecto
+          this.actualizarFormularioDia();
+          console.log('Pastillero cargado:', this.pastillero);
+        } else {
+          console.error('Error al cargar pastillero:', response.message);
+          this.mostrarToast('Error al cargar la información del pastillero');
+        }
+        this.cargandoPastillero = false;
+      },
+      error => {
+        console.error('Error al cargar pastillero:', error);
+        this.mostrarToast('Error al cargar la información del pastillero');
+        this.cargandoPastillero = false;
+      }
+    );
+  }
+
+  actualizarFormularioDia() {
+    const diaActual = this.pastillero.find(d => d.day === this.diaSeleccionado);
+    
+    if (diaActual) {
+      this.pastilleroForm.patchValue({
+        morning: diaActual.morning,
+        afternoon: diaActual.afternoon,
+        night: diaActual.night
+      });
+    } else {
+      this.pastilleroForm.reset();
+    }
+  }
+
+  // Método para manejar el cambio de día seleccionado
+  cambiarDiaSeleccionado(dia: string) {
+    this.diaSeleccionado = dia;
+    this.actualizarFormularioDia();
+  }
+
+  guardarMedicacionDia() {
+    if (!this.diaSeleccionado) {
+      this.mostrarToast('Por favor, seleccione un día de la semana');
+      return;
+    }
+
+    const datos = this.pastilleroForm.value;
+    
+    this.pacienteService.updateDayMedication(
+      this.pacienteId, 
+      this.diaSeleccionado, 
+      datos
+    ).subscribe(
+      response => {
+        if (response.ok) {
+          this.mostrarToast('Medicación actualizada correctamente');
+          // Actualizar el pastillero local con los nuevos datos
+          const index = this.pastillero.findIndex(d => d.day === this.diaSeleccionado);
+          if (index !== -1) {
+            this.pastillero[index] = {
+              ...this.pastillero[index],
+              morning: datos.morning,
+              afternoon: datos.afternoon,
+              night: datos.night
+            };
+          }
+        } else {
+          console.error('Error al actualizar medicación:', response.message);
+          this.mostrarToast('Error al actualizar la medicación');
+        }
+      },
+      error => {
+        console.error('Error al actualizar medicación:', error);
+        this.mostrarToast('Error al actualizar la medicación');
+      }
+    );
+  }
+  
   cargarPaciente() {
     this.pacienteService.getPacientePorId(this.pacienteId).subscribe(
       response => {
         if (response.ok) {
           this.paciente = response.paciente;
           console.log('Paciente cargado:', this.paciente);
-          //para la gráfica
           setTimeout(() => {
             if (this.segmento === 'informacion' && this.chartCanvas) {
               this.inicializarGrafico();
@@ -93,6 +205,26 @@ export class DetallepacienteComponent  implements OnInit, AfterViewInit  {
     );
   }
 
+  cargarPreguntas() {
+    this.cargandoPreguntas = true;
+    this.questionService.getAllQuestions().subscribe(
+      response => {
+        if (response.ok) {
+          this.preguntas = response.preguntas;
+          console.log('Preguntas cargadas:', this.preguntas);
+        } else {
+          console.error('Error al cargar preguntas:', response.msg);
+        }
+        this.cargandoPreguntas = false;
+      },
+      error => {
+        console.error('Error al cargar preguntas:', error);
+        this.cargandoPreguntas = false;
+        this.mostrarToast('Error al cargar las preguntas del cuestionario');
+      }
+    );
+  }
+
   agregarTratamiento() {
     if (this.tratamientoForm.valid) {
       const tratamiento = this.tratamientoForm.value;
@@ -101,7 +233,7 @@ export class DetallepacienteComponent  implements OnInit, AfterViewInit  {
         response => {
           if (response.ok) {
             this.mostrarToast('Tratamiento agregado correctamente');
-            this.cargarPaciente(); // Recargar paciente para ver cambios
+            this.cargarPaciente();
             this.tratamientoForm.reset({
               description: '',
               date: new Date().toISOString()
@@ -126,7 +258,7 @@ export class DetallepacienteComponent  implements OnInit, AfterViewInit  {
         response => {
           if (response.ok) {
             this.mostrarToast('Ejercicio agregado correctamente');
-            this.cargarPaciente(); // Recargar paciente para ver cambios
+            this.cargarPaciente();
             this.ejercicioForm.reset({
               description: '',
               date: new Date().toISOString(),
@@ -161,12 +293,12 @@ export class DetallepacienteComponent  implements OnInit, AfterViewInit  {
       }
     }, 100);
   }
+  
   cargarRespuestas() {
     this.cargandoRespuestas = true;
     this.respuestaService.obtenerRespuestasPaciente(this.pacienteId).subscribe(
       response => {
         if (response.ok) {
-          // Ordenar por fecha (más recientes primero)
           this.respuestas = response.respuestas.sort((a: any, b: any) => 
             new Date(b.date).getTime() - new Date(a.date).getTime()
           );
@@ -182,78 +314,88 @@ export class DetallepacienteComponent  implements OnInit, AfterViewInit  {
       }
     );
   }
+  
   obtenerTextoPregunta(questionId: string): string {
-    // Mapa de preguntas frecuentes
+    if (this.preguntas && this.preguntas.length > 0) {
+      const preguntaEncontrada = this.preguntas.find(p => p._id === questionId);
+      if (preguntaEncontrada) {
+        return preguntaEncontrada.question;
+      }
+      
+      const preguntaPorShortId = this.preguntas.find(p => p.shortId === questionId);
+      if (preguntaPorShortId) {
+        return preguntaPorShortId.question;
+      }
+    }
+    
     const preguntasComunes: {[key: string]: string} = {
       'q1': '¿Cómo te encuentras hoy?',
       'q2': '¿Notas ahogo en reposo?',
       'q3': '¿Has subido el número de almohadas para dormir?',
       'q4': '¿Y con los esfuerzos como caminar, tareas de casa...?',
       'q5': '¿Las piernas están más hinchadas?',
-      // Añade más preguntas según las que tengas en la base de datos
     };
     
-    // Intenta obtener la pregunta del mapa
-    return preguntasComunes[questionId] || 'Pregunta clínica';
+    if (preguntasComunes[questionId]) {
+      return preguntasComunes[questionId];
+    }
+    
+    const shortIdMatch = questionId.match(/q\d+/);
+    if (shortIdMatch && preguntasComunes[shortIdMatch[0]]) {
+      return preguntasComunes[shortIdMatch[0]];
+    }
+    
+    return 'Pregunta clínica';
   }
 
-  // PARA LA GRAFICA
- 
-  // Función para evaluar el estado de salud basado en las tres métricas
   evaluarEstadoSalud(medicion: Measurement): number {
     let puntuacion = 0;
     
-    // Evaluar peso (asumiendo valores normales entre 50-90kg)
     const peso = medicion.weight;
     if (peso >= 50 && peso <= 90) {
-      puntuacion += 33; // Peso normal
+      puntuacion += 33; 
     } else if (peso >= 40 && peso < 50) {
-      puntuacion += 20; // Bajo peso
+      puntuacion += 20; 
     } else if (peso > 90 && peso <= 110) {
-      puntuacion += 20; // Sobrepeso
+      puntuacion += 20; 
     } else {
-      puntuacion += 10; // Peso preocupante
+      puntuacion += 10; 
     }
     
-    // Evaluar frecuencia cardíaca (normal: 60-100 ppm)
     const frecuencia = medicion.heart_rate;
     if (frecuencia >= 60 && frecuencia <= 100) {
-      puntuacion += 33; // Frecuencia normal
+      puntuacion += 33; 
     } else if ((frecuencia >= 50 && frecuencia < 60) || (frecuencia > 100 && frecuencia <= 110)) {
-      puntuacion += 20; // Ligeramente anormal
+      puntuacion += 20; 
     } else {
-      puntuacion += 10; // Frecuencia preocupante
+      puntuacion += 10; 
     }
     
-    // Evaluar presión arterial
-    // Formato esperado: "120/80"
     const presion = medicion.blood_pressure;
     try {
       const [sistolica, diastolica] = presion.split('/').map(Number);
       
-      // Evaluar presión sistólica (normal: 90-120)
       if (sistolica >= 90 && sistolica <= 120) {
-        puntuacion += 17; // Normal
+        puntuacion += 17; 
       } else if (sistolica > 120 && sistolica <= 139) {
-        puntuacion += 10; // Prehipertensión
+        puntuacion += 10; 
       } else if (sistolica > 139) {
-        puntuacion += 5; // Hipertensión
+        puntuacion += 5; 
       } else if (sistolica < 90) {
-        puntuacion += 5; // Hipotensión
+        puntuacion += 5; 
       }
       
-      // Evaluar presión diastólica (normal: 60-80)
       if (diastolica >= 60 && diastolica <= 80) {
-        puntuacion += 17; // Normal
+        puntuacion += 17; 
       } else if (diastolica > 80 && diastolica <= 89) {
-        puntuacion += 10; // Prehipertensión
+        puntuacion += 10; 
       } else if (diastolica > 89) {
-        puntuacion += 5; // Hipertensión
+        puntuacion += 5; 
       } else if (diastolica < 60) {
-        puntuacion += 5; // Hipotensión
+        puntuacion += 5; 
       }
     } catch (e) {
-      puntuacion += 10; // Error en el formato, asignamos puntuación mínima
+      puntuacion += 10; 
     }
     
     return puntuacion;
@@ -264,33 +406,27 @@ export class DetallepacienteComponent  implements OnInit, AfterViewInit  {
       return;
     }
 
-    // Destruir gráfico anterior si existe
     if (this.chart) {
       this.chart.destroy();
     }
 
-    // Ordenar mediciones por fecha
     const medicionesOrdenadas = [...this.paciente.measurements].sort((a, b) => 
       new Date(a.date).getTime() - new Date(b.date).getTime()
     );
     
-    // Tomar las últimas 5 (o menos si no hay suficientes)
     const ultimasMediciones = medicionesOrdenadas.slice(-5);
     
-    // Crear datos para el gráfico
     const labels = ultimasMediciones.map(m => new Date(m.date).toLocaleDateString());
     const datos = ultimasMediciones.map(m => this.evaluarEstadoSalud(m));
     
-    // Generar colores según los valores
     const pointColors = datos.map(valor => {
-      if (valor < 40) return 'rgba(255,0,0,1)'; // Rojo (alarmante)
-      if (valor < 60) return 'rgba(255,165,0,1)'; // Naranja (deficiente)
-      if (valor < 75) return 'rgba(255,255,0,1)'; // Amarillo (regular)
-      if (valor < 90) return 'rgba(0,255,0,1)'; // Verde (bueno)
-      return 'rgba(0,0,255,1)'; // Azul (excelente)
+      if (valor < 40) return 'rgba(255,0,0,1)';
+      if (valor < 60) return 'rgba(255,165,0,1)';
+      if (valor < 75) return 'rgba(255,255,0,1)';
+      if (valor < 90) return 'rgba(0,255,0,1)';
+      return 'rgba(0,0,255,1)';
     });
 
-    // Crear el gráfico
     const ctx = this.chartCanvas.nativeElement.getContext('2d');
     this.chart = new Chart(ctx, {
       type: 'line',
@@ -307,10 +443,9 @@ export class DetallepacienteComponent  implements OnInit, AfterViewInit  {
           tension: 0.4
         }]
       },
-      // Dentro de las opciones del Chart
       options: {
         responsive: true,
-        maintainAspectRatio: false, // Esto es importante para el ajuste de altura
+        maintainAspectRatio: false,
         scales: {
           y: {
             min: 0,
@@ -320,13 +455,11 @@ export class DetallepacienteComponent  implements OnInit, AfterViewInit  {
               text: 'Estado de salud (0-100)'
             },
             ticks: {
-              // Menos ticks en pantallas pequeñas
               maxTicksLimit: window.innerWidth < 768 ? 5 : 10
             }
           },
           x: {
             ticks: {
-              // Ajustar tamaño de fuente en pantallas pequeñas
               font: {
                 size: window.innerWidth < 768 ? 10 : 12
               }
@@ -335,7 +468,7 @@ export class DetallepacienteComponent  implements OnInit, AfterViewInit  {
         },
         plugins: {
           legend: {
-            display: window.innerWidth >= 768, // Ocultar leyenda en móviles
+            display: window.innerWidth >= 768,
             position: 'top',
           },
           tooltip: {

@@ -1,25 +1,57 @@
+<!-- treatments.component.html -->
 <ion-content class="ion-padding">
-  <!-- Imagen pequeña en la parte superior -->
   <div class="image-container">
     <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
   </div>
-
-  <h2 class="task-title">Tus tratamientos</h2>
   
-  <ion-list>
-    <ion-item *ngFor="let treatment of treatments">
-      <ion-label>
-        <p>{{ treatment.date }}</p>
-        <h2>{{ treatment.description }}</h2>
-      </ion-label>
-    </ion-item>
-  </ion-list>
-  <ion-item *ngIf="treatments.length === 0">
-    <ion-label>
-      <p>No hay tratamientos disponibles.</p>
-    </ion-label>
-  </ion-item>
-  <!--<ion-button expand="block" type="submit" routerLink="/home1">
-    Volver
-  </ion-button>-->
+  <h2 class="task-title">Mi Pastillero</h2>
+  
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>Cargando...</p>
+  </div>
+  
+  <div *ngIf="error" class="error-container">
+    <p>{{ error }}</p>
+    <ion-button (click)="ngOnInit()">Reintentar</ion-button>
+  </div>
+  
+  <div *ngIf="!loading && !error && pastilleroOrdenado.length > 0" class="pastillero-container">
+    <!-- Día actual destacado -->
+    <ion-card *ngFor="let dia of pastilleroOrdenado; let i = index" 
+              [ngClass]="{'current-day': i === 0, 'other-day': i !== 0}">
+      <ion-card-header [ngClass]="{'current-day-header': i === 0}">
+        <ion-card-title style="color: white;">
+          {{ dia.day }}
+          <ion-badge *ngIf="i === 0" color="light">HOY</ion-badge>
+        </ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <ion-grid class="medication-grid">
+          <ion-row>
+            <ion-col size="4">
+              <div class="time-label">Mañana</div>
+              <div class="medication" *ngIf="dia.morning">{{ dia.morning }}</div>
+              <div class="no-medication" *ngIf="!dia.morning">-</div>
+            </ion-col>
+            
+            <ion-col size="4">
+              <div class="time-label">Tarde</div>
+              <div class="medication" *ngIf="dia.afternoon">{{ dia.afternoon }}</div>
+              <div class="no-medication" *ngIf="!dia.afternoon">-</div>
+            </ion-col>
+            
+            <ion-col size="4">
+              <div class="time-label">Noche</div>
+              <div class="medication" *ngIf="dia.night">{{ dia.night }}</div>
+              <div class="no-medication" *ngIf="!dia.night">-</div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+  </div>
+  
+  <ion-button expand="block" routerLink="/perfil">Volver</ion-button>
 </ion-content>
