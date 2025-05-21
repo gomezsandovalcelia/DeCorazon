@@ -553,7 +553,7 @@ const obtenerPastillero = async (req, res) => {
         // Si el paciente no tiene pastillero, lo inicializamos
         if (!paciente.pastillero || paciente.pastillero.length === 0) {
             // Inicializamos el pastillero con los días de la semana
-            const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            const diasSemana = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
             paciente.pastillero = diasSemana.map(day => ({
                 day,
                 morning: '',
@@ -594,7 +594,7 @@ const actualizarMedicacionDia = async (req, res) => {
 
         // Inicializar pastillero si no existe
         if (!paciente.pastillero || paciente.pastillero.length === 0) {
-            const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            const diasSemana = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
             paciente.pastillero = diasSemana.map(d => ({
                 day: d,
                 morning: '',

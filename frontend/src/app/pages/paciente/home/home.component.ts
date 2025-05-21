@@ -391,7 +391,7 @@ export class HomeComponent implements OnInit {
     const numeroDia = hoy.getDay(); // 0 es domingo, 1 es lunes, etc.
     
     // Convertir al formato español
-    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
     this.diaActual = diasSemana[numeroDia];
   }
   private getPastilleroToday(pacienteId: string): void {

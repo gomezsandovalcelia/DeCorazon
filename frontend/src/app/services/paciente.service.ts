@@ -131,7 +131,7 @@ export class PacienteService {
     const today = new Date();
     let day = today.getDay(); // 0 es domingo, 1 es lunes, etc.
     
-    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
     const diaActual = diasSemana[day];
     
     return this.http.get<any>(`${this.apiUrl}/paciente/${patientId}/pastillero/${diaActual}`, this.httpOptions)
