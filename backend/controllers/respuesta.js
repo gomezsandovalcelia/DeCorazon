@@ -3,11 +3,20 @@ const { response } = require("express");
 const Respuesta = require("../models/respuesta");
 const Paciente = require("../models/paciente");
 const Pregunta = require("../models/pregunta");
+const Medico = require("../models/medico");
+const { medicoTienePaciente } = require("../middleware/validar-acceso");
 
-// Obtener todas las respuestas
+// Ids de los pacientes asignados al médico que hace la petición
+const obtenerPacientesDelMedico = async (medicoId) => {
+    const medico = await Medico.findById(medicoId).select('pacientes');
+    return medico ? medico.pacientes : [];
+};
+
+// Obtener todas las respuestas de los pacientes del médico
 const obtenerRespuestas = async (req, res = response) => {
     try {
-        const respuestas = await Respuesta.find();
+        const pacientes = await obtenerPacientesDelMedico(req.uid);
+        const respuestas = await Respuesta.find({ pacienteId: { $in: pacientes } });
         
         res.json({
             ok: true,
@@ -77,7 +86,6 @@ const obtenerRespuestasPaciente = async (req, res = response) => {
         res.status(500).json({
             ok: false,
             msg: 'Error del servidor al obtener respuestas',
-            error: error.message
         });
     }
 };
@@ -86,7 +94,8 @@ const obtenerRespuestasPaciente = async (req, res = response) => {
 const getAlertasPacientes = async (req, res = response) => {
     try {
         // Obtener respuestas con alerta, usando triggeredAlert en lugar de alerta
-        const alertas = await Respuesta.find({ triggeredAlert: true })
+        const pacientesMedico = await obtenerPacientesDelMedico(req.uid);
+        const alertas = await Respuesta.find({ triggeredAlert: true, pacienteId: { $in: pacientesMedico } })
             .sort({ date: -1 })
             .limit(50); // Limitar a las 50 más recientes
         
@@ -150,7 +159,6 @@ const getAlertasPacientes = async (req, res = response) => {
         return res.status(500).json({
             ok: false,
             msg: "Error interno del servidor",
-            error: error.message
         });
     }
 };
@@ -169,7 +177,14 @@ const actualizarAlertaRespuesta = async (req, res = response) => {
                 msg: 'Respuesta no encontrada'
             });
         }
-        
+
+        if (!await medicoTienePaciente(req.uid, respuesta.pacienteId)) {
+            return res.status(403).json({
+                ok: false,
+                msg: 'No tiene acceso a los datos de este paciente'
+            });
+        }
+
         // Actualizar triggeredAlert en lugar de alerta
         respuesta.triggeredAlert = alerta;
         await respuesta.save();
@@ -184,7 +199,6 @@ const actualizarAlertaRespuesta = async (req, res = response) => {
         res.status(500).json({
             ok: false,
             msg: 'Error del servidor al actualizar estado de alerta',
-            error: error.message
         });
     }
 };
@@ -222,7 +236,6 @@ const verificarAlertasPaciente = async (req, res = response) => {
         return res.status(500).json({
             ok: false,
             msg: "Error interno del servidor",
-            error: error.message
         });
     }
 };

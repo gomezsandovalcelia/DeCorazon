@@ -17,6 +17,7 @@ const MedicoSchema = Schema({
     password: {
         type: String,
         required: true,
+        select: false
     },
     rol: {
         type: String,
@@ -28,6 +29,12 @@ const MedicoSchema = Schema({
         ref: 'Paciente'
     }]
 }, { collection: 'Medicos' });
+
+// No devolver nunca el hash de la contraseña en las respuestas
+MedicoSchema.method('toJSON', function() {
+    const { __v, password, ...object } = this.toObject();
+    return object;
+});
 
 
 module.exports = model('Medico', MedicoSchema);

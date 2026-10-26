@@ -1,7 +1,7 @@
 // routes/medico.js
 const { Router } = require('express');
-const { 
-    obtenerMedicos, 
+const {
+    obtenerMedicos,
     crearMedico,
     obtenerPacientesAsignados,
     obtenerMedicoPorId
@@ -10,34 +10,36 @@ const { check } = require('express-validator');
 const { validarCampos } = require('../middleware/validar-campos');
 const { validarJWT } = require('../middleware/validar-jwt');
 const { validarRolMedico } = require('../middleware/validar-rol-medico');
+const { validarMismoUsuario } = require('../middleware/validar-acceso');
 
 const router = Router();
 
-// Obtener todos los médicos (ruta protegida, solo para admin o médicos)
+// Obtener todos los médicos (solo médicos)
 router.get('/', [validarJWT, validarRolMedico], obtenerMedicos);
 
-// Crear médico (esta ruta podría estar restringida para un admin)
+// Crear médico (solo un médico puede dar de alta a otro)
 router.post('/', [
     validarJWT,
+    validarRolMedico,
     check('nombre', 'El argumento nombre es obligatorio').not().isEmpty(),
     check('apellidos', 'El argumento apellidos es obligatorio').not().isEmpty(),
-    check('email', 'El argumento email es obligatorio').not().isEmpty(),
+    check('email', 'El argumento email es obligatorio').isEmail(),
     check('password', 'El argumento password es obligatorio').not().isEmpty(),
     validarCampos
 ], crearMedico);
 
-// Obtener los pacientes asignados a un médico
+// Obtener los pacientes asignados al médico que hace la petición
 router.get('/:id/pacientes', [
     validarJWT,
-    validarRolMedico
+    validarRolMedico,
+    validarMismoUsuario
 ], obtenerPacientesAsignados);
-// En routes/medico.js
 
-router.get('/:id/pacientes', [
+// Perfil del propio médico
+router.get('/:id', [
     validarJWT,
-    validarRolMedico  // Si quieres restringir esta ruta solo a médicos
-], obtenerPacientesAsignados);
-
-router.get('/:id', obtenerMedicoPorId);
+    validarRolMedico,
+    validarMismoUsuario
+], obtenerMedicoPorId);
 
 module.exports = router;

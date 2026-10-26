@@ -157,7 +157,6 @@ const getNextQuestion = async (req, res = response) => {
     return res.status(500).json({
       ok: false,
       msg: 'Error al obtener la siguiente pregunta',
-      error: error.message
     });
   }
 };
@@ -236,7 +235,6 @@ const saveResponse = async (req, res = response) => {
     return res.status(500).json({
       ok: false,
       msg: 'Error al guardar la respuesta',
-      error: error.message
     });
   }
 };
@@ -257,7 +255,7 @@ const sendAlert = async (req, res = response) => {
 
     // Aquí implementarías la lógica para enviar la alerta al sanitario
     // Por ejemplo, enviando un email, SMS, o guardando en una colección de alertas
-    console.log(`ALERTA: Paciente ${paciente.name} (${paciente._id}) - ${reason}`);
+    console.log(`ALERTA: Paciente ${paciente.nombre} ${paciente.apellidos} (${paciente._id}) - ${reason}`);
 
     // Actualizar el estado del paciente
     paciente.lastAlert = {
@@ -275,7 +273,6 @@ const sendAlert = async (req, res = response) => {
     return res.status(500).json({
       ok: false,
       msg: 'Error al enviar la alerta',
-      error: error.message
     });
   }
 };
@@ -307,7 +304,6 @@ const finishQuestionnaire = async (req, res = response) => {
     return res.status(500).json({
       ok: false,
       msg: 'Error al finalizar el cuestionario',
-      error: error.message
     });
   }
 };
@@ -406,7 +402,6 @@ const debugQuestions = async (req, res = response) => {
     return res.status(500).json({
       ok: false,
       msg: 'Error al obtener la información de debug',
-      error: error.message
     });
   }
 };

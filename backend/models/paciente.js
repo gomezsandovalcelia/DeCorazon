@@ -43,6 +43,7 @@ const PacienteSchema = Schema({
     password: {
         type: String,
         required: true,
+        select: false
     },
     altura: {
         type: Number,
@@ -61,7 +62,19 @@ const PacienteSchema = Schema({
     treatments: [TreatmentSchema], 
     pastillero: [PastilleroSchema],
     measurements: [MeasurementSchema],
-    exercise_routines: [ExerciseSchema]
+    exercise_routines: [ExerciseSchema],
+    // Último cuestionario diario completado y última alerta enviada al sanitario
+    lastQuestionnaire: { type: Date },
+    lastAlert: {
+        date: { type: Date },
+        reason: { type: String }
+    }
 }, { collection: 'Pacientes' });
+
+// No devolver nunca el hash de la contraseña en las respuestas
+PacienteSchema.method('toJSON', function() {
+    const { __v, password, ...object } = this.toObject();
+    return object;
+});
 
 module.exports = model('Paciente', PacienteSchema);

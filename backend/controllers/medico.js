@@ -14,7 +14,8 @@ const obtenerMedicos = async (req, res) => {
 }
 
 const crearMedico = async (req, res) => {
-    const { email, password, rol } = req.body;
+    // Solo se aceptan estos campos; el rol siempre es MEDICO
+    const { nombre, apellidos, email, password } = req.body;
 
     try {
         const existeEmail = await Medico.findOne({ email: email });
@@ -26,18 +27,10 @@ const crearMedico = async (req, res) => {
             });
         }
 
-        if(rol && rol !== 'MEDICO'){
-            return res.status(400).json({
-                ok: false,
-                msg: 'Rol no permitido'
-            });
-        }
-
         const salt = bcrypt.genSaltSync();
-        const cpassword = bcrypt.hashSync(password, salt); 
+        const cpassword = bcrypt.hashSync(password, salt);
 
-        const medico = new Medico(req.body);
-        medico.password = cpassword;
+        const medico = new Medico({ nombre, apellidos, email, password: cpassword });
         await medico.save();
 
         res.json({

@@ -212,24 +212,6 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  async handleBadResponse() {
-    try {
-      const result = await this.pacienteService.addRestExercise(this.pacienteId).toPromise();
-      
-      if (result.ok) {
-        // Actualizar la lista de ejercicios para mostrar el nuevo
-        this.getExercises(this.pacienteId);
-        
-        // Mostrar notificación al usuario
-        this.showNotification(
-          'Se ha añadido un ejercicio de reposo a tu plan debido a tu respuesta. Cuídate y descansa.'
-        );
-      }
-    } catch (error) {
-      console.error('Error al añadir ejercicio de reposo:', error);
-    }
-  }
-
   async showNotification(message: string) {
     const toast = await this.toastController.create({
       message: message,

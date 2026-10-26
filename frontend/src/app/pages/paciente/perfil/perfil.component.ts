@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { PacienteService } from 'src/app/services/paciente.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-perfil',
@@ -10,7 +11,7 @@ import { PacienteService } from 'src/app/services/paciente.service';
 export class PerfilComponent  implements OnInit {
   paciente: any = {};
 
-  constructor(private pacienteService: PacienteService) { }
+  constructor(private pacienteService: PacienteService, private authService: AuthService) { }
 
   ngOnInit() {
     const pacienteId = localStorage.getItem('pacienteId');
@@ -39,7 +40,7 @@ export class PerfilComponent  implements OnInit {
   }
 
   logout(){
-    this.pacienteService.logout();
+    this.authService.logout();
   }
 
 }

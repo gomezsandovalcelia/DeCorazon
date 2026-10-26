@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MedicoService } from 'src/app/services/medico.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-perfil',
@@ -10,7 +11,7 @@ export class PerfilComponent implements OnInit {
   medico: any = {}; // Información del médico
   medicoId: string = ''; // ID del médico
 
-  constructor(private medicoService: MedicoService) {}
+  constructor(private medicoService: MedicoService, private authService: AuthService) {}
 
   ngOnInit() {
     this.medicoId = localStorage.getItem('userId') || ''; // Obtén el ID del médico desde localStorage
@@ -35,6 +36,6 @@ export class PerfilComponent implements OnInit {
     );
   }
   logout(){
-    console.log('Cerrando sesión');
+    this.authService.logout();
   }
 }

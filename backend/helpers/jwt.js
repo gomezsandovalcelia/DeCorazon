@@ -6,7 +6,7 @@ const generarJWT = (uid, rol) => {
             rol
         }
         jwt.sign(payload, process.env.JWTSECRET, {
-            expiresIn: '1y'
+            expiresIn: '7d'
         }, (err, token) => {
             if (err) {
                 console.error('Error al generar JWT:', err);

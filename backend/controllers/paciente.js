@@ -1,5 +1,5 @@
 const Paciente = require('../models/paciente');
-const { validationResult } = require('express-validator');
+const Medico = require('../models/medico');
 const bcrypt = require('bcryptjs');
 const { response } = require("express");
 
@@ -17,7 +17,8 @@ const obtenerPacientes = async (req, res) => {
 const crearPaciente = async (req, res) => {
    
 
-    const { email, password, rol } = req.body;
+    // Solo se aceptan estos campos; el rol siempre es PACIENTE
+    const { nombre, apellidos, email, password, altura, medico_id } = req.body;
 
     try {
         const exiteEmail = await Paciente.findOne({ email: email });
@@ -29,20 +30,15 @@ const crearPaciente = async (req, res) => {
             });
         }
 
-        if(rol && rol != 'PACIENTE'){
-            return res.status(400).json({
-                ok: false,
-                msg: 'Rol no permitido'
-            });
-        }
-
         const salt = bcrypt.genSaltSync();
-       
-        const cpassword = bcrypt.hashSync(password, salt); // y aqui ciframos la contraseña 
 
-        const paciente = new Paciente(req.body);
-        paciente.password = cpassword;
+        const cpassword = bcrypt.hashSync(password, salt); // y aqui ciframos la contraseña
+
+        const paciente = new Paciente({ nombre, apellidos, email, altura, medico_id, password: cpassword });
         await paciente.save();
+
+        // El médico que da de alta al paciente lo tiene asignado
+        await Medico.findByIdAndUpdate(req.uid, { $addToSet: { pacientes: paciente._id } });
 
         res.json({
             ok: true,
@@ -63,7 +59,9 @@ const crearPaciente = async (req, res) => {
 
 const actualizarPaciente = async(req, res = response) => {
 
-    const { password, email, ...object } = req.body;
+    // Solo se pueden modificar estos campos (nunca rol, password ni el médico asignado)
+    const { nombre, apellidos, email, altura } = req.body;
+    const object = { nombre, apellidos, altura };
     const uid = req.params.id;
 
     try{
@@ -71,8 +69,6 @@ const actualizarPaciente = async(req, res = response) => {
 
         if(existeEmail){
             if(existeEmail._id != uid){
-                const valor = existeEmail._id;
-
                 return res.status(400).json({
                     ok: false,
                     msg: 'Email ya existe',
@@ -110,12 +106,14 @@ const borrarPaciente = async(req, res = response) => {
     try {
         const existePaciente = await Paciente.findById(uid);
         if(!existePaciente){
-            return res.status(400).json({
-                ok: true,
+            return res.status(404).json({
+                ok: false,
                 msg: 'Paciente no existe'
             });
         }
         const resultado = await Paciente.findByIdAndDelete(uid);
+        // Quitarlo también de la lista de pacientes de los médicos
+        await Medico.updateMany({ pacientes: uid }, { $pull: { pacientes: uid } });
 
         res.json({
             ok: true,
@@ -320,126 +318,6 @@ const cambiarMedidas = async (req, res) => {
     }
 };
 
-const addExercise = async (req, res = response) => {
-    const { patientId } = req.params;
-    const exerciseData = req.body;
-
-    try {
-        // Buscar el paciente
-        const paciente = await Paciente.findById(patientId);
-        
-        if (!paciente) {
-            return res.status(404).json({
-                ok: false,
-                msg: "Paciente no encontrado"
-            });
-        }
-
-        // Inicializar el array de ejercicios si no existe
-        if (!paciente.exercise_routines) {
-            paciente.exercise_routines = [];
-        }
-
-        // Añadir el nuevo ejercicio
-        paciente.exercise_routines.push(exerciseData);
-
-        // Guardar el paciente actualizado
-        await paciente.save();
-
-        return res.status(200).json({
-            ok: true,
-            msg: "Ejercicio añadido con éxito",
-            exercise: exerciseData
-        });
-
-    } catch (error) {
-        console.error("Error al añadir ejercicio:", error);
-        return res.status(500).json({
-            ok: false,
-            msg: "Error del servidor al añadir ejercicio"
-        });
-    }
-};
-const getExercises = async (req, res = response) => {
-    const { patientId } = req.params;
-
-    try {
-        // Buscar el paciente
-        const paciente = await Paciente.findById(patientId);
-        
-        if (!paciente) {
-            return res.status(404).json({
-                ok: false,
-                msg: "Paciente no encontrado"
-            });
-        }
-
-        // Devolver sus ejercicios
-        return res.status(200).json({
-            ok: true,
-            exercises: paciente.exercise_routines || []
-        });
-
-    } catch (error) {
-        console.error("Error al obtener ejercicios:", error);
-        return res.status(500).json({
-            ok: false,
-            msg: "Error del servidor al obtener ejercicios"
-        });
-    }
-};
-
-
-const addExerciseRoute = async (req, res = response) => {
-    const { patientId } = req.params;
-    const exerciseData = req.body;
-
-    try {
-        // Buscar el paciente por ID
-        const paciente = await Paciente.findById(patientId);
-        
-        if (!paciente) {
-            return res.status(404).json({
-                ok: false,
-                msg: "Paciente no encontrado"
-            });
-        }
-
-        // Asegurarse de que exercise_routines existe
-        if (!paciente.exercise_routines) {
-            paciente.exercise_routines = [];
-        }
-
-        // Crear un nuevo ejercicio
-        const newExercise = {
-            _id: exerciseData._id || Date.now().toString(), // Usar el ID proporcionado o generar uno nuevo
-            date: exerciseData.date || new Date().toISOString(),
-            description: exerciseData.description,
-            checkpoint: exerciseData.checkpoint || false
-        };
-
-        // Añadir el ejercicio al array
-        paciente.exercise_routines.push(newExercise);
-
-        // Guardar el paciente actualizado
-        await paciente.save();
-
-        // Responder con éxito
-        return res.status(200).json({
-            ok: true,
-            msg: "Ejercicio añadido con éxito",
-            exercise: newExercise
-        });
-
-    } catch (error) {
-        console.error("Error al añadir ejercicio:", error);
-        return res.status(500).json({
-            ok: false,
-            msg: "Error del servidor al añadir ejercicio"
-        });
-    }
-};
-
 //nuevo para medico 
 
 // Agregar tratamiento a un paciente
@@ -638,6 +516,5 @@ module.exports = { obtenerPacientes, crearPaciente,
     actualizarPaciente, borrarPaciente, obtenerTratamientos, 
     obtenerEjercicios, actualizarCheckpoint, obtenerPacientePorId, 
     obtenerMedidas, cambiarMedidas,
-    addExercise, getExercises, addExerciseRoute,
     agregarTratamiento, agregarEjercicio, obtenerPastillero,
     actualizarMedicacionDia};

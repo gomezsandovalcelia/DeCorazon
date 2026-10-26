@@ -1,87 +1,69 @@
 const { Router } = require('express');
-const { obtenerPacientes, crearPaciente, actualizarPaciente, 
-    borrarPaciente, obtenerTratamientos, obtenerEjercicios, actualizarCheckpoint, 
+const { obtenerPacientes, crearPaciente, actualizarPaciente,
+    borrarPaciente, obtenerTratamientos, obtenerEjercicios, actualizarCheckpoint,
     obtenerPacientePorId, obtenerMedidas, cambiarMedidas,
-    addExercise, getExercises, addExerciseRoute,
     agregarEjercicio, agregarTratamiento, obtenerPastillero,
     actualizarMedicacionDia} = require('../controllers/paciente');
 const { check } = require('express-validator');
 const { validarCampos } = require('../middleware/validar-campos');
-const { validarRol } = require('../middleware/validar-rol');
 const { validarJWT } = require('../middleware/validar-jwt');
+const { validarRolMedico } = require('../middleware/validar-rol-medico');
+const { validarAccesoPaciente } = require('../middleware/validar-acceso');
 
 const router = Router();
 
-router.get('/', obtenerPacientes, validarJWT);
+// Acceso permitido al propio paciente o a un médico que lo tenga asignado
+const accesoPaciente = [validarJWT, validarAccesoPaciente()];
+// Acceso permitido solo a un médico que tenga asignado al paciente
+const accesoMedico = [validarJWT, validarRolMedico, validarAccesoPaciente()];
+
+router.get('/', [validarJWT, validarRolMedico], obtenerPacientes);
 
 router.post('/', [
     validarJWT,
+    validarRolMedico,
     check('nombre', 'El argumento nombre es obligatorio').not().isEmpty(),
     check('apellidos', 'El argumento apellidos es obligatorio').not().isEmpty(),
-    check('email', 'El argumento email es obligatorio').not().isEmpty(),
+    check('email', 'El argumento email es obligatorio').isEmail(),
     check('password', 'El argumento password es obligatorio').not().isEmpty(),
-    validarRol,
     validarCampos
 ], crearPaciente);
 
 router.put('/:id', [
-    validarJWT,
+    ...accesoPaciente,
     check('nombre', 'El argumento nombre es obligatorio').not().isEmpty(),
     check('apellidos', 'El argumento apellidos es obligatorio').not().isEmpty(),
-    check('email', 'El argumento email es obligatorio').not().isEmpty(),
-    check('password', 'El argumento password es obligatorio').not().isEmpty(),
+    check('email', 'El argumento email es obligatorio').isEmail(),
     check('id', 'El identificador no es válido').isMongoId(),
-    validarRol,
     validarCampos
 ], actualizarPaciente);
 
 router.delete('/:id', [
-    validarJWT,
+    ...accesoMedico,
     check('id', 'El identificador no es válido').isMongoId(),
     validarCampos
 ], borrarPaciente);
 
-router.get('/:id/treatments', validarJWT, obtenerTratamientos);
+router.get('/:id/treatments', accesoPaciente, obtenerTratamientos);
 
-router.get('/:id/exercise_routines', validarJWT, obtenerEjercicios);
+router.get('/:id/exercise_routines', accesoPaciente, obtenerEjercicios);
 
-router.get('/:id', validarJWT, obtenerPacientePorId);
+router.get('/:id', accesoPaciente, obtenerPacientePorId);
 
-router.get('/:id/measurements', validarJWT, obtenerMedidas);
+router.get('/:id/measurements', accesoPaciente, obtenerMedidas);
 
-router.put('/:id/exercise_routines/:exerciseId',[
-    //check('checkpoint', 'El argumento checkpoint es obligatorio').not().isEmpty(),
-    validarJWT,
-    validarRol
-],
-    actualizarCheckpoint);
+router.put('/:id/exercise_routines/:exerciseId', accesoPaciente, actualizarCheckpoint);
 
-router.put('/:id/measurements', [
-    validarJWT
-], cambiarMedidas);
+router.put('/:id/measurements', accesoPaciente, cambiarMedidas);
 
-router.get('/:id/exercise_routines', getExercises);
-
-router.post('/:id/exercise_routines', addExercise);
-
-router.post('/:id/exercise_routines', [
-    // Validaciones si son necesarias
-], addExerciseRoute);
-
-//nuevo para medico 
 // Agregar tratamiento a un paciente
-router.post('/:id/tratamiento', [
-    validarJWT
-], agregarTratamiento);
+router.post('/:id/tratamiento', accesoMedico, agregarTratamiento);
 
 // Agregar ejercicio a un paciente
-router.post('/:id/ejercicio', [
-    validarJWT
-    
-], agregarEjercicio);
+router.post('/:id/ejercicio', accesoMedico, agregarEjercicio);
 
-router.get('/:id/pastillero', validarJWT, obtenerPastillero);
+router.get('/:id/pastillero', accesoPaciente, obtenerPastillero);
 
-router.put('/:id/pastillero/:day', validarJWT, actualizarMedicacionDia);
+router.put('/:id/pastillero/:day', accesoMedico, actualizarMedicacionDia);
 
 module.exports = router;

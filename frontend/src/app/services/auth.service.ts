@@ -1,38 +1,24 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { loginForm } from '../interfaces/login-form.interface';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = environment.apiUrl;
 
   constructor( private http: HttpClient,
     private router: Router) { }
 
-  // En auth.service.ts
-login(formData: loginForm): Observable<any> {
-  console.log('se ha hecho login:', formData);
-  return this.http.post('http://localhost:3000/api/login', formData)
-    .pipe(
-      tap((res: any) => {
-        console.log('Respuesta completa del servidor:', res);
-        // Resto del código...
-      }),
-      catchError(error => {
-        console.error('Error completo en login:', error);
-        if (error.error) {
-          console.error('Mensaje de error del servidor:', error.error.msg);
-        }
-        return throwError(error);
-      })
-    );
-}
-  
+  login(formData: loginForm): Observable<any> {
+    return this.http.post(`${this.apiUrl}/login`, formData);
+  }
+
+  // Único punto donde se borra la sesión guardada en localStorage
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
@@ -41,6 +27,7 @@ login(formData: loginForm): Observable<any> {
     localStorage.removeItem('pacienteId');
     localStorage.removeItem('showForm');
     localStorage.removeItem('preguntadeldia');
+    localStorage.removeItem('answeredToday');
     this.router.navigateByUrl('/login');
   }
 
@@ -62,8 +49,7 @@ login(formData: loginForm): Observable<any> {
 
   redirectBasedOnRole() {
     const role = this.userRole;
-    const type = this.userType;
-    
+
     if (role === 'MEDICO') {
       this.router.navigateByUrl('/medico/dashboard');
     } else if (role === 'PACIENTE') {

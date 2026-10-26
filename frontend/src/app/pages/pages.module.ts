@@ -34,7 +34,7 @@ import { DetallepacienteComponent } from './medico/detallepaciente/detallepacien
   imports: [
     CommonModule,
     RouterModule,
-    IonicModule.forRoot(),
+    IonicModule,
     FormsModule,
     ReactiveFormsModule
   ],

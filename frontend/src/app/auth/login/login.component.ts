@@ -42,7 +42,6 @@ login() {
     if (email && password) {
       this.authService.login({ email, password } as loginForm).subscribe(
         (res: any) => {
-          console.log('respuesta al sub:', res);
           
           // Guardar datos en localStorage
           localStorage.setItem('token', res.token);

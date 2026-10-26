@@ -1,4 +1,4 @@
-const { resonse } = require('express');
+const { response } = require('express');
 const rolesPermitidos = ['ADMIN', 'MEDICO', 'PACIENTE'];
 
 const validarRol = (req, res = response, next) => {

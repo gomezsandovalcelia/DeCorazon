@@ -1,30 +1,51 @@
 /* Importacion de modulos  */
-const express = require('express'); 
+const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
-const { dbConnection } = require('./database/configdb'); 
+const { dbConnection } = require('./database/configdb');
 
-//crear una app de express 
-const app = express(); 
+//crear una app de express
+const app = express();
 
-dbConnection(); 
+// Orígenes permitidos: ng serve, ionic serve y la app nativa de Capacitor
+const origenesPermitidos = process.env.CORSORIGIN
+    ? process.env.CORSORIGIN.split(',').map(origen => origen.trim())
+    : ['http://localhost:4200', 'http://localhost:8100', 'capacitor://localhost', 'https://localhost', 'http://localhost'];
+
+// Límite de intentos de login por IP para dificultar ataques de fuerza bruta
+const limiteLogin = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 20,
+    message: { ok: false, msg: 'Demasiados intentos de login, inténtelo más tarde' }
+});
 
 //configurar middlewares
-app.use(cors());
-app.use(express.json()); 
+app.use(helmet());
+app.use(cors({ origin: origenesPermitidos }));
+app.use(express.json());
 
-// Registrar rutas (sólo una vez por ruta)
+// Registrar rutas
 app.use('/api/pregunta', require('./routes/pregunta'));
 app.use('/api/usuarios', require('./routes/usuarios'));
 app.use('/api/paciente', require('./routes/paciente'));
-app.use('/api/login', require('./routes/auth'));
+app.use('/api/login', limiteLogin, require('./routes/auth'));
 app.use('/api/medico', require('./routes/medico'));
-app.use('/api/respuesta', require('./routes/respuesta')); 
+app.use('/api/respuesta', require('./routes/respuesta'));
 
-// Eliminar esta parte redundante:
-// const questionRoutes = require("./routes/pregunta");
-// app.use("/api/pregunta", questionRoutes);
+// Arrancar el servidor solo cuando la base de datos esté conectada
+const iniciarServidor = async () => {
+    try {
+        await dbConnection();
+    } catch (error) {
+        console.error(error.message);
+        process.exit(1);
+    }
 
-app.listen(process.env.PORT, () => {    
-    console.log('Server on port ', process.env.PORT);
-});
+    app.listen(process.env.PORT, () => {
+        console.log('Server on port ', process.env.PORT);
+    });
+};
+
+iniciarServidor();
