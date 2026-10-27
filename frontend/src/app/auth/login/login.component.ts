@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { NgModule } from '@angular/core';
 
@@ -16,7 +16,7 @@ import Swal from 'sweetalert2';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent  implements OnInit {
+export class LoginComponent {
 
   public loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -30,9 +30,6 @@ export class LoginComponent  implements OnInit {
     private router: Router
   ) { }
 
-  ngOnInit() {
-    console.log('LoginComponent initialized');
-  }
 
   // En login.component.ts
 login() {
@@ -55,18 +52,16 @@ login() {
           } else if (res.rol === 'PACIENTE') {
             // Guardar datos específicos de paciente
             localStorage.setItem('pacienteId', res._id);
-            localStorage.setItem('showForm', 'true');
-            localStorage.setItem('preguntadeldia', 'true');
             
             // Redirigir a la página de inicio del paciente
             this.router.navigateByUrl('/home');
           }
         },
         (err) => {
-          console.warn('error respuesta api', err);
           Swal.fire({
             title: 'Error',
-            text: 'Usuario o contraseña incorrectos',
+            // 429: demasiados intentos (límite del backend)
+            text: err.status === 429 ? err.error?.msg : 'Usuario o contraseña incorrectos',
             icon: 'error',
             confirmButtonText: 'Ok',
             heightAuto: false

@@ -6,26 +6,10 @@ import { ToastController } from '@ionic/angular';
 import { Chart, registerables } from 'chart.js';
 import { RespuestaService } from 'src/app/services/respuesta.service';
 import { QuestionService } from 'src/app/services/question.service';
+import { SaludService } from 'src/app/services/salud.service';
+import { Patient } from 'src/app/interfaces/paciente.interface';
 
 Chart.register(...registerables);
-
-interface Measurement {
-  date: string;
-  weight: number;
-  heart_rate: number;
-  blood_pressure: string;
-}
-
-interface Patient {
-  _id: string;
-  nombre: string;
-  apellidos: string;
-  email: string;
-  altura?: number; // Altura en cm
-  measurements?: Measurement[];
-  treatments?: any[];
-  exercise_routines?: any[];
-}
 
 interface Question {
   _id: string;
@@ -75,7 +59,8 @@ export class DetallepacienteComponent implements OnInit, AfterViewInit {
     private formBuilder: FormBuilder,
     private toastController: ToastController,
     private respuestaService: RespuestaService,
-    private questionService: QuestionService
+    private questionService: QuestionService,
+    private saludService: SaludService
   ) { }
 
   ngOnInit() {
@@ -122,9 +107,8 @@ export class DetallepacienteComponent implements OnInit, AfterViewInit {
           this.pastillero = response.pastillero;
           this.diaSeleccionado = this.diasSemana[0]; // Seleccionar el primer día por defecto
           this.actualizarFormularioDia();
-          console.log('Pastillero cargado:', this.pastillero);
         } else {
-          console.error('Error al cargar pastillero:', response.message);
+          console.error('Error al cargar pastillero:', response.msg);
           this.mostrarToast('Error al cargar la información del pastillero');
         }
         this.cargandoPastillero = false;
@@ -184,7 +168,7 @@ export class DetallepacienteComponent implements OnInit, AfterViewInit {
             };
           }
         } else {
-          console.error('Error al actualizar medicación:', response.message);
+          console.error('Error al actualizar medicación:', response.msg);
           this.mostrarToast('Error al actualizar la medicación');
         }
       },
@@ -200,7 +184,6 @@ export class DetallepacienteComponent implements OnInit, AfterViewInit {
       response => {
         if (response.ok) {
           this.paciente = response.paciente;
-          console.log('Paciente cargado:', this.paciente);
           setTimeout(() => {
             if (this.segmento === 'informacion' && this.chartCanvas) {
               this.inicializarGrafico();
@@ -221,7 +204,6 @@ export class DetallepacienteComponent implements OnInit, AfterViewInit {
       response => {
         if (response.ok) {
           this.preguntas = response.preguntas;
-          console.log('Preguntas cargadas:', this.preguntas);
         } else {
           console.error('Error al cargar preguntas:', response.msg);
         }
@@ -312,7 +294,6 @@ export class DetallepacienteComponent implements OnInit, AfterViewInit {
           this.respuestas = response.respuestas.sort((a: any, b: any) => 
             new Date(b.date).getTime() - new Date(a.date).getTime()
           );
-          console.log('Respuestas cargadas:', this.respuestas);
         } else {
           console.error('Error al cargar respuestas:', response.msg);
         }
@@ -358,167 +339,22 @@ export class DetallepacienteComponent implements OnInit, AfterViewInit {
     return 'Pregunta clínica';
   }
 
+  // Los cálculos están en SaludService; estos métodos los usa la plantilla
   calcularIMC(): number | null {
-    //console.log('Calculando IMC...');
-    
-    if (!this.paciente) {
-      //console.log('No hay paciente cargado');
-      return null;
-    }
-    
-    if (!this.paciente.altura) {
-      //console.log('El paciente no tiene altura registrada');
-      return null;
-    }
-    
-    if (!this.paciente.measurements || this.paciente.measurements.length === 0) {
-      //console.log('El paciente no tiene mediciones');
-      return null;
-    }
-    
-    // Crear una copia para ordenar
-    const medicionesOrdenadas = [...this.paciente.measurements];
-    
-    // Ordenar por fecha de más reciente a más antigua
-    medicionesOrdenadas.sort((a, b) => 
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-    
-    // Tomar la primera (más reciente)
-    const ultimaMedicion = medicionesOrdenadas[0];
-    
-    //console.log('Última medición:', ultimaMedicion);
-    
-    if (!ultimaMedicion || !ultimaMedicion.weight) {
-      //console.log('La última medición no tiene peso');
-      return null;
-    }
-    
-    // Fórmula IMC = peso (kg) / (altura (m))²
-    const alturaEnMetros = this.paciente.altura / 100;
-    const imc = ultimaMedicion.weight / (alturaEnMetros * alturaEnMetros);
-    
-    const resultado = parseFloat(imc.toFixed(2));
-    //console.log('IMC calculado:', resultado);
-    
-    return resultado;
+    const ultima = this.saludService.ultimaMedicion(this.paciente?.measurements);
+    return this.saludService.calcularIMC(this.paciente?.altura, ultima?.weight);
+  }
+
+  calcularIMCMedicion(peso: number): number | null {
+    return this.saludService.calcularIMC(this.paciente?.altura, peso);
   }
 
   obtenerCategoriaIMC(imc: number): string {
-    if (imc < 18.5) {
-      return 'Bajo peso';
-    } else if (imc >= 18.5 && imc < 25) {
-      return 'Peso normal';
-    } else if (imc >= 25 && imc < 30) {
-      return 'Sobrepeso';
-    } else if (imc >= 30 && imc < 35) {
-      return 'Obesidad grado 1';
-    } else if (imc >= 35 && imc < 40) {
-      return 'Obesidad grado 2';
-    } else {
-      return 'Obesidad grado 3';
-    }
+    return this.saludService.obtenerCategoriaIMC(imc);
   }
-// Añadir al componente DetallepacienteComponent
-calcularIMCMedicion(peso: number): number | null {
-  if (!this.paciente?.altura || !peso) {
-    return null;
-  }
-  
-  const alturaEnMetros = this.paciente.altura / 100;
-  const imc = peso / (alturaEnMetros * alturaEnMetros);
-  
-  return parseFloat(imc.toFixed(2));
-}
-
 
   getClaseIMC(imc: number | null): string {
-    if (imc === null) {
-      return '';
-    }
-    
-    if (imc < 18.5 || imc >= 30) {
-      return 'text-danger';
-    }
-    
-    if (imc >= 25 && imc < 30) {
-      return 'text-warning';
-    }
-    
-    return 'text-success';
-  }
-  evaluarEstadoSalud(medicion: Measurement): number {
-    let puntuacion = 0;
-    
-    // Evaluación del peso
-    const peso = medicion.weight;
-    if (peso >= 50 && peso <= 90) {
-      puntuacion += 25; // Reducido de 33 a 25 para hacer espacio para el IMC
-    } else if (peso >= 40 && peso < 50) {
-      puntuacion += 15; // Reducido de 20 a 15
-    } else if (peso > 90 && peso <= 110) {
-      puntuacion += 15; // Reducido de 20 a 15
-    } else {
-      puntuacion += 5; // Reducido de 10 a 5
-    }
-    
-    // Evaluación del IMC (si está disponible)
-    if (this.paciente?.altura) {
-      const alturaEnMetros = this.paciente.altura / 100;
-      const imc = peso / (alturaEnMetros * alturaEnMetros);
-      
-      if (imc >= 18.5 && imc < 25) {
-        puntuacion += 15; // IMC normal - puntuación máxima
-      } else if ((imc >= 17 && imc < 18.5) || (imc >= 25 && imc < 30)) {
-        puntuacion += 10; // Ligeramente fuera del rango normal
-      } else if ((imc >= 16 && imc < 17) || (imc >= 30 && imc < 35)) {
-        puntuacion += 5; // Más alejado del rango normal
-      } else {
-        puntuacion += 2; // Muy alejado del rango normal
-      }
-    } else {
-      // Si no hay altura, mantener la puntuación original del peso
-      puntuacion += 8; // Compensación por la falta de evaluación del IMC
-    }
-    
-    // El resto del código de evaluación permanece igual
-    const frecuencia = medicion.heart_rate;
-    if (frecuencia >= 60 && frecuencia <= 100) {
-      puntuacion += 30; 
-    } else if ((frecuencia >= 50 && frecuencia < 60) || (frecuencia > 100 && frecuencia <= 110)) {
-      puntuacion += 20; 
-    } else {
-      puntuacion += 10; 
-    }
-    
-    const presion = medicion.blood_pressure;
-    try {
-      const [sistolica, diastolica] = presion.split('/').map(Number);
-      
-      if (sistolica >= 90 && sistolica <= 120) {
-        puntuacion += 15; 
-      } else if (sistolica > 120 && sistolica <= 139) {
-        puntuacion += 10; 
-      } else if (sistolica > 139) {
-        puntuacion += 5; 
-      } else if (sistolica < 90) {
-        puntuacion += 5; 
-      }
-      
-      if (diastolica >= 60 && diastolica <= 80) {
-        puntuacion += 15; 
-      } else if (diastolica > 80 && diastolica <= 89) {
-        puntuacion += 10; 
-      } else if (diastolica > 89) {
-        puntuacion += 5; 
-      } else if (diastolica < 60) {
-        puntuacion += 5; 
-      }
-    } catch (e) {
-      puntuacion += 10; 
-    }
-    
-    return puntuacion;
+    return this.saludService.getClaseIMC(imc);
   }
 
   inicializarGrafico() {
@@ -537,7 +373,7 @@ calcularIMCMedicion(peso: number): number | null {
     const ultimasMediciones = medicionesOrdenadas.slice(-5);
     
     const labels = ultimasMediciones.map(m => new Date(m.date).toLocaleDateString());
-    const datos = ultimasMediciones.map(m => this.evaluarEstadoSalud(m));
+    const datos = ultimasMediciones.map(m => this.saludService.evaluarEstadoSalud(m, this.paciente?.altura));
     
     const pointColors = datos.map(valor => {
       if (valor < 40) return 'rgba(255,0,0,1)';
@@ -618,15 +454,8 @@ calcularIMCMedicion(peso: number): number | null {
                 const medicion = ultimasMediciones[index];
                 
                 // Calcular el IMC si hay altura disponible
-                let imcInfo = '';
-                if (this.paciente?.altura && medicion.weight) {
-                  const alturaEnMetros = this.paciente.altura / 100;
-                  const imc = medicion.weight / (alturaEnMetros * alturaEnMetros);
-                  const imcFormateado = imc.toFixed(2);
-                  const categoria = this.obtenerCategoriaIMC(imc);
-                  
-                  imcInfo = `IMC: ${imcFormateado} (${categoria})`;
-                }
+                const imc = this.calcularIMCMedicion(medicion.weight);
+                const imcInfo = imc === null ? '' : `IMC: ${imc.toFixed(2)} (${this.obtenerCategoriaIMC(imc)})`;
                 
                 // Crear un array con la información que queremos mostrar
                 const lines = [

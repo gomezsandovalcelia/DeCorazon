@@ -40,7 +40,7 @@ const crearMedico = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(400).json({
             ok: false,
             msg: 'Error creando médico'
@@ -55,7 +55,7 @@ const obtenerPacientesAsignados = async (req, res) => {
         if (!medico) {
             return res.status(404).json({ 
                 ok: false, 
-                message: 'Médico no encontrado' 
+                msg: 'Médico no encontrado' 
             });
         }
 
@@ -67,7 +67,7 @@ const obtenerPacientesAsignados = async (req, res) => {
         console.error(error);
         res.status(500).json({
             ok: false,
-            message: 'Error del servidor'
+            msg: 'Error del servidor'
         });
     }
 };
@@ -79,7 +79,7 @@ const obtenerMedicoPorId = async (req, res) => {
         if (!medico) {
             return res.status(404).json({
                 ok: false,
-                message: 'Médico no encontrado',
+                msg: 'Médico no encontrado',
             });
         }
 
@@ -91,7 +91,7 @@ const obtenerMedicoPorId = async (req, res) => {
         console.error(error);
         res.status(500).json({
             ok: false,
-            message: 'Error del servidor',
+            msg: 'Error del servidor',
         });
     }
 };

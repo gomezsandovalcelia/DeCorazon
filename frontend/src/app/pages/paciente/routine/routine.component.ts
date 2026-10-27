@@ -22,7 +22,6 @@ export class RoutineComponent  implements OnInit {
       this.pacienteService.getExercise(pacienteId).subscribe(
         (response: any) => {
           if (response.ok && Array.isArray(response.exercise_routines)) {
-            //console.log(response.exercise_routines);
             this.exercise = response.exercise_routines
             .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()) 
             .slice(0, 3); 
@@ -43,9 +42,7 @@ export class RoutineComponent  implements OnInit {
     const pacienteId = localStorage.getItem('pacienteId');
     if(pacienteId){
       this.pacienteService.updateExerciseCheckpoint(pacienteId, exercise._id, exercise.checkpoint).subscribe(
-        (response) => {
-          console.log('Checkpoint actualizado:', response);
-        },
+        () => {},
         (error) => {
           console.error('Error al actualizar checkpoint:', error);
         }

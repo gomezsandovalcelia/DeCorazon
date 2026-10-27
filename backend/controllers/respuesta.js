@@ -39,7 +39,6 @@ const obtenerRespuestasPaciente = async (req, res = response) => {
         const respuestas = await Respuesta.find({ pacienteId: pacienteId })
             .sort({ date: -1 });
         
-        console.log(`Encontradas ${respuestas.length} respuestas para el paciente ${pacienteId}`);
         
         if (respuestas.length === 0) {
             return res.json({
@@ -56,7 +55,6 @@ const obtenerRespuestasPaciente = async (req, res = response) => {
             _id: { $in: questionIds } 
         });
         
-        console.log(`Encontradas ${preguntas.length} preguntas relacionadas`);
         
         // Crear un mapa para acceder rápidamente a las preguntas por ID
         const preguntasMap = {};
@@ -99,7 +97,6 @@ const getAlertasPacientes = async (req, res = response) => {
             .sort({ date: -1 })
             .limit(50); // Limitar a las 50 más recientes
         
-        console.log(`Encontradas ${alertas.length} alertas activas`);
         
         if (alertas.length === 0) {
             return res.json({
@@ -212,7 +209,6 @@ const verificarAlertasPaciente = async (req, res = response) => {
         const ayer = new Date(hoy);
         ayer.setDate(hoy.getDate() - 1);
         
-        console.log(`Verificando alertas para paciente ${pacienteId} desde ${ayer.toISOString()}`);
         
         // Buscar respuestas con alerta del último día (usando triggeredAlert en lugar de alerta)
         const respuestasConAlerta = await Respuesta.find({
@@ -221,7 +217,6 @@ const verificarAlertasPaciente = async (req, res = response) => {
             date: { $gte: ayer } // Respuestas desde ayer
         }).limit(1); // Solo necesitamos una para confirmar que hay alertas
         
-        console.log(`Encontradas ${respuestasConAlerta.length} respuestas con alerta`);
         
         const tieneAlertas = respuestasConAlerta.length > 0;
         

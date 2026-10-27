@@ -25,9 +25,8 @@ export class PerfilComponent implements OnInit {
       (response) => {
         if (response.ok) {
           this.medico = response.medico; // Almacena la información del médico
-          console.log('Información del médico:', this.medico);
         } else {
-          console.error('Error al obtener la información del médico:', response.message);
+          console.error('Error al obtener la información del médico:', response.msg);
         }
       },
       (error) => {

@@ -48,7 +48,7 @@ export class HomeComponent implements OnInit {
           this.ordenarPacientesPorEstado();
           this.verificarAlertasPacientes();
         } else {
-          console.error('Error al obtener pacientes:', response.message);
+          console.error('Error al obtener pacientes:', response.msg);
         }
         this.loading = false;
       },

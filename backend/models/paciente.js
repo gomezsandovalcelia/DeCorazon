@@ -8,12 +8,12 @@ const PastilleroSchema = new Schema({
 }, { _id: false });
 
 const TreatmentSchema = new Schema({
-    date: { type: String, required: true },
+    date: { type: Date, required: true },
     description: { type: String, required: true }
 });
 
 const MeasurementSchema = new Schema({
-    date: { type: String},
+    date: { type: Date },
     weight: { type: Number },
     heart_rate: { type: Number},
     blood_pressure: { type: String}
@@ -21,7 +21,7 @@ const MeasurementSchema = new Schema({
 
 const ExerciseSchema = new Schema({
     _id: { type: Number, required: true },
-    date: { type: String, required: true },
+    date: { type: Date, required: true },
     description: { type: String, required: true },
     checkpoint: { type: Boolean }
 });
@@ -53,11 +53,6 @@ const PacienteSchema = Schema({
         type: String,
         required: true,
         default: 'PACIENTE'
-    },
-    medico_id: {
-        type: Number,
-        ref: 'Medico',
-        required: true
     },
     treatments: [TreatmentSchema], 
     pastillero: [PastilleroSchema],

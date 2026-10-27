@@ -38,7 +38,6 @@
       if (indice < 0) indice = 6; // Si es domingo (0), se convierte a 6
       
       this.diaActual = this.diasSemana[indice];
-      console.log('Día actual:', this.diaActual);
     }
     
     ordenarPastilleroDesdeDiaActual(pastillero: any[]) {

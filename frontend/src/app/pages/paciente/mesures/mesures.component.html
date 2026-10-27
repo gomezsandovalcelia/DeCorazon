@@ -15,7 +15,7 @@
 
     <!-- Campo de Tensión -->
     <ion-item>
-      <ion-label position="floating">Tensión (mmHg)</ion-label>
+      <ion-label position="floating">Tensión (mmHg, p. ej. 120/80)</ion-label>
       <ion-input formControlName="blood_pressure" type="text" name="blood_pressure" required></ion-input>
     </ion-item>
 
@@ -29,9 +29,6 @@
     <ion-button expand="block" type="submit" [disabled]="!healthForm.valid">
       Enviar
     </ion-button>
-    <!--<ion-button expand="block" type="submit" routerLink="/home1">
-      Volver
-    </ion-button>-->
   </form>
   
 </ion-content>

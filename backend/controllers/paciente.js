@@ -3,6 +3,12 @@ const Medico = require('../models/medico');
 const bcrypt = require('bcryptjs');
 const { response } = require("express");
 
+// Pastillero con los 7 días de la semana sin medicación
+const pastilleroVacio = () => {
+    const diasSemana = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+    return diasSemana.map(day => ({ day, morning: '', afternoon: '', night: '' }));
+};
+
 const obtenerPacientes = async (req, res) => {
 
     const pacientes = await Paciente.find({});
@@ -18,7 +24,7 @@ const crearPaciente = async (req, res) => {
    
 
     // Solo se aceptan estos campos; el rol siempre es PACIENTE
-    const { nombre, apellidos, email, password, altura, medico_id } = req.body;
+    const { nombre, apellidos, email, password, altura } = req.body;
 
     try {
         const exiteEmail = await Paciente.findOne({ email: email });
@@ -34,7 +40,7 @@ const crearPaciente = async (req, res) => {
 
         const cpassword = bcrypt.hashSync(password, salt); // y aqui ciframos la contraseña
 
-        const paciente = new Paciente({ nombre, apellidos, email, altura, medico_id, password: cpassword });
+        const paciente = new Paciente({ nombre, apellidos, email, altura, password: cpassword });
         await paciente.save();
 
         // El médico que da de alta al paciente lo tiene asignado
@@ -47,7 +53,7 @@ const crearPaciente = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(400).json({
             ok: false,
             msg: 'Error creando usuario'
@@ -86,7 +92,7 @@ const actualizarPaciente = async(req, res = response) => {
         });
 
     } catch (error) {
-        //console.log(error);
+        //console.error(error);
         res.status(400).json({
             ok: false,
             msg: 'Error actualizando paciente'
@@ -121,7 +127,7 @@ const borrarPaciente = async(req, res = response) => {
             resultado
         });
     } catch (error) {
-        //console.log(error);
+        //console.error(error);
         res.status(400).json({
             ok: false,
             msg: 'Error borrando Paciente'
@@ -141,10 +147,9 @@ const obtenerTratamientos = async (req, res) => {
         if (!paciente) {
             return res.status(404).json({ 
                 ok: false, 
-                message: 'Paciente no encontrado' 
+                msg: 'Paciente no encontrado' 
             });
         }
-        //console.log('Ejercicios del paciente:', paciente.treatments);
         res.json({
             ok: true,
             treatments: paciente.treatments // Envía el array de tratamientos
@@ -153,7 +158,7 @@ const obtenerTratamientos = async (req, res) => {
         console.error(error);
         res.status(500).json({
             ok: false,
-            message: 'Error del servidor'
+            msg: 'Error del servidor'
         });
     }
 };
@@ -166,11 +171,10 @@ const obtenerEjercicios = async (req, res) => {
         if (!paciente) {
             return res.status(404).json({ 
                 ok: false, 
-                message: 'Paciente no encontrado' 
+                msg: 'Paciente no encontrado' 
             });
         }
 
-        //console.log('Ejercicios del paciente:', paciente.exercise_routines);
 
         res.json({
             ok: true,
@@ -180,7 +184,7 @@ const obtenerEjercicios = async (req, res) => {
         console.error(error);
         res.status(500).json({
             ok: false,
-            message: 'Error del servidor'
+            msg: 'Error del servidor'
         });
     }
 };
@@ -188,8 +192,6 @@ const obtenerEjercicios = async (req, res) => {
 const actualizarCheckpoint = async (req, res) => {
     const patientId = req.params.id;
     const exerciseId = req.params.exerciseId;
-    //console.log('patientId:', patientId);
-    //console.log('exerciseId:', exerciseId);
     const { checkpoint } = req.body; 
 
     try {
@@ -198,7 +200,7 @@ const actualizarCheckpoint = async (req, res) => {
         if (!paciente) {
             return res.status(404).json({
                 ok: false,
-                message: 'Paciente no encontrado'
+                msg: 'Paciente no encontrado'
             });
         }
         const exerciseIndex = paciente.exercise_routines.findIndex(ex => ex._id.toString() === exerciseId);
@@ -206,7 +208,7 @@ const actualizarCheckpoint = async (req, res) => {
         if (exerciseIndex === -1) {
             return res.status(404).json({
                 ok: false,
-                message: 'Ejercicio no encontrado'
+                msg: 'Ejercicio no encontrado'
             });
         }
        
@@ -216,14 +218,14 @@ const actualizarCheckpoint = async (req, res) => {
 
         res.json({
             ok: true,
-            message: 'Checkpoint actualizado',
+            msg: 'Checkpoint actualizado',
             updatedExercise: paciente.exercise_routines[exerciseIndex]
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({
             ok: false,
-            message: 'Error actualizando el checkpoint'
+            msg: 'Error actualizando el checkpoint'
         });
     }
 };
@@ -236,10 +238,9 @@ const obtenerPacientePorId = async (req, res) => {
         if (!paciente) {
             return res.status(404).json({ 
                 ok: false, 
-                message: 'Paciente no encontrado' 
+                msg: 'Paciente no encontrado' 
             });
         }
-        //console.log('Ejercicios del paciente:', paciente.treatments);
         res.json({
             ok: true,
             paciente // Envía el array de tratamientos
@@ -248,7 +249,7 @@ const obtenerPacientePorId = async (req, res) => {
         console.error(error);
         res.status(500).json({
             ok: false,
-            message: 'Error del servidor'
+            msg: 'Error del servidor'
         });
     }
 };
@@ -261,11 +262,10 @@ const obtenerMedidas = async (req, res) => {
         if (!paciente) {
             return res.status(404).json({ 
                 ok: false, 
-                message: 'Paciente no encontrado' 
+                msg: 'Paciente no encontrado' 
             });
         }
 
-        //console.log('Ejercicios del paciente:', paciente.exercise_routines);
 
         res.json({
             ok: true,
@@ -275,7 +275,7 @@ const obtenerMedidas = async (req, res) => {
         console.error(error);
         res.status(500).json({
             ok: false,
-            message: 'Error del servidor'
+            msg: 'Error del servidor'
         });
     }
 };
@@ -289,11 +289,11 @@ const cambiarMedidas = async (req, res) => {
         if (!paciente) {
             return res.status(404).json({
                 ok: false,
-                message: 'Paciente no encontrado'
+                msg: 'Paciente no encontrado'
             });
         }
         const newMeasurement = {
-            date: new Date().toISOString(), // Formato 'YYYY-MM-DD'
+            date: new Date(),
             weight,
             heart_rate,
             blood_pressure
@@ -305,7 +305,7 @@ const cambiarMedidas = async (req, res) => {
 
         return res.status(200).json({
             ok: true,
-            message: 'Medidas actualizadas exitosamente',
+            msg: 'Medidas actualizadas exitosamente',
             measurements: paciente.measurements
         });
 
@@ -313,7 +313,7 @@ const cambiarMedidas = async (req, res) => {
         console.error(error);
         res.status(500).json({
             ok: false,
-            message: 'Error del servidor'
+            msg: 'Error del servidor'
         });
     }
 };
@@ -330,7 +330,7 @@ const agregarTratamiento = async (req, res) => {
         if (!description || !date) {
             return res.status(400).json({
                 ok: false,
-                message: 'La descripción y la fecha son campos requeridos',
+                msg: 'La descripción y la fecha son campos requeridos',
             });
         }
 
@@ -339,7 +339,7 @@ const agregarTratamiento = async (req, res) => {
         if (!paciente) {
             return res.status(404).json({
                 ok: false,
-                message: 'Paciente no encontrado',
+                msg: 'Paciente no encontrado',
             });
         }
 
@@ -354,14 +354,14 @@ const agregarTratamiento = async (req, res) => {
 
         res.json({
             ok: true,
-            message: 'Tratamiento agregado correctamente',
+            msg: 'Tratamiento agregado correctamente',
             paciente
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({
             ok: false,
-            message: 'Error del servidor',
+            msg: 'Error del servidor',
         });
     }
 };
@@ -376,7 +376,7 @@ const agregarEjercicio = async (req, res) => {
         if (!description || !date) {
             return res.status(400).json({
                 ok: false,
-                message: 'La descripción y la fecha son campos requeridos',
+                msg: 'La descripción y la fecha son campos requeridos',
             });
         }
 
@@ -385,7 +385,7 @@ const agregarEjercicio = async (req, res) => {
         if (!paciente) {
             return res.status(404).json({
                 ok: false,
-                message: 'Paciente no encontrado',
+                msg: 'Paciente no encontrado',
             });
         }
 
@@ -405,14 +405,14 @@ const agregarEjercicio = async (req, res) => {
 
         res.json({
             ok: true,
-            message: 'Ejercicio agregado correctamente',
+            msg: 'Ejercicio agregado correctamente',
             paciente
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({
             ok: false,
-            message: 'Error del servidor',
+            msg: 'Error del servidor',
         });
     }
 };
@@ -424,20 +424,14 @@ const obtenerPastillero = async (req, res) => {
         if (!paciente) {
             return res.status(404).json({ 
                 ok: false, 
-                message: 'Paciente no encontrado' 
+                msg: 'Paciente no encontrado' 
             });
         }
 
         // Si el paciente no tiene pastillero, lo inicializamos
         if (!paciente.pastillero || paciente.pastillero.length === 0) {
             // Inicializamos el pastillero con los días de la semana
-            const diasSemana = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
-            paciente.pastillero = diasSemana.map(day => ({
-                day,
-                morning: '',
-                afternoon: '',
-                night: ''
-            }));
+            paciente.pastillero = pastilleroVacio();
             await paciente.save();
         }
 
@@ -449,7 +443,7 @@ const obtenerPastillero = async (req, res) => {
         console.error(error);
         res.status(500).json({
             ok: false,
-            message: 'Error del servidor'
+            msg: 'Error del servidor'
         });
     }
 };
@@ -466,19 +460,13 @@ const actualizarMedicacionDia = async (req, res) => {
         if (!paciente) {
             return res.status(404).json({
                 ok: false,
-                message: 'Paciente no encontrado'
+                msg: 'Paciente no encontrado'
             });
         }
 
         // Inicializar pastillero si no existe
         if (!paciente.pastillero || paciente.pastillero.length === 0) {
-            const diasSemana = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
-            paciente.pastillero = diasSemana.map(d => ({
-                day: d,
-                morning: '',
-                afternoon: '',
-                night: ''
-            }));
+            paciente.pastillero = pastilleroVacio();
         }
 
         // Encontrar el día en el pastillero y actualizarlo
@@ -487,7 +475,7 @@ const actualizarMedicacionDia = async (req, res) => {
         if (dayIndex === -1) {
             return res.status(404).json({
                 ok: false,
-                message: 'Día no encontrado'
+                msg: 'Día no encontrado'
             });
         }
 
@@ -500,14 +488,14 @@ const actualizarMedicacionDia = async (req, res) => {
 
         res.json({
             ok: true,
-            message: 'Medicación actualizada correctamente',
+            msg: 'Medicación actualizada correctamente',
             day: paciente.pastillero[dayIndex]
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({
             ok: false,
-            message: 'Error del servidor'
+            msg: 'Error del servidor'
         });
     }
 };

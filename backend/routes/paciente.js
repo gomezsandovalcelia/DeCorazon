@@ -54,7 +54,13 @@ router.get('/:id/measurements', accesoPaciente, obtenerMedidas);
 
 router.put('/:id/exercise_routines/:exerciseId', accesoPaciente, actualizarCheckpoint);
 
-router.put('/:id/measurements', accesoPaciente, cambiarMedidas);
+router.put('/:id/measurements', [
+    ...accesoPaciente,
+    check('weight', 'El peso debe estar entre 20 y 300 kg').isFloat({ min: 20, max: 300 }),
+    check('heart_rate', 'La frecuencia cardiaca debe estar entre 30 y 250 ppm').isInt({ min: 30, max: 250 }),
+    check('blood_pressure', 'La presión arterial debe tener el formato 120/80').matches(/^\d{2,3}\/\d{2,3}$/),
+    validarCampos
+], cambiarMedidas);
 
 // Agregar tratamiento a un paciente
 router.post('/:id/tratamiento', accesoMedico, agregarTratamiento);

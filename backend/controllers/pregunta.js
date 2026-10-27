@@ -3,7 +3,6 @@ const Pregunta = require('../models/pregunta');
 const Respuesta = require('../models/respuesta');
 const Paciente = require('../models/paciente');
 const { response } = require('express');
-const mongoose = require('mongoose');
 
 // Obtener la primera pregunta del árbol
 const getFirstQuestion = async (req, res = response) => {
@@ -19,6 +18,16 @@ const getFirstQuestion = async (req, res = response) => {
       });
     }
 
+    // Si ya completó el cuestionario hoy no se le vuelve a preguntar
+    const ultimo = pacienteExists.lastQuestionnaire;
+    if (ultimo && ultimo.toDateString() === new Date().toDateString()) {
+      return res.json({
+        ok: true,
+        completadoHoy: true,
+        question: null
+      });
+    }
+
     // Encontrar la primera pregunta (la que tiene questionType: 'initial')
     const firstQuestion = await Pregunta.findOne({ questionType: 'initial' });
     
@@ -31,6 +40,7 @@ const getFirstQuestion = async (req, res = response) => {
 
     return res.json({
       ok: true,
+      completadoHoy: false,
       question: firstQuestion
     });
   } catch (error) {
@@ -46,7 +56,6 @@ const getFirstQuestion = async (req, res = response) => {
 const getNextQuestion = async (req, res = response) => {
   try {
     const { pacienteId, currentQuestionId, answer } = req.params;
-    console.log('Parámetros recibidos:', { pacienteId, currentQuestionId, answer });
     
     // Verificar si el paciente existe
     const pacienteExists = await Paciente.findById(pacienteId);
@@ -66,17 +75,9 @@ const getNextQuestion = async (req, res = response) => {
       });
     }
 
-    console.log('Pregunta actual encontrada:', {
-      id: currentQuestion._id,
-      shortId: currentQuestion.shortId,
-      question: currentQuestion.question
-    });
     
     // Verificar si nextQuestions es un Map o un objeto
     const nextQuestionsMap = currentQuestion.nextQuestions || new Map();
-    console.log('nextQuestions disponibles:', nextQuestionsMap);
-    console.log('Tipo de nextQuestions:', typeof nextQuestionsMap, nextQuestionsMap instanceof Map);
-    console.log('Buscando configuración para respuesta:', answer);
     
     // Obtener la configuración para la respuesta dada
     let nextConfig;
@@ -89,11 +90,9 @@ const getNextQuestion = async (req, res = response) => {
       nextConfig = nextQuestionsMap[answer];
     }
     
-    console.log('Configuración encontrada:', nextConfig);
     
     if (!nextConfig || !nextConfig.questionId) {
       const isEndPoint = nextConfig && nextConfig.endQuestionnaire;
-      console.log('No se encontró siguiente pregunta o es punto final:', isEndPoint);
       
       return res.json({
         ok: true,
@@ -105,25 +104,17 @@ const getNextQuestion = async (req, res = response) => {
     
     // Obtener el ID de la siguiente pregunta
     const nextQuestionId = nextConfig.questionId;
-    console.log('ID de la siguiente pregunta:', nextQuestionId);
     
     // Buscar la siguiente pregunta por su shortId
-    console.log('Buscando pregunta con shortId:', nextQuestionId);
     const nextQuestion = await Pregunta.findOne({ shortId: nextQuestionId });
     
     if (!nextQuestion) {
-      console.log('No se encontró la pregunta con shortId:', nextQuestionId);
       return res.status(404).json({
         ok: false,
         msg: `No se encontró la pregunta con shortId ${nextQuestionId}`
       });
     }
     
-    console.log('Siguiente pregunta encontrada:', {
-      id: nextQuestion._id,
-      shortId: nextQuestion.shortId,
-      question: nextQuestion.question
-    });
 
     // Verificar si es la última pregunta
     const nextQuestionsForNext = nextQuestion.nextQuestions || new Map();
@@ -145,7 +136,6 @@ const getNextQuestion = async (req, res = response) => {
     }
     
     const isLastQuestion = !hasNextQuestions;
-    console.log('¿Es la última pregunta?', isLastQuestion);
 
     return res.json({
       ok: true,
@@ -255,7 +245,7 @@ const sendAlert = async (req, res = response) => {
 
     // Aquí implementarías la lógica para enviar la alerta al sanitario
     // Por ejemplo, enviando un email, SMS, o guardando en una colección de alertas
-    console.log(`ALERTA: Paciente ${paciente.nombre} ${paciente.apellidos} (${paciente._id}) - ${reason}`);
+    console.warn(`ALERTA: Paciente ${paciente.nombre} ${paciente.apellidos} (${paciente._id}) - ${reason}`);
 
     // Actualizar el estado del paciente
     paciente.lastAlert = {

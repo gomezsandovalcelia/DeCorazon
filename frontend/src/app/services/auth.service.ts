@@ -20,14 +20,8 @@ export class AuthService {
 
   // Único punto donde se borra la sesión guardada en localStorage
   logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('rol');
-    localStorage.removeItem('tipo');
-    localStorage.removeItem('pacienteId');
-    localStorage.removeItem('showForm');
-    localStorage.removeItem('preguntadeldia');
-    localStorage.removeItem('answeredToday');
+    ['token', 'userId', 'rol', 'tipo', 'pacienteId', 'ultimaMedicion']
+      .forEach(clave => localStorage.removeItem(clave));
     this.router.navigateByUrl('/login');
   }
 

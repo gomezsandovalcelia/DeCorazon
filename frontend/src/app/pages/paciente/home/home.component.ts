@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Validators, FormBuilder } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { PacienteService } from 'src/app/services/paciente.service';
 import { QuestionService } from 'src/app/services/question.service';
-import { StateService } from 'src/app/services/state.service';
 import { ToastController } from '@ionic/angular';
+import { VALIDADORES_MEDIDAS } from 'src/app/interfaces/measurements-form.interface';
+
+// Horas que deben pasar entre dos registros de medidas
+const HORAS_ENTRE_MEDICIONES = 12;
 
 @Component({
   selector: 'app-home',
@@ -26,77 +29,56 @@ export class HomeComponent implements OnInit {
   isProcessing: boolean = false;
 
   public measureForm = this.fb.group({
-    weight: ['', Validators.required],
-    heart_rate: ['', Validators.required],
-    blood_pressure: ['', Validators.required]
+    weight: ['', VALIDADORES_MEDIDAS.weight],
+    heart_rate: ['', VALIDADORES_MEDIDAS.heart_rate],
+    blood_pressure: ['', VALIDADORES_MEDIDAS.blood_pressure]
   });
 
   showWeight = true;
   showHeartRate = false;
   showBloodPressure = false;
   showFormAux = false;
-  showAnsweredAux = false;
 
   constructor(
-    private stateService: StateService, 
-    private fb: FormBuilder, 
-    private pacienteService: PacienteService, 
-    private questionService: QuestionService, 
+    private fb: FormBuilder,
+    private pacienteService: PacienteService,
+    private questionService: QuestionService,
     private toastController: ToastController
   ) { }
 
   ngOnInit() {
-    console.log('Iniciando componente Home');
     const pacienteId = localStorage.getItem('pacienteId');
     this.pacienteId = pacienteId;
     if (pacienteId) {
-      console.log('ID de paciente encontrado:', this.pacienteId);
+      this.obtenerDiaActual();
       this.getTreatments(pacienteId);
       this.getExercises(pacienteId);
       this.getPastilleroToday(pacienteId);
-      this.showQuestionnaire = true;
-      console.log('Verificando cuestionario...');
-      this.checkQuestionnaire();
+      this.loadFirstQuestion();
     } else {
       console.error('No se encontró ID de paciente');
     }
-    const showForm = localStorage.getItem('showForm');
-    if(showForm) {
-      this.showFormAux = true;
-    }
-    this.obtenerDiaActual();
+    this.showFormAux = this.puedeRegistrarMedidas();
   }
 
-  checkQuestionnaire() {
-    // Verificar si ya completó el cuestionario hoy
-    const completedToday = localStorage.getItem('questionnaireCompletedToday');
-    const today = new Date().toISOString().split('T')[0];
-    
-    if (completedToday === today) {
-      console.log('⏳ Ya se respondió el cuestionario hoy.');
-      this.showQuestionnaire = false;
-      return;
-    }
-    
-    // Si no ha completado el cuestionario, mostrar la primera pregunta
-    this.showQuestionnaire = true;
-    this.loadFirstQuestion();
+  // El formulario de medidas se muestra si han pasado HORAS_ENTRE_MEDICIONES desde la última
+  private puedeRegistrarMedidas(): boolean {
+    const ultimaMedicion = Number(localStorage.getItem('ultimaMedicion'));
+    return !ultimaMedicion || Date.now() - ultimaMedicion >= HORAS_ENTRE_MEDICIONES * 60 * 60 * 1000;
   }
 
+  // El backend indica si el paciente ya completó hoy el cuestionario
   loadFirstQuestion() {
-    if (!this.showQuestionnaire) {
-      return;
-    }
-
     this.questionService.getFirstQuestion(this.pacienteId).subscribe(
       (res) => {
-        if (res.ok) {
+        if (res.ok && !res.completadoHoy) {
+          this.showQuestionnaire = true;
           this.currentQuestion = res.question;
           this.questionsHistory = [];
           this.isLastQuestion = false;
           this.selectedAnswer = '';
         } else {
-          console.log("No hay preguntas disponibles:", res.msg);
+          this.showQuestionnaire = false;
         }
       },
       (error) => console.error("Error obteniendo la primera pregunta:", error)
@@ -104,13 +86,7 @@ export class HomeComponent implements OnInit {
   }
 
   async submitAnswer() {
-    console.log('Intentando enviar respuesta:', {
-      currentQuestion: this.currentQuestion,
-      selectedAnswer: this.selectedAnswer
-    });
-    
     if (!this.selectedAnswer || !this.currentQuestion || this.isProcessing) {
-      console.log('No se puede enviar: faltan datos o está procesando');
       return;
     }
   
@@ -124,7 +100,6 @@ export class HomeComponent implements OnInit {
         this.selectedAnswer
       ).toPromise();
   
-      console.log('Respuesta guardada:', response);
   
       if (response.ok) {
         // Guardar en historial
@@ -140,36 +115,29 @@ export class HomeComponent implements OnInit {
   
         // Verificar si debemos finalizar según la configuración de la pregunta actual
         const currentQuestionConfig = this.currentQuestion.nextQuestions[this.selectedAnswer];
-        console.log('Configuración de siguiente pregunta:', currentQuestionConfig);
         
         if (currentQuestionConfig && currentQuestionConfig.endQuestionnaire) {
-          console.log('Finalizando cuestionario según configuración');
           await this.finishQuestionnaire();
           return;
         }
   
         // Cargar la siguiente pregunta
-        console.log('Obteniendo siguiente pregunta...');
         const nextResponse = await this.questionService.getNextQuestion(
           this.pacienteId,
           this.currentQuestion._id,
           this.selectedAnswer
         ).toPromise();
   
-        console.log('Respuesta de siguiente pregunta:', nextResponse);
   
         if (nextResponse.ok && nextResponse.question) {
           this.currentQuestion = nextResponse.question;
           this.selectedAnswer = '';
           this.isLastQuestion = nextResponse.isLastQuestion;
-          console.log('Nueva pregunta cargada:', this.currentQuestion.question);
         } else {
           // Si no hay más preguntas, finalizar el cuestionario
-          console.log('No hay más preguntas, finalizando cuestionario');
           await this.finishQuestionnaire();
         }
       } else {
-        console.log('Error en la respuesta:', response.msg);
         this.showNotification('Error al procesar la respuesta: ' + response.msg);
       }
     } catch (error) {
@@ -199,10 +167,6 @@ export class HomeComponent implements OnInit {
     try {
       await this.questionService.finishQuestionnaire(this.pacienteId).toPromise();
       
-      // Marcar el cuestionario como completado para hoy
-      const today = new Date().toISOString().split('T')[0];
-      localStorage.setItem('questionnaireCompletedToday', today);
-      
       this.showQuestionnaire = false;
       this.currentQuestion = null;
       
@@ -228,23 +192,21 @@ export class HomeComponent implements OnInit {
     toast.present();
   }
 
-  get showForm() {
-    return this.stateService.showForm;
-  }
-
   submitWeight() {
     if (this.measureForm.get('weight')?.valid) {
-      console.log('Peso registrado:', this.measureForm.value.weight);
       this.showWeight = false;
       this.showHeartRate = true;
+    } else {
+      this.showNotification('El peso debe estar entre 20 y 300 kg.');
     }
   }
 
   submitHeartRate() {
     if (this.measureForm.get('heart_rate')?.valid) {
-      console.log('Frecuencia Cardíaca registrada:', this.measureForm.value.heart_rate);
       this.showHeartRate = false;
       this.showBloodPressure = true;
+    } else {
+      this.showNotification('La frecuencia cardiaca debe estar entre 30 y 250 ppm.');
     }
   }
   
@@ -292,9 +254,7 @@ export class HomeComponent implements OnInit {
     const pacienteId = localStorage.getItem('pacienteId');
     if (pacienteId) {
       this.pacienteService.updateExerciseCheckpoint(pacienteId, exercise._id, exercise.checkpoint).subscribe(
-        (response) => {
-          console.log('Checkpoint actualizado:', response);
-        },
+        () => {},
         (error) => {
           console.error('Error al actualizar checkpoint:', error);
         }
@@ -303,9 +263,11 @@ export class HomeComponent implements OnInit {
   }
 
   registrarMedidas() {
-    if (this.measureForm.get('blood_pressure')?.valid) {
-      console.log('Presión Arterial registrada:', this.measureForm.value.blood_pressure);
-     
+    if (!this.measureForm.get('blood_pressure')?.valid) {
+      this.showNotification('La presión arterial debe tener el formato 120/80.');
+      return;
+    }
+    if (this.measureForm.valid) {
       const formData = {
         weight: Number(this.measureForm.value.weight),
         heart_rate: Number(this.measureForm.value.heart_rate),
@@ -316,48 +278,26 @@ export class HomeComponent implements OnInit {
   
       if (pacienteId) {
         this.pacienteService.updateNewMeasurements(pacienteId, formData).subscribe(
-          response => {
-            console.log('Medidas actualizadas:', response);
+          () => {
             this.hideForm();
           },
           error => {
             console.error('Error al actualizar medidas:', error);
+            this.showNotification('No se han podido registrar las medidas. Revisa los valores.');
           }
         );
       }
     }
   }
 
-  hideQuestion() {
-    console.log('Ocultando formulario...'); 
-    localStorage.setItem('preguntadeldia', 'false'); 
-    this.showAnsweredAux = false;
-    setTimeout(() => {
-      console.log('Mostrando formulario después de 24 horas...'); 
-      this.resetQuestion();
-      
-      localStorage.setItem('preguntadeldia', 'true'); 
-    }, 24 * 60 * 60 * 1000);
-  }
-
-  resetQuestion() {
-    this.showAnsweredAux = true;
-  }
-
+  // Oculta el formulario hasta que pasen HORAS_ENTRE_MEDICIONES
   hideForm() {
-    console.log('Ocultando formulario...'); 
-    localStorage.setItem('showForm', 'false'); 
+    localStorage.setItem('ultimaMedicion', String(Date.now()));
     this.showFormAux = false;
-    setTimeout(() => {
-      console.log('Mostrando formulario después de 10 minutos...'); 
-      this.resetForm();
-      
-      localStorage.setItem('showForm', 'true'); 
-    }, 10 * 60 * 1000); // 10 minutos
+    this.resetForm();
   }
 
   resetForm() {
-    this.showFormAux = true;
     this.measureForm.reset();
     this.showWeight = true;
     this.showHeartRate = false;
@@ -386,7 +326,6 @@ export class HomeComponent implements OnInit {
           );
           
           if (!this.pastilleroHoy) {
-            console.log('No se encontró el día actual en el pastillero');
             // Si no se encuentra, crear un objeto vacío
             this.pastilleroHoy = {
               day: this.diaActual,
