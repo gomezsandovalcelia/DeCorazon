@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { obtenerPacientes, crearPaciente, actualizarPaciente,
+const { obtenerPacientes, crearPaciente, actualizarPaciente, cambiarPassword,
     borrarPaciente, obtenerTratamientos, obtenerEjercicios, actualizarCheckpoint,
     obtenerPacientePorId, obtenerMedidas, cambiarMedidas,
     agregarEjercicio, agregarTratamiento, obtenerPastillero,
@@ -8,7 +8,7 @@ const { check } = require('express-validator');
 const { validarCampos } = require('../middleware/validar-campos');
 const { validarJWT } = require('../middleware/validar-jwt');
 const { validarRolMedico } = require('../middleware/validar-rol-medico');
-const { validarAccesoPaciente } = require('../middleware/validar-acceso');
+const { validarAccesoPaciente, validarMismoUsuario } = require('../middleware/validar-acceso');
 
 const router = Router();
 
@@ -25,9 +25,19 @@ router.post('/', [
     check('nombre', 'El argumento nombre es obligatorio').not().isEmpty(),
     check('apellidos', 'El argumento apellidos es obligatorio').not().isEmpty(),
     check('email', 'El argumento email es obligatorio').isEmail(),
-    check('password', 'El argumento password es obligatorio').not().isEmpty(),
+    check('password', 'La contraseña debe tener al menos 6 caracteres').isLength({ min: 6 }),
+    check('altura', 'La altura debe estar entre 50 y 250 cm').optional({ values: 'falsy' }).isFloat({ min: 50, max: 250 }),
     validarCampos
 ], crearPaciente);
+
+// Solo el propio paciente cambia su contraseña
+router.put('/:id/password', [
+    validarJWT,
+    validarMismoUsuario,
+    check('actual', 'La contraseña actual es obligatoria').not().isEmpty(),
+    check('nueva', 'La contraseña nueva debe tener al menos 6 caracteres').isLength({ min: 6 }),
+    validarCampos
+], cambiarPassword);
 
 router.put('/:id', [
     ...accesoPaciente,

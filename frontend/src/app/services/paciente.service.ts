@@ -5,6 +5,7 @@ import { measureForm } from '../interfaces/measurements-form.interface';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { NuevoPaciente } from '../interfaces/paciente.interface';
 
 // El token se añade en TokenInterceptor
 @Injectable({
@@ -17,6 +18,15 @@ export class PacienteService {
 
   getPacientePorId(patientId: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/paciente/${patientId}`);
+  }
+
+  // El médico da de alta a un paciente, que queda asignado a él
+  crearPaciente(datos: NuevoPaciente): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/paciente`, datos);
+  }
+
+  cambiarPassword(patientId: string, actual: string, nueva: string): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/paciente/${patientId}/password`, { actual, nueva });
   }
 
   getMeasurements(patientId: string): Observable<any> {

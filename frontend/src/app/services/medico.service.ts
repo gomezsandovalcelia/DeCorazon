@@ -21,4 +21,9 @@ export class MedicoService {
   getMedicoPorId(medicoId: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/medico/${medicoId}`);
   }
+
+  // Registro público: solo se registran médicos
+  registrarMedico(datos: { nombre: string; apellidos: string; email: string; password: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/medico`, datos);
+  }
 }

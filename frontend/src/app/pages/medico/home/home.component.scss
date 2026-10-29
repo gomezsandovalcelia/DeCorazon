@@ -76,3 +76,11 @@ ion-buttons ion-icon {
     font-size: var(--app-font-sm);
   }
 }
+
+.acciones-pacientes {
+  margin-bottom: 16px;
+
+  ion-searchbar {
+    padding: 0 0 12px;
+  }
+}

@@ -2,6 +2,7 @@ const Paciente = require('../models/paciente');
 const Medico = require('../models/medico');
 const bcrypt = require('bcryptjs');
 const { response } = require("express");
+const { emailEnUso } = require('../helpers/email-en-uso');
 
 // Pastillero con los 7 días de la semana sin medicación
 const pastilleroVacio = () => {
@@ -27,12 +28,10 @@ const crearPaciente = async (req, res) => {
     const { nombre, apellidos, email, password, altura } = req.body;
 
     try {
-        const exiteEmail = await Paciente.findOne({ email: email });
-
-        if (exiteEmail) {
+        if (await emailEnUso(email)) {
             return res.status(400).json({
                 ok: false,
-                msg: 'Email paciente ya existe'
+                msg: 'Ya existe una cuenta con ese email'
             });
         }
 
@@ -40,7 +39,11 @@ const crearPaciente = async (req, res) => {
 
         const cpassword = bcrypt.hashSync(password, salt); // y aqui ciframos la contraseña
 
-        const paciente = new Paciente({ nombre, apellidos, email, altura, password: cpassword });
+        // Mediciones, tratamientos y ejercicios empiezan vacíos; el pastillero, con los 7 días sin medicación
+        const paciente = new Paciente({
+            nombre, apellidos, email, altura, password: cpassword,
+            pastillero: pastilleroVacio()
+        });
         await paciente.save();
 
         // El médico que da de alta al paciente lo tiene asignado
@@ -71,15 +74,11 @@ const actualizarPaciente = async(req, res = response) => {
     const uid = req.params.id;
 
     try{
-        const existeEmail = await Paciente.findOne({ email: email });
-
-        if(existeEmail){
-            if(existeEmail._id != uid){
-                return res.status(400).json({
-                    ok: false,
-                    msg: 'Email ya existe',
-                });
-            }
+        if (await emailEnUso(email, uid)) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'Ya existe una cuenta con ese email',
+            });
         }
 
         object.email = email;
@@ -104,6 +103,42 @@ const actualizarPaciente = async(req, res = response) => {
         msg: 'actualizarUsuario'
     });*/
 }
+
+// El paciente cambia su propia contraseña indicando la actual
+const cambiarPassword = async (req, res = response) => {
+    const { actual, nueva } = req.body;
+
+    try {
+        const paciente = await Paciente.findById(req.params.id).select('+password');
+        if (!paciente) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'Paciente no encontrado'
+            });
+        }
+
+        if (!bcrypt.compareSync(actual, paciente.password)) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'La contraseña actual no es correcta'
+            });
+        }
+
+        paciente.password = bcrypt.hashSync(nueva, bcrypt.genSaltSync());
+        await paciente.save();
+
+        res.json({
+            ok: true,
+            msg: 'Contraseña actualizada'
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Error del servidor'
+        });
+    }
+};
 
 const borrarPaciente = async(req, res = response) => {
     
@@ -500,8 +535,8 @@ const actualizarMedicacionDia = async (req, res) => {
     }
 };
 
-module.exports = { obtenerPacientes, crearPaciente, 
-    actualizarPaciente, borrarPaciente, obtenerTratamientos, 
+module.exports = { obtenerPacientes, crearPaciente,
+    actualizarPaciente, cambiarPassword, borrarPaciente, obtenerTratamientos, 
     obtenerEjercicios, actualizarCheckpoint, obtenerPacientePorId, 
     obtenerMedidas, cambiarMedidas,
     agregarTratamiento, agregarEjercicio, obtenerPastillero,

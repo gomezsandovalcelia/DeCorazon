@@ -12,6 +12,7 @@ import { PerfilComponent as MedicoPerfilComponent} from './medico/perfil/perfil.
 import { PreguntasFrecuentesComponent } from './paciente/preguntas-frecuentes/preguntas-frecuentes.component';
 import { AuthGuard } from '../guards/auth.guard';
 import { DetallepacienteComponent } from './medico/detallepaciente/detallepaciente.component';
+import { NuevoPacienteComponent } from './medico/nuevo-paciente/nuevo-paciente.component';
 
 const routes: Routes = [
   {
@@ -37,6 +38,7 @@ const routes: Routes = [
       { path: 'dashboard', component: MedicoHomeComponent },
       { path: 'perfil', component: MedicoPerfilComponent },
       { path: 'detalle-paciente/:id', component: DetallepacienteComponent }, // Reemplaza con el componente adecuado
+      { path: 'nuevo-paciente', component: NuevoPacienteComponent },
       // Añade aquí más rutas para médicos cuando tengas los componentes
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]

@@ -1,0 +1,35 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button routerLink="/medico/dashboard" aria-label="Volver a mis pacientes">
+        <ion-icon slot="icon-only" name="arrow-back" aria-hidden="true"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Registrar paciente</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form class="formulario" (ngSubmit)="guardar()" [formGroup]="pacienteForm">
+    <ion-input formControlName="nombre" label="Nombre" labelPlacement="stacked" fill="outline" type="text"
+               autocomplete="off" maxlength="20" errorText="Escribe el nombre"></ion-input>
+    <ion-input formControlName="apellidos" label="Apellidos" labelPlacement="stacked" fill="outline" type="text"
+               autocomplete="off" maxlength="40" errorText="Escribe los apellidos"></ion-input>
+    <ion-input formControlName="email" label="Correo electrónico" labelPlacement="stacked" fill="outline" type="email"
+               inputmode="email" autocomplete="off" errorText="Escribe un correo válido"></ion-input>
+    <ion-input formControlName="altura" label="Altura en cm (opcional)" labelPlacement="stacked" fill="outline"
+               type="number" inputmode="numeric" min="50" max="250"
+               helperText="Se usa para calcular el IMC" errorText="La altura debe estar entre 50 y 250 cm"></ion-input>
+    <ion-input formControlName="password" label="Contraseña inicial" labelPlacement="stacked" fill="outline"
+               type="password" autocomplete="new-password" maxlength="20"
+               helperText="Al menos 6 caracteres. El paciente podrá cambiarla en su perfil"
+               errorText="La contraseña debe tener al menos 6 caracteres">
+      <ion-input-password-toggle slot="end" showLabel="Mostrar contraseña" hideLabel="Ocultar contraseña"></ion-input-password-toggle>
+    </ion-input>
+
+    <ion-button expand="block" type="submit" [disabled]="enviando">
+      <ion-icon slot="start" name="person-add-outline" aria-hidden="true"></ion-icon>
+      Registrar paciente
+    </ion-button>
+  </form>
+</ion-content>

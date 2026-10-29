@@ -78,7 +78,14 @@ ion-toolbar {
   --min-height: 64px;
 }
 
+// Centrado también en Android; el padding deja sitio a los botones de los lados
 ion-title {
+  position: absolute;
+  inset: 0;
+  padding: 0 72px;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
   font-size: var(--app-font-lg);
   font-weight: 700;
 }
@@ -198,6 +205,32 @@ ion-textarea.textarea-fill-outline {
   --border-color: #b9aea5;
   --background: #ffffff;
   min-height: 60px;
+}
+
+/* Buscador con el mismo aspecto que los campos de texto y las esquinas de los botones.
+   Ionic fija sus valores con clases (.sc-ion-searchbar-md-h, .searchbar-input.sc-ion-searchbar-md),
+   así que estos selectores necesitan más especificidad que un simple ion-searchbar */
+ion-searchbar.md,
+ion-searchbar.ios {
+  --background: #ffffff;
+  --border-radius: 14px;
+  --box-shadow: none;
+  --color: var(--ion-text-color);
+  --placeholder-color: var(--app-text-suave);
+  --placeholder-opacity: 1;
+  --icon-color: var(--app-text-suave);
+  padding-left: 0;
+  padding-right: 0;
+}
+
+ion-searchbar .searchbar-input-container .searchbar-input {
+  min-height: var(--app-tap);
+  border: 2px solid #b9aea5;
+  font-size: var(--app-font-base);
+}
+
+ion-searchbar.searchbar-has-focus .searchbar-input-container .searchbar-input {
+  border-color: var(--ion-color-primary);
 }
 
 ion-checkbox {
@@ -361,6 +394,33 @@ ion-accordion ion-item[slot="header"] {
 
 .acciones {
   margin-top: 24px;
+}
+
+/* Desplegable con <details>/<summary>: título que se pulsa y flecha que gira al abrirse */
+.desplegable {
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 48px;
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    ion-icon {
+      flex-shrink: 0;
+      font-size: 24px;
+      transition: transform 0.2s;
+    }
+  }
+
+  &[open] summary ion-icon {
+    transform: rotate(180deg);
+  }
 }
 
 /* Las etiquetas de casillas y radios pueden ocupar varias líneas */

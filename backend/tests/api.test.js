@@ -99,11 +99,26 @@ describe('Acceso a los datos de los pacientes', () => {
         expect((await request(app).get(`/api/paciente/${pacienteB}`).set('x-token', tokenMedico)).status).toBe(403);
     });
 
-    test('solo los médicos listan pacientes y crean médicos', async () => {
+    test('solo los médicos listan pacientes', async () => {
         expect((await request(app).get('/api/paciente').set('x-token', tokenA)).status).toBe(403);
-        const res = await request(app).post('/api/medico').set('x-token', tokenA)
-            .send({ nombre: 'X', apellidos: 'X', email: 'x@test.es', password: 'x' });
-        expect(res.status).toBe(403);
+    });
+
+    test('cualquiera puede registrarse como médico, sin token y sin elegir el rol', async () => {
+        const res = await request(app).post('/api/medico')
+            .send({ nombre: 'X', apellidos: 'X', email: 'x@test.es', password: '123456', rol: 'PACIENTE' });
+        expect(res.status).toBe(200);
+        expect(res.body.medico.rol).toBe('MEDICO');
+        expect(res.text).not.toContain('password');
+    });
+
+    test('un email no puede repetirse entre pacientes y médicos', async () => {
+        const medicoConEmailDePaciente = await request(app).post('/api/medico')
+            .send({ nombre: 'Y', apellidos: 'Y', email: 'a@test.es', password: '123456' });
+        expect(medicoConEmailDePaciente.status).toBe(400);
+
+        const pacienteConEmailDeMedico = await request(app).post('/api/paciente').set('x-token', tokenMedico)
+            .send({ nombre: 'Y', apellidos: 'Y', email: 'm@test.es', password: '123456' });
+        expect(pacienteConEmailDeMedico.status).toBe(400);
     });
 
     test('un paciente no ve el perfil de un médico', async () => {
@@ -136,12 +151,40 @@ describe('Acceso a los datos de los pacientes', () => {
 
     test('un médico crea un paciente con rol PACIENTE y queda asignado', async () => {
         const res = await request(app).post('/api/paciente').set('x-token', tokenMedico)
-            .send({ nombre: 'C', apellidos: 'C', email: 'c@test.es', password: '1234', rol: 'MEDICO' });
+            .send({ nombre: 'C', apellidos: 'C', email: 'c@test.es', password: '123456', altura: 170, rol: 'MEDICO' });
         expect(res.status).toBe(200);
         expect(res.body.paciente.rol).toBe('PACIENTE');
         expect(res.text).not.toContain('password');
         const doc = await mongoose.connection.db.collection('Medicos').findOne({ _id: medico });
         expect(doc.pacientes.map(String)).toContain(String(res.body.paciente._id));
+
+        const { measurements, treatments, exercise_routines, pastillero } = res.body.paciente;
+        expect(measurements).toEqual([]);
+        expect(treatments).toEqual([]);
+        expect(exercise_routines).toEqual([]);
+        expect(pastillero.map(d => d.day)).toEqual(['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo']);
+        expect(pastillero.every(d => !d.morning && !d.afternoon && !d.night)).toBe(true);
+    });
+
+    test('el alta de paciente exige una contraseña de al menos 6 caracteres', async () => {
+        const res = await request(app).post('/api/paciente').set('x-token', tokenMedico)
+            .send({ nombre: 'D', apellidos: 'D', email: 'd@test.es', password: '123' });
+        expect(res.status).toBe(400);
+    });
+
+    test('el paciente cambia su contraseña si conoce la actual', async () => {
+        const url = `/api/paciente/${pacienteB}/password`;
+        const tokenB = await login('b@test.es');
+
+        expect((await request(app).put(url).set('x-token', tokenA)
+            .send({ actual: '1234', nueva: 'nueva123' })).status).toBe(403);
+        expect((await request(app).put(url).set('x-token', tokenB)
+            .send({ actual: 'mal', nueva: 'nueva123' })).status).toBe(400);
+        expect((await request(app).put(url).set('x-token', tokenB)
+            .send({ actual: '1234', nueva: 'nueva123' })).status).toBe(200);
+
+        expect((await request(app).post('/api/login').send({ email: 'b@test.es', password: 'nueva123' })).status).toBe(200);
+        expect((await request(app).post('/api/login').send({ email: 'b@test.es', password: '1234' })).status).toBe(400);
     });
 });
 

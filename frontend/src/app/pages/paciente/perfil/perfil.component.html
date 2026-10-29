@@ -37,6 +37,33 @@
     <p class="empty-state">Todavía no has apuntado ninguna medida.</p>
   </ng-template>
 
+  <ion-card>
+    <ion-card-content>
+      <details class="desplegable" #desplegablePassword>
+        <summary>
+          <strong>Cambiar contraseña</strong>
+          <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
+        </summary>
+        <form class="form-password" (ngSubmit)="cambiarPassword(desplegablePassword)" [formGroup]="passwordForm">
+          <ion-input formControlName="actual" label="Contraseña actual" labelPlacement="stacked" fill="outline"
+                     type="password" autocomplete="current-password" errorText="Escribe tu contraseña actual">
+            <ion-input-password-toggle slot="end" showLabel="Mostrar contraseña" hideLabel="Ocultar contraseña"></ion-input-password-toggle>
+          </ion-input>
+          <ion-input formControlName="nueva" label="Contraseña nueva" labelPlacement="stacked" fill="outline"
+                     type="password" autocomplete="new-password" maxlength="20" helperText="Al menos 6 caracteres"
+                     errorText="La contraseña debe tener al menos 6 caracteres">
+            <ion-input-password-toggle slot="end" showLabel="Mostrar contraseña" hideLabel="Ocultar contraseña"></ion-input-password-toggle>
+          </ion-input>
+          <ion-input formControlName="repetir" label="Repetir contraseña nueva" labelPlacement="stacked" fill="outline"
+                     type="password" autocomplete="new-password" maxlength="20" errorText="Las contraseñas no coinciden">
+            <ion-input-password-toggle slot="end" showLabel="Mostrar contraseña" hideLabel="Ocultar contraseña"></ion-input-password-toggle>
+          </ion-input>
+          <ion-button expand="block" type="submit" [disabled]="guardandoPassword">Guardar contraseña</ion-button>
+        </form>
+      </details>
+    </ion-card-content>
+  </ion-card>
+
   <div class="acciones">
     <ion-button expand="block" fill="outline" routerLink="/preguntas-frecuentes">
       <ion-icon slot="start" name="help-circle-outline" aria-hidden="true"></ion-icon>

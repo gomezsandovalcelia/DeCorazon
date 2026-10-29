@@ -1,25 +1,28 @@
 <ion-content>
   <div class="auth-container">
     <img src="assets/logo.png" alt="De Corazón" class="auth-logo auth-logo-pequeno">
-    <h1>Registrarme</h1>
+    <h1>Registro de médicos</h1>
+    <p class="auth-intro">Si eres paciente, tu médico te dará de alta y te dirá tu correo y contraseña.</p>
 
-    <ion-input label="Nombre" labelPlacement="stacked" fill="outline" type="text"
-               autocomplete="given-name" maxlength="20"></ion-input>
-    <ion-input label="Apellidos" labelPlacement="stacked" fill="outline" type="text"
-               autocomplete="family-name" maxlength="40"></ion-input>
-    <ion-input label="Correo electrónico" labelPlacement="stacked" fill="outline" type="email"
-               inputmode="email" autocomplete="email"
-               errorText="Escribe un correo válido" ngModel email></ion-input>
-    <ion-input label="Contraseña" labelPlacement="stacked" fill="outline" type="password"
-               autocomplete="new-password" maxlength="20">
-      <ion-input-password-toggle slot="end" showLabel="Mostrar contraseña" hideLabel="Ocultar contraseña"></ion-input-password-toggle>
-    </ion-input>
-    <ion-input label="Repetir contraseña" labelPlacement="stacked" fill="outline" type="password"
-               autocomplete="new-password" maxlength="20">
-      <ion-input-password-toggle slot="end" showLabel="Mostrar contraseña" hideLabel="Ocultar contraseña"></ion-input-password-toggle>
-    </ion-input>
+    <form (ngSubmit)="registrar()" [formGroup]="registroForm">
+      <ion-input formControlName="nombre" label="Nombre" labelPlacement="stacked" fill="outline" type="text"
+                 autocomplete="given-name" maxlength="20" errorText="Escribe tu nombre"></ion-input>
+      <ion-input formControlName="apellidos" label="Apellidos" labelPlacement="stacked" fill="outline" type="text"
+                 autocomplete="family-name" maxlength="40" errorText="Escribe tus apellidos"></ion-input>
+      <ion-input formControlName="email" label="Correo electrónico" labelPlacement="stacked" fill="outline" type="email"
+                 inputmode="email" autocomplete="email" errorText="Escribe un correo válido"></ion-input>
+      <ion-input formControlName="password" label="Contraseña" labelPlacement="stacked" fill="outline" type="password"
+                 autocomplete="new-password" maxlength="20" helperText="Al menos 6 caracteres"
+                 errorText="La contraseña debe tener al menos 6 caracteres">
+        <ion-input-password-toggle slot="end" showLabel="Mostrar contraseña" hideLabel="Ocultar contraseña"></ion-input-password-toggle>
+      </ion-input>
+      <ion-input formControlName="repetir" label="Repetir contraseña" labelPlacement="stacked" fill="outline" type="password"
+                 autocomplete="new-password" maxlength="20" errorText="Las contraseñas no coinciden">
+        <ion-input-password-toggle slot="end" showLabel="Mostrar contraseña" hideLabel="Ocultar contraseña"></ion-input-password-toggle>
+      </ion-input>
 
-    <ion-button expand="block">Crear cuenta</ion-button>
+      <ion-button expand="block" type="submit" [disabled]="enviando">Crear cuenta</ion-button>
+    </form>
 
     <p class="auth-alternativa">¿Ya tienes cuenta?</p>
     <ion-button expand="block" fill="outline" routerLink="/login">Iniciar sesión</ion-button>

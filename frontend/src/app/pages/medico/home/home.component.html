@@ -11,14 +11,26 @@
 </ion-header>
 
 <ion-content>
+  <div class="acciones-pacientes">
+    <ion-searchbar [(ngModel)]="busqueda" placeholder="Buscar paciente por nombre"
+                   aria-label="Buscar paciente por nombre" [debounce]="200"></ion-searchbar>
+    <ion-button expand="block" routerLink="/medico/nuevo-paciente">
+      <ion-icon slot="start" name="person-add-outline" aria-hidden="true"></ion-icon>
+      Registrar paciente
+    </ion-button>
+  </div>
+
   <div *ngIf="loading" class="loading-state">
     <ion-spinner name="crescent"></ion-spinner>
     <p>Cargando pacientes...</p>
   </div>
 
   <p *ngIf="!loading && pacientes.length === 0" class="empty-state">Todavía no tienes pacientes asignados.</p>
+  <p *ngIf="!loading && pacientes.length > 0 && pacientesFiltrados.length === 0" class="empty-state">
+    Ningún paciente coincide con la búsqueda.
+  </p>
 
-  <ion-card *ngFor="let paciente of pacientes"
+  <ion-card *ngFor="let paciente of pacientesFiltrados"
             button
             class="paciente"
             [class.con-alerta]="pacienteTieneAlertas(paciente._id)"

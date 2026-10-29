@@ -1,39 +1,131 @@
 // Colores, tamaños de texto y botones vienen de global.scss y theme/variables.scss
 
-.custom-segment {
-  margin-bottom: 16px;
-  background: var(--app-superficie);
-  border-radius: 14px;
-  box-shadow: var(--app-shadow);
-}
+/* ---------- Navegación entre secciones ---------- */
 
-ion-segment-button {
-  --indicator-color: var(--ion-color-primary);
-  --color-checked: var(--ion-color-primary);
-  --padding-start: 14px;
-  --padding-end: 14px;
-  font-weight: 700;
+.nav-secciones {
+  --min-height: 72px;
+  border-bottom: 1px solid var(--ion-color-light);
 
-  ion-label {
-    white-space: nowrap;
+  ion-buttons ion-button {
+    --color: var(--ion-color-primary);
   }
 }
 
+.seccion-centro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.seccion-actual {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-weight: 700;
+  color: var(--ion-color-primary);
+
+  ion-icon {
+    font-size: 24px;
+  }
+}
+
+.puntos {
+  display: flex;
+  justify-content: center;
+}
+
+// El botón mide 44px para que sea fácil de pulsar; el punto visible es más pequeño
+.punto {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--ion-color-primary);
+    transition: background 0.2s;
+  }
+
+  &.activo span {
+    background: var(--ion-color-primary);
+  }
+}
+
+.entra-derecha {
+  animation: entrar-desde-derecha 0.25s ease-out;
+}
+
+.entra-izquierda {
+  animation: entrar-desde-izquierda 0.25s ease-out;
+}
+
+@keyframes entrar-desde-derecha {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes entrar-desde-izquierda {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entra-derecha,
+  .entra-izquierda {
+    animation: none;
+  }
+}
+
+// Mismo espacio (16px) entre el título de cada tarjeta y su contenido:
+// se quitan el relleno de la lista y el margen de la etiqueta del primer elemento
 ion-card-header {
-  padding-bottom: 4px;
+  padding-bottom: 0;
+}
+
+ion-card-content {
+  padding-top: 16px;
+
+  > ion-list {
+    padding-top: 0;
+  }
+
+  > ion-item:first-child ion-label,
+  > ion-list > ion-item:first-child ion-label,
+  > form > ion-item:first-child ion-label {
+    margin-top: 0;
+  }
 }
 
 ion-card-title {
   color: var(--ion-color-secondary);
 }
 
+// Sin líneas separadoras entre elementos
 ion-card-content ion-item {
   --padding-start: 0;
   --inner-padding-end: 0;
+  --border-width: 0;
+  --inner-border-width: 0;
 }
 
 ion-label h2,
 ion-label h3 {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+// Ionic encoge las etiquetas "stacked" al 75% y las baja; se dejan a tamaño normal y pegadas al campo
+ion-item ion-label.label-stacked {
+  transform: none;
   font-weight: 700;
   margin-bottom: 4px;
 }
@@ -47,24 +139,10 @@ ion-label[position="stacked"] ion-icon {
 
 /* ---------- Pastillero ---------- */
 
-.dias-semana {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+// La etiqueta del desplegable se dibuja sobre el borde; el margen la separa del título
+.dia-select {
+  margin-top: 8px;
   margin-bottom: 8px;
-
-  ion-chip {
-    min-height: 44px;
-    font-size: var(--app-font-sm);
-    --background: var(--ion-color-light);
-    --color: var(--ion-text-color);
-
-    &.selected {
-      --background: var(--ion-color-primary);
-      --color: var(--ion-color-primary-contrast);
-      font-weight: 700;
-    }
-  }
 }
 
 .dia-title {
@@ -72,8 +150,31 @@ ion-label[position="stacked"] ion-icon {
   margin: 16px 0 4px;
 }
 
+// Sin la línea del ion-item, los campos llevan su propio recuadro, fino como el del
+// ion-select "outline" (mismo color por defecto de Ionic)
+ion-textarea,
+.date-input {
+  border: 1px solid var(--ion-color-step-300, #b3b3b3);
+  border-radius: 4px;
+  background: #ffffff;
+}
+
 ion-textarea {
-  margin-top: 4px;
+  margin: 4px 0 6px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+}
+
+ion-card-content ion-item {
+  --highlight-height: 0;
+
+  &.item-has-focus ion-textarea,
+  .date-input:focus {
+    border-color: var(--ion-color-primary);
+    outline: none;
+  }
 }
 
 /* ---------- Información y gráfico ---------- */
@@ -89,31 +190,8 @@ ion-textarea {
   border-radius: 12px;
   background: var(--ion-color-light);
 
-  summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    min-height: 48px;
-    cursor: pointer;
-    list-style: none;
-
-    &::-webkit-details-marker {
-      display: none;
-    }
-
-    ion-icon {
-      flex-shrink: 0;
-      transition: transform 0.2s;
-    }
-  }
-
   &[open] {
     padding-bottom: 16px;
-
-    summary ion-icon {
-      transform: rotate(180deg);
-    }
   }
 
   p {
@@ -167,6 +245,20 @@ ion-textarea {
   gap: 8px;
 }
 
+// Círculo con "!"; el lector de pantalla lee "Alerta" (aria-label)
+.badge-alerta {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 20px;
+  font-weight: 700;
+}
+
 .pregunta-texto {
   color: var(--ion-text-color);
 }
@@ -191,9 +283,6 @@ ion-textarea {
   min-height: 52px;
   margin: 6px 0;
   padding: 8px 12px;
-  border: 2px solid #b9aea5;
-  border-radius: 12px;
-  background: #ffffff;
   color: var(--ion-text-color);
   font-family: inherit;
   font-size: var(--app-font-base);

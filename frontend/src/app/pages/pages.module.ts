@@ -14,6 +14,7 @@ import { PerfilComponent } from './paciente/perfil/perfil.component';
 import { PerfilComponent as MedicoPerfilComponent} from './medico/perfil/perfil.component';
 import { PreguntasFrecuentesComponent } from './paciente/preguntas-frecuentes/preguntas-frecuentes.component';
 import { DetallepacienteComponent } from './medico/detallepaciente/detallepaciente.component';
+import { NuevoPacienteComponent } from './medico/nuevo-paciente/nuevo-paciente.component';
 
 
 
@@ -29,7 +30,8 @@ import { DetallepacienteComponent } from './medico/detallepaciente/detallepacien
     PreguntasFrecuentesComponent,
     MedicoHomeComponent,
     MedicoPerfilComponent,
-    DetallepacienteComponent
+    DetallepacienteComponent,
+    NuevoPacienteComponent
   ],
   imports: [
     CommonModule,

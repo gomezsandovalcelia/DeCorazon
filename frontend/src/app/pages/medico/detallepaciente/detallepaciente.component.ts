@@ -1,8 +1,8 @@
-import { Component, OnInit, ElementRef, ViewChild, AfterViewInit} from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PacienteService } from 'src/app/services/paciente.service';
-import { ToastController } from '@ionic/angular';
+import { Gesture, GestureController, IonContent, ToastController } from '@ionic/angular';
 import { Chart, registerables } from 'chart.js';
 import { RespuestaService } from 'src/app/services/respuesta.service';
 import { QuestionService } from 'src/app/services/question.service';
@@ -30,13 +30,25 @@ interface PastilleroDay {
   styleUrls: ['./detallepaciente.component.scss'],
 })
 
-export class DetallepacienteComponent implements OnInit, AfterViewInit {
+export class DetallepacienteComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef;
+  @ViewChild(IonContent, { read: ElementRef }) contenido!: ElementRef;
 
   pacienteId!: string;
   paciente: Patient | null = null;
   segmento: string = 'informacion';
-  
+
+  // Orden en que se recorren las secciones con las flechas o deslizando
+  secciones = [
+    { valor: 'informacion', titulo: 'Información', icono: 'stats-chart-outline' },
+    { valor: 'pastillero', titulo: 'Pastillero', icono: 'medkit-outline' },
+    { valor: 'ejercicios', titulo: 'Ejercicios', icono: 'walk-outline' },
+    { valor: 'respuestas', titulo: 'Respuestas', icono: 'chatbubbles-outline' },
+  ];
+  // Vacía al cargar la página para que la primera sección no se anime
+  claseAnimacion = '';
+  private gestoDeslizar?: Gesture;
+
   tratamientoForm!: FormGroup;
   ejercicioForm!: FormGroup;
   pastilleroForm!: FormGroup;
@@ -60,7 +72,8 @@ export class DetallepacienteComponent implements OnInit, AfterViewInit {
     private toastController: ToastController,
     private respuestaService: RespuestaService,
     private questionService: QuestionService,
-    private saludService: SaludService
+    private saludService: SaludService,
+    private gestureController: GestureController
   ) { }
 
   ngOnInit() {
@@ -77,6 +90,76 @@ export class DetallepacienteComponent implements OnInit, AfterViewInit {
     if (this.segmento === 'informacion' && (this.paciente?.measurements?.length ?? 0) > 0) {
       this.inicializarGrafico();
     }
+    this.crearGestoDeslizar();
+  }
+
+  ngOnDestroy() {
+    this.gestoDeslizar?.destroy();
+    this.chart?.destroy();
+  }
+
+  get indiceSeccion(): number {
+    return this.secciones.findIndex(s => s.valor === this.segmento);
+  }
+
+  // Para las etiquetas de las flechas; vacío fuera de los extremos
+  tituloSeccion(indice: number): string {
+    return this.secciones[indice] ? this.secciones[indice].titulo : '';
+  }
+
+  irASeccion(valor: string) {
+    const destino = this.secciones.findIndex(s => s.valor === valor);
+    if (destino === -1 || destino === this.indiceSeccion) {
+      return;
+    }
+    this.claseAnimacion = destino > this.indiceSeccion ? 'entra-derecha' : 'entra-izquierda';
+    this.segmento = valor;
+    setTimeout(() => {
+      if (this.segmento === 'informacion' && this.chartCanvas) {
+        this.inicializarGrafico();
+      }
+    }, 100);
+  }
+
+  seccionAnterior() {
+    const anterior = this.secciones[this.indiceSeccion - 1];
+    if (anterior) {
+      this.irASeccion(anterior.valor);
+    }
+  }
+
+  seccionSiguiente() {
+    const siguiente = this.secciones[this.indiceSeccion + 1];
+    if (siguiente) {
+      this.irASeccion(siguiente.valor);
+    }
+  }
+
+  // Deslizar a la izquierda pasa a la siguiente sección y a la derecha a la anterior.
+  // No empieza sobre el gráfico (su tooltip se usa arrastrando) ni sobre campos de texto.
+  private crearGestoDeslizar() {
+    this.gestoDeslizar = this.gestureController.create({
+      el: this.contenido.nativeElement,
+      gestureName: 'cambiar-seccion',
+      direction: 'x',
+      threshold: 15,
+      canStart: detalle => {
+        const origen = detalle.event.target as HTMLElement | null;
+        return !origen?.closest('.chart-container, ion-textarea, ion-input, input, textarea');
+      },
+      onEnd: detalle => {
+        const rapido = Math.abs(detalle.velocityX) > 0.3;
+        if (Math.abs(detalle.deltaX) < 80 && !rapido) {
+          return;
+        }
+        if (detalle.deltaX < 0) {
+          this.seccionSiguiente();
+        } else {
+          this.seccionAnterior();
+        }
+      },
+    }, true);
+    this.gestoDeslizar.enable();
   }
 
   inicializarFormularios() {
@@ -277,15 +360,6 @@ export class DetallepacienteComponent implements OnInit, AfterViewInit {
     toast.present();
   }
 
-  cambiarSegmento(evento: any) {
-    this.segmento = evento.detail.value;
-    setTimeout(() => {
-      if (this.segmento === 'informacion' && this.chartCanvas) {
-        this.inicializarGrafico();
-      }
-    }, 100);
-  }
-  
   cargarRespuestas() {
     this.cargandoRespuestas = true;
     this.respuestaService.obtenerRespuestasPaciente(this.pacienteId).subscribe(

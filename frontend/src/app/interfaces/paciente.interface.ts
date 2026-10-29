@@ -15,3 +15,12 @@ export interface Patient {
   treatments?: any[];
   exercise_routines?: any[];
 }
+
+// Datos del formulario de alta de paciente (el rol lo fija el backend)
+export interface NuevoPaciente {
+  nombre: string;
+  apellidos: string;
+  email: string;
+  password: string;
+  altura?: number | null;
+}

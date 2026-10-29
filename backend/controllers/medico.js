@@ -2,6 +2,7 @@
 const { response } = require("express");
 const Medico = require('../models/medico');
 const bcrypt = require('bcryptjs');
+const { emailEnUso } = require('../helpers/email-en-uso');
 
 const obtenerMedicos = async (req, res) => {
     const medicos = await Medico.find({});
@@ -18,12 +19,10 @@ const crearMedico = async (req, res) => {
     const { nombre, apellidos, email, password } = req.body;
 
     try {
-        const existeEmail = await Medico.findOne({ email: email });
-
-        if (existeEmail) {
+        if (await emailEnUso(email)) {
             return res.status(400).json({
                 ok: false,
-                msg: 'Email de médico ya existe'
+                msg: 'Ya existe una cuenta con ese email'
             });
         }
 

@@ -2,11 +2,43 @@
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-button routerLink="/medico/dashboard" aria-label="Volver a mis pacientes">
-        <ion-icon slot="start" name="arrow-back" aria-hidden="true"></ion-icon>
-        Pacientes
+        <ion-icon slot="icon-only" name="arrow-back" aria-hidden="true"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title>{{ paciente ? paciente.nombre + ' ' + paciente.apellidos : 'Paciente' }}</ion-title>
+  </ion-toolbar>
+
+  <!-- Navegación entre secciones: flechas, puntos y deslizar sobre el contenido -->
+  <ion-toolbar *ngIf="paciente" class="nav-secciones">
+    <ion-buttons slot="start">
+      <ion-button (click)="seccionAnterior()" [disabled]="indiceSeccion === 0"
+                  [attr.aria-label]="'Sección anterior: ' + tituloSeccion(indiceSeccion - 1)">
+        <ion-icon slot="icon-only" name="chevron-back" aria-hidden="true"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <div class="seccion-centro">
+      <p class="seccion-actual" aria-live="polite">
+        <ion-icon [name]="secciones[indiceSeccion].icono" aria-hidden="true"></ion-icon>
+        {{ secciones[indiceSeccion].titulo }}
+      </p>
+      <div class="puntos">
+        <button *ngFor="let seccion of secciones; let i = index" type="button" class="punto"
+                (click)="irASeccion(seccion.valor)"
+                [class.activo]="i === indiceSeccion"
+                [attr.aria-label]="'Ir a ' + seccion.titulo"
+                [attr.aria-current]="i === indiceSeccion ? 'true' : null">
+          <span aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="seccionSiguiente()" [disabled]="indiceSeccion === secciones.length - 1"
+                  [attr.aria-label]="'Sección siguiente: ' + tituloSeccion(indiceSeccion + 1)">
+        <ion-icon slot="icon-only" name="chevron-forward" aria-hidden="true"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -17,24 +49,7 @@
   </div>
 
   <div *ngIf="paciente">
-    <ion-segment [(ngModel)]="segmento" (ionChange)="cambiarSegmento($event)" class="custom-segment" [scrollable]="true">
-      <ion-segment-button value="informacion">
-        <ion-label>Información</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="pastillero">
-        <ion-label>Pastillero</ion-label>
-      </ion-segment-button>
-      <!--<ion-segment-button value="tratamientos">
-        <ion-label>Tratamientos</ion-label>
-      </ion-segment-button>-->
-      <ion-segment-button value="ejercicios">
-        <ion-label>Ejercicios</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="respuestas">
-        <ion-label>Respuestas</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-    <div *ngIf="segmento === 'pastillero'">
+    <div *ngIf="segmento === 'pastillero'" [ngClass]="claseAnimacion">
       <ion-card>
         <ion-card-header>
           <ion-card-title>Gestión del Pastillero</ion-card-title>
@@ -42,14 +57,12 @@
         
         <ion-card-content>
           <!-- Selección de día -->
-          <div class="dias-semana">
-            <ion-chip 
-              *ngFor="let dia of diasSemana" 
-              (click)="cambiarDiaSeleccionado(dia)"
-              [class.selected]="diaSeleccionado === dia">
-              {{ dia }}
-            </ion-chip>
-          </div>
+          <ion-select class="dia-select" label="Día de la semana" labelPlacement="stacked"
+                      fill="outline" interface="popover"
+                      [value]="diaSeleccionado"
+                      (ionChange)="cambiarDiaSeleccionado($event.detail.value)">
+            <ion-select-option *ngFor="let dia of diasSemana" [value]="dia">{{ dia }}</ion-select-option>
+          </ion-select>
           
           <!-- Formulario para editar medicación del día -->
           <form [formGroup]="pastilleroForm" (ngSubmit)="guardarMedicacionDia()" *ngIf="diaSeleccionado">
@@ -138,7 +151,7 @@
       </ion-card>
     </div>
     <!-- Sección de Respuestas -->
-    <div *ngIf="segmento === 'respuestas'">
+    <div *ngIf="segmento === 'respuestas'" [ngClass]="claseAnimacion">
       <ion-card>
         <ion-card-header>
           <ion-card-title>Últimas Respuestas del Paciente</ion-card-title>
@@ -158,7 +171,8 @@
                 <div class="respuesta-header">
                   <!-- Mostramos el texto de la pregunta obtenido del método que busca en todas las preguntas -->
                   <h3 class="pregunta-texto">{{ obtenerTextoPregunta(respuesta.questionId) }}</h3>
-                  <ion-badge *ngIf="respuesta.alerta || respuesta.triggeredAlert" color="danger">Alerta</ion-badge>
+                  <ion-badge *ngIf="respuesta.alerta || respuesta.triggeredAlert" color="danger"
+                             class="badge-alerta" role="img" aria-label="Alerta" title="Alerta">!</ion-badge>
                 </div>
                 <p class="respuesta-content">
                   <strong>Respuesta:</strong> {{ respuesta.answer }}
@@ -176,7 +190,7 @@
     </div>
 
     <!-- Sección de Información -->
-    <div *ngIf="segmento === 'informacion'">
+    <div *ngIf="segmento === 'informacion'" [ngClass]="claseAnimacion">
       <ion-card>
         <ion-card-header>
           <ion-card-title>Datos Personales</ion-card-title>
@@ -210,7 +224,7 @@
           <div class="chart-container">
             <canvas #chartCanvas></canvas>
           </div>
-          <details class="estado-explicacion">
+          <details class="desplegable estado-explicacion">
             <summary>
               <strong>Interpretación del gráfico</strong>
               <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
@@ -267,7 +281,7 @@
         <ion-card-content>
           <form [formGroup]="tratamientoForm" (ngSubmit)="agregarTratamiento()">
             <ion-item>
-              <ion-label position="floating">Descripción</ion-label>
+              <ion-label position="stacked">Descripción</ion-label>
               <ion-textarea formControlName="description" rows="3"></ion-textarea>
             </ion-item>
             <ion-item>
@@ -302,7 +316,7 @@
     </div>
 
     <!-- Sección de Ejercicios -->
-    <div *ngIf="segmento === 'ejercicios'">
+    <div *ngIf="segmento === 'ejercicios'" [ngClass]="claseAnimacion">
       <ion-card>
         <ion-card-header>
           <ion-card-title>Nuevo Ejercicio</ion-card-title>
@@ -310,7 +324,7 @@
         <ion-card-content>
           <form [formGroup]="ejercicioForm" (ngSubmit)="agregarEjercicio()">
             <ion-item>
-              <ion-label position="floating">Descripción</ion-label>
+              <ion-label position="stacked">Descripción</ion-label>
               <ion-textarea formControlName="description" rows="3"></ion-textarea>
             </ion-item>
             <ion-item>

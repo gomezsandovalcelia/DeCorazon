@@ -16,7 +16,8 @@ export class HomeComponent implements OnInit {
   medicoId: string = '';
   loading: boolean = true;
   pacientesConAlertas: { [key: string]: boolean } = {};
-  
+  busqueda: string = '';
+
   constructor(
     private respuestaService: RespuestaService,
     private medicoService: MedicoService,
@@ -105,6 +106,21 @@ export class HomeComponent implements OnInit {
         }
       );
     }
+  }
+
+  // Pacientes cuyo nombre y apellidos contienen la búsqueda, sin distinguir mayúsculas ni tildes
+  get pacientesFiltrados(): any[] {
+    const busqueda = this.normalizar(this.busqueda);
+    if (!busqueda) {
+      return this.pacientes;
+    }
+    return this.pacientes.filter(paciente =>
+      this.normalizar(`${paciente.nombre} ${paciente.apellidos}`).includes(busqueda)
+    );
+  }
+
+  private normalizar(texto: string | null | undefined): string {
+    return (texto || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
   }
 
   pacienteTieneAlertas(pacienteId: string): boolean {
