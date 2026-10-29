@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-"Corazon": a patient/doctor follow-up app (TFG). `frontend/` is Ionic 8 + Angular 18 (NgModule-based, not standalone) with Capacitor; `backend/` is a Node/Express API on MongoDB via Mongoose. Code, identifiers, comments and UI text are in Spanish.
+"DeCorazon": a patient/doctor follow-up app (TFG). `frontend/` is Ionic 8 + Angular 18 (NgModule-based, not standalone) with Capacitor; `backend/` is a Node/Express API on MongoDB via Mongoose. Code, identifiers, comments and UI text are in Spanish.
 
 ## Git
 

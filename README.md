@@ -1,4 +1,4 @@
-# Corazon
+# DeCorazon
 
 [Español](#español) · [English](#english)
 
@@ -6,7 +6,7 @@
 
 ## Español
 
-Corazon es una aplicación de seguimiento entre pacientes y médicos, desarrollada como Trabajo de Fin de Grado. El paciente registra a diario sus medidas, su medicación y sus ejercicios, y responde a un cuestionario. El médico consulta la evolución de cada uno de sus pacientes y gestiona su tratamiento.
+DeCorazon es una aplicación de seguimiento entre pacientes y médicos, desarrollada como Trabajo de Fin de Grado. El paciente registra a diario sus medidas, su medicación y sus ejercicios, y responde a un cuestionario. El médico consulta la evolución de cada uno de sus pacientes y gestiona su tratamiento.
 
 La interfaz está pensada para personas mayores: tipografía Atkinson Hyperlegible, tamaño base de 18 px, botones grandes y una barra de navegación inferior con icono y texto en cada opción.
 
@@ -78,7 +78,7 @@ La interfaz está pensada para personas mayores: tipografía Atkinson Hyperlegib
 
 ## English
 
-Corazon is a patient–doctor follow-up app, developed as a Bachelor's thesis (TFG). Patients log their measurements, medication and exercise every day and answer a daily questionnaire. Doctors track how each of their patients is doing and manage their treatment.
+DeCorazon is a patient–doctor follow-up app, developed as a Bachelor's thesis (TFG). Patients log their measurements, medication and exercise every day and answer a daily questionnaire. Doctors track how each of their patients is doing and manage their treatment.
 
 The interface is designed for elderly users: the Atkinson Hyperlegible font, an 18 px base size, large buttons and a bottom navigation bar where every item has an icon and a text label. The UI text is in Spanish.
 
