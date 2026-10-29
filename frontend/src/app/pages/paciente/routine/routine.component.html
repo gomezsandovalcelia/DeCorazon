@@ -1,27 +1,16 @@
-<ion-content class="ion-padding">
-  <!-- Imagen pequeña en la parte superior -->
-  <div class="image-container">
-    <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
-  </div>
+<ion-content>
+  <img src="assets/logo.png" alt="De Corazón" class="page-logo">
+  <h1 class="page-title">Mis ejercicios</h1>
 
-  <h2 class="task-title">Tus ejercicios de la semana</h2>
-  
-  <ion-list>
-    <ion-item *ngFor="let ex of exercise">
-      <ion-label>
-        <p>{{ ex.date }}</p>
-        <h2>{{ ex.description }}</h2>
-      </ion-label>
-      <ion-checkbox slot="end" [(ngModel)]="ex.checkpoint" (ionChange)="updateCheckpoint(ex)"></ion-checkbox>
-      
+  <ion-card *ngFor="let ex of exercise" class="ejercicio" [class.hecho]="ex.checkpoint">
+    <ion-item lines="none">
+      <ion-checkbox [(ngModel)]="ex.checkpoint" (ionChange)="updateCheckpoint(ex)" justify="space-between">
+        <span class="ejercicio-fecha">{{ ex.date | date:"EEEE d 'de' MMMM" }}</span>
+        <span class="ejercicio-texto">{{ ex.description }}</span>
+        <span class="ejercicio-estado">{{ ex.checkpoint ? '✓ Hecho' : 'Marcar como hecho' }}</span>
+      </ion-checkbox>
     </ion-item>
-  </ion-list>
-  <ion-item *ngIf="exercise.length === 0">
-    <ion-label>
-      <p>No hay ejercicios disponibles.</p>
-    </ion-label>
-  </ion-item>
-  <!--<ion-button expand="block" type="submit" routerLink="/home1">
-    Volver
-  </ion-button>-->
+  </ion-card>
+
+  <p *ngIf="exercise.length === 0" class="empty-state">No tienes ejercicios esta semana.</p>
 </ion-content>

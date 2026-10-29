@@ -1,32 +1,14 @@
+<ion-content>
+  <div class="auth-container">
+    <img src="assets/logo.png" alt="De Corazón" class="auth-logo">
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <!--<ion-title size="large">Bienvenido</ion-title> -->
-    </ion-toolbar>
-  </ion-header>
+    <h1>¡Bienvenido!</h1>
+    <p class="auth-intro">
+      Esta aplicación te acompaña en tu día a día: consulta tu medicación,
+      tus ejercicios y apunta tus medidas de salud.
+    </p>
 
-  <!-- Contenedor principal -->
-  <div id="container" style="text-align: center; padding: 20px;">
-    <!-- Espacio para la imagen -->
-    <div>
-      <img src="assets/logo.png" alt="Logo de la aplicación" style="width: 200px; height: auto; ">
-    </div>
-
-    <!-- Texto de bienvenida -->
-    <strong style="font-size: 1.2em;">¡Bienvenido!</strong>
-    <p style="color: rgb(0, 0, 0); margin-bottom: 20px; text-align: justify;">Esta aplicación es un apoyo para ti. Podrás consultar tu medicación, tus ejercicios diarios y registrar parámetros importantes para tu salud.</p>
-    <p style="color: gray; margin-bottom: 40px;">Selecciona una opción para continuar</p>
-
-    <!-- Botón de Iniciar Sesión -->
-    <ion-button expand="block" style=" margin-bottom: 20px;" routerLink="/login">
-      Inicia Sesión
-    </ion-button>
-
-    <!-- Botón de Registro -->
-    <ion-button expand="block" routerLink="/registro">
-      Regístrate
-    </ion-button>
-
+    <ion-button expand="block" routerLink="/login">Iniciar sesión</ion-button>
+    <ion-button expand="block" fill="outline" routerLink="/registro">Registrarme</ion-button>
   </div>
 </ion-content>

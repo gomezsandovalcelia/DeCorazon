@@ -375,12 +375,15 @@ export class DetallepacienteComponent implements OnInit, AfterViewInit {
     const labels = ultimasMediciones.map(m => new Date(m.date).toLocaleDateString());
     const datos = ultimasMediciones.map(m => this.saludService.evaluarEstadoSalud(m, this.paciente?.altura));
     
+    // Los colores salen de los tokens de theme/variables.scss, igual que la leyenda
+    const estilos = getComputedStyle(document.documentElement);
+    const color = (token: string) => estilos.getPropertyValue(token).trim();
     const pointColors = datos.map(valor => {
-      if (valor < 40) return 'rgba(255,0,0,1)';
-      if (valor < 60) return 'rgba(255,165,0,1)';
-      if (valor < 75) return 'rgba(255,255,0,1)';
-      if (valor < 90) return 'rgba(0,255,0,1)';
-      return 'rgba(0,0,255,1)';
+      if (valor < 40) return color('--app-estado-alarmante');
+      if (valor < 60) return color('--app-estado-inestable');
+      if (valor < 75) return color('--app-estado-normal');
+      if (valor < 90) return color('--app-estado-bien');
+      return color('--app-estado-excelente');
     });
 
     const ctx = this.chartCanvas.nativeElement.getContext('2d');
@@ -391,10 +394,12 @@ export class DetallepacienteComponent implements OnInit, AfterViewInit {
         datasets: [{
           label: 'Estado general',
           data: datos,
-          backgroundColor: 'rgba(148,159,177,0.2)',
-          borderColor: 'rgba(148,159,177,1)',
+          backgroundColor: `rgba(${color('--ion-color-primary-rgb')}, 0.08)`,
+          borderColor: color('--ion-color-primary'),
+          borderWidth: 3,
           pointBackgroundColor: pointColors,
           pointBorderColor: '#fff',
+          pointRadius: 7,
           fill: true,
           tension: 0.4
         }]
@@ -417,7 +422,7 @@ export class DetallepacienteComponent implements OnInit, AfterViewInit {
           x: {
             ticks: {
               font: {
-                size: window.innerWidth < 768 ? 10 : 12
+                size: window.innerWidth < 768 ? 13 : 15
               }
             }
           }

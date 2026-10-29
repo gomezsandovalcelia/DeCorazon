@@ -1,34 +1,29 @@
-<ion-content class="ion-padding">
-  <!-- Imagen pequeña en la parte superior -->
-  <div class="image-container">
-    <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
-  </div>
+<ion-content>
+  <img src="assets/logo.png" alt="De Corazón" class="page-logo">
+  <h1 class="page-title">Mis medidas de hoy</h1>
 
-  <h2 class="task-title">Registra tus datos de hoy</h2>
-  <form (ngSubmit)="registrarMedidas()"  #healthForm="ngForm" [formGroup]="measureForm" >
+  <ion-card>
+    <ion-card-content>
+      <form (ngSubmit)="registrarMedidas()" [formGroup]="measureForm">
+        <ion-input formControlName="weight" type="number" inputmode="decimal"
+                   label="Peso (kg)" labelPlacement="stacked" fill="outline"
+                   [helperText]="'Entre ' + rangos.weight.min + ' y ' + rangos.weight.max + ' kg'"
+                   errorText="Escribe un peso válido"></ion-input>
 
-    <!-- Campo de Peso -->
-    <ion-item>
-      <ion-label position="floating">Peso (kg)</ion-label>
-      <ion-input formControlName="weight" type="number" name="weight"  required></ion-input>
-    </ion-item>
+        <ion-input formControlName="heart_rate" type="number" inputmode="numeric"
+                   label="Pulso (pulsaciones por minuto)" labelPlacement="stacked" fill="outline"
+                   [helperText]="'Entre ' + rangos.heart_rate.min + ' y ' + rangos.heart_rate.max"
+                   errorText="Escribe un pulso válido"></ion-input>
 
-    <!-- Campo de Tensión -->
-    <ion-item>
-      <ion-label position="floating">Tensión (mmHg, p. ej. 120/80)</ion-label>
-      <ion-input formControlName="blood_pressure" type="text" name="blood_pressure" required></ion-input>
-    </ion-item>
+        <ion-input formControlName="blood_pressure" type="text"
+                   label="Tensión (mmHg)" labelPlacement="stacked" fill="outline"
+                   helperText="Escríbela así: 120/80"
+                   errorText="Usa el formato 120/80"></ion-input>
 
-    <!-- Campo de Frecuencia Cardiaca -->
-    <ion-item>
-      <ion-label position="floating">Frecuencia Cardiaca (lpm)</ion-label>
-      <ion-input formControlName="heart_rate" type="number" name="heart_rate"  required></ion-input>
-    </ion-item>
-
-    <!-- Botón de Enviar -->
-    <ion-button expand="block" type="submit" [disabled]="!healthForm.valid">
-      Enviar
-    </ion-button>
-  </form>
-  
+        <ion-button expand="block" type="submit" [disabled]="measureForm.invalid">
+          Guardar medidas
+        </ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
 </ion-content>

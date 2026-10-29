@@ -1,129 +1,25 @@
+.hoy {
+  border-top: 6px solid var(--ion-color-primary);
 
-.small-image {
-    width: 180px; 
-    height: auto; 
-    display: block;
-    margin: 0 auto; 
-}
-  
-.image-container {
-    text-align: center;
-}
-  
-.task-title {
-    font-size: 17px; 
-    font-weight: bold; 
-    color: #333; 
-    margin-top: 10px; 
-    text-align: center; 
-}
-  
-ion-button {
-    //--background: black;
-    --background: #1f1b1b;
-    //--background-hover: #2c7450;
-    --background-activated: #6b1a0b;
-    --background-focused: #6b1a0b;
-    color: white;
-    margin-top: 20px;
-}   
-ion-label {
-    font-size: 16px; 
-    color: #333; 
-  }
-  ion-list {
-    padding: 10px; 
-  }
-  
-  ion-item {
-    margin-bottom: 15px; 
-    --background: #fff; 
-    border-width: 0px; 
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+  ion-card-header {
+    padding-bottom: 0;
   }
 
-  ion-item {
-    --border-color: transparent; /* Elimina el borde si proviene del color */
-  }
-  /* treatments.component.scss */
-.pastillero-container {
-  margin-bottom: 20px;
-}
-
-.current-day {
-  margin-bottom: 12px;
-  border-radius: 8px;
-  border: 2px solid #6b1a0b;
-  box-shadow: 0 4px 8px rgba(107, 26, 11, 0.2);
-}
-
-.other-day {
-  margin-bottom: 8px;
-  border-radius: 8px;
-  opacity: 0.9;
-}
-
-.current-day-header {
-  background-color: #6b1a0b;
-  color: white;
-  
   ion-card-title {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    
-    ion-badge {
-      font-size: 12px;
-      padding: 4px 8px;
-    }
+    color: var(--ion-color-primary);
   }
 }
 
-ion-card-header {
-  padding: 8px 12px;
-  background-color: #888;
-  color: white;
-  
-  ion-card-title {
-    font-size: 16px;
-    font-weight: bold;
-  }
+ion-accordion-group {
+  border-radius: var(--app-radius);
+  overflow: hidden;
+  box-shadow: var(--app-shadow);
 }
 
-.medication-grid {
-  padding: 0;
-  margin-bottom: -10px;
+ion-accordion ion-label {
+  font-weight: 700;
 }
 
-.time-label {
-  font-size: 14px;
-  font-weight: bold;
-  color: #555;
-  margin-bottom: 4px;
-}
-
-.medication {
-  font-size: 13px;
-  color: #333;
-  line-height: 1.3;
-  word-break: break-word;
-}
-
-.no-medication {
-  color: #999;
-  font-style: italic;
-  font-size: 13px;
-}
-
-.loading-container, .error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  text-align: center;
-}
-.loading-spinner {
-  margin-bottom: 10px;
+[slot="content"] {
+  background: var(--app-superficie);
 }

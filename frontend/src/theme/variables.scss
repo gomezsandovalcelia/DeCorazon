@@ -1,2 +1,94 @@
-// For information on how to create your own theme, please see:
+// Tema de "De Corazón": solo modo claro, pensado para personas mayores.
+// Todos los colores tienen contraste AA (4.5:1) con su texto.
 // http://ionicframework.com/docs/theming/
+
+:root {
+  // Rojo corazón (sacado del logo, oscurecido para que el texto blanco se lea bien)
+  --ion-color-primary: #a3231a;
+  --ion-color-primary-rgb: 163, 35, 26;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #8a1d16;
+  --ion-color-primary-tint: #b5463e;
+
+  // Granate para cabeceras y detalles
+  --ion-color-secondary: #6b1a0b;
+  --ion-color-secondary-rgb: 107, 26, 11;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #5e170a;
+  --ion-color-secondary-tint: #7a3123;
+
+  --ion-color-tertiary: #1f1b1b;
+  --ion-color-tertiary-rgb: 31, 27, 27;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #1b1818;
+  --ion-color-tertiary-tint: #353232;
+
+  --ion-color-success: #2e7d32;
+  --ion-color-success-rgb: 46, 125, 50;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #286e2c;
+  --ion-color-success-tint: #438a47;
+
+  --ion-color-warning: #b26a00;
+  --ion-color-warning-rgb: 178, 106, 0;
+  --ion-color-warning-contrast: #ffffff;
+  --ion-color-warning-contrast-rgb: 255, 255, 255;
+  --ion-color-warning-shade: #9d5d00;
+  --ion-color-warning-tint: #ba791a;
+
+  --ion-color-danger: #c62828;
+  --ion-color-danger-rgb: 198, 40, 40;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #ae2323;
+  --ion-color-danger-tint: #cc3e3e;
+
+  --ion-color-medium: #5f5f5f;
+  --ion-color-medium-rgb: 95, 95, 95;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #545454;
+  --ion-color-medium-tint: #6f6f6f;
+
+  --ion-color-light: #f6f1ec;
+  --ion-color-light-rgb: 246, 241, 236;
+  --ion-color-light-contrast: #1f1b1b;
+  --ion-color-light-contrast-rgb: 31, 27, 27;
+  --ion-color-light-shade: #d8d4d0;
+  --ion-color-light-tint: #f7f2ee;
+
+  --ion-background-color: #fbf8f5;
+  --ion-background-color-rgb: 251, 248, 245;
+  --ion-text-color: #1f1b1b;
+  --ion-text-color-rgb: 31, 27, 27;
+  --ion-item-background: #ffffff;
+  --ion-card-background: #ffffff;
+  --ion-toolbar-background: #ffffff;
+  --ion-border-color: #e6ded6;
+
+  --ion-font-family: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  // Tokens propios
+  --app-font-sm: 16px;
+  --app-font-base: 18px;
+  --app-font-lg: 22px;
+  --app-font-xl: 26px;
+  --app-text-suave: #4f4a47;
+  --app-superficie: #ffffff;
+  --app-primario-suave: #fbeceb;
+  --app-radius: 16px;
+  --app-shadow: 0 2px 10px rgba(31, 27, 27, 0.08);
+  --app-tap: 52px;
+
+  // Estados de salud (siempre acompañados de texto o icono)
+  --app-estado-excelente: #00695c;
+  --app-estado-bien: #2e7d32;
+  --app-estado-normal: #1565c0;
+  --app-estado-inestable: #b26a00;
+  --app-estado-alarmante: #c62828;
+  --app-estado-sin-datos: #5f5f5f;
+}

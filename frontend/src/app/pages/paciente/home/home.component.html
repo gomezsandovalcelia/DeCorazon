@@ -1,147 +1,114 @@
-<ion-content class="ion-padding">
-    <!-- Imagen pequeña en la parte superior -->
-    <div class="image-container">
-      <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
-    </div>
-    
-      <!-- Cuestionario diario -->
-      <div *ngIf="showQuestionnaire" class="questionnaire-section">
-        <ion-card>
-          <ion-card-content>
-            <div *ngIf="currentQuestion">
-              <h2 class="question-text">{{ currentQuestion.question }}</h2>
-              
-              <ion-list lines="none">
-                <ion-radio-group [(ngModel)]="selectedAnswer">
-                  <ion-item *ngFor="let option of currentQuestion.options" lines="none" class="radio-item" (click)="onOptionSelect(option)">
-                    <ion-radio slot="start" [value]="option"></ion-radio>
-                    <ion-label>{{ option }}</ion-label>
-                  </ion-item>
-                </ion-radio-group>
-              </ion-list>
-              
-              <ion-button expand="block" (click)="submitAnswer()" [disabled]="!selectedAnswer || isProcessing" class="submit-button">
-                <ion-spinner *ngIf="isProcessing" name="circles"></ion-spinner>
-                <span *ngIf="!isProcessing">{{ isLastQuestion ? 'Finalizar' : 'Siguiente' }}</span>
-              </ion-button>
-            </div>
-            
-            <div *ngIf="!currentQuestion && showQuestionnaire">
-              <p>Ya has respondido el cuestionario de hoy. ¡Vuelve mañana!</p>
-            </div>
-          </ion-card-content>
-        </ion-card>
-      </div>
-    
-    <form *ngIf="showFormAux" (ngSubmit)="registrarMedidas()" #healthForm="ngForm" [formGroup]="measureForm">
-      <h2 class="task-title">Introduce tus medidas</h2>
-      <!-- Campo de Peso -->
-      <ion-item class="formulario" *ngIf="showWeight">
-        <ion-label position="floating">Peso (kg)</ion-label>
-        <ion-input formControlName="weight" type="number"  required></ion-input>
-      </ion-item>
-  
-      <!-- Botón de Enviar para Peso -->
-      <ion-button *ngIf="showWeight" expand="block" (click)="submitWeight()">
-        Enviar Peso
-      </ion-button>
-  
-      <!-- Campo de Frecuencia Cardiaca (aparece después de ingresar el peso) -->
-      <ion-item class="formulario" *ngIf="showHeartRate">
-        <ion-label position="floating">Frecuencia Cardíaca (lpm)</ion-label>
-        <ion-input formControlName="heart_rate" type="number" required></ion-input>
-      </ion-item>
-  
-      <!-- Botón de Enviar para Frecuencia Cardiaca -->
-      <ion-button  *ngIf="showHeartRate" expand="block" (click)="submitHeartRate()">
-        Enviar Frecuencia Cardíaca
-      </ion-button>
-  
-      <!-- Campo de Presión Arterial (aparece después de ingresar la frecuencia cardiaca) -->
-      <ion-item class="formulario" *ngIf="showBloodPressure">
-        <ion-label position="floating">Presión Arterial (mmHg)</ion-label>
-        <ion-input formControlName="blood_pressure" type="text" required></ion-input>
-      </ion-item>
-  
-      <!-- Botón de Enviar para Presión Arterial -->
-      <ion-button *ngIf="showBloodPressure" expand="block" type="submit">
-        Enviar Presión Arterial
-      </ion-button>
-  
-    </form>
-    <!-- Botón negro debajo de la imagen -->
-    <!--<ion-button expand="block" class="register-button"  routerLink="/medidas">
-      Registra tus datos
-    </ion-button>-->
-    <div *ngIf="pastilleroHoy" class="pastillero-hoy">
-      <h2 style="margin-top: 50px;" class="task-title">Medicación para hoy ({{ diaActual }})</h2>
-      <ion-card class="medication-card">
-        <ion-card-content>
-          <div class="time-slot" *ngIf="pastilleroHoy.morning">
-            <div class="time-header">
-              <ion-icon name="sunny-outline"></ion-icon>
-              <h3>Mañana</h3>
-            </div>
-            <p>{{ pastilleroHoy.morning }}</p>
+<ion-content>
+  <img src="assets/logo.png" alt="De Corazón" class="page-logo">
+  <h1 class="page-title">Hoy es {{ hoy | date:'EEEE, d MMMM' }}</h1>
+
+  <!-- 1. Cuestionario diario -->
+  <ion-card *ngIf="showQuestionnaire" class="tarjeta-destacada">
+    <ion-card-content>
+      <ng-container *ngIf="currentQuestion; else cuestionarioHecho">
+        <p class="etiqueta">Cuestionario de hoy</p>
+        <h2 class="pregunta">{{ currentQuestion.question }}</h2>
+
+        <ion-radio-group [(ngModel)]="selectedAnswer">
+          <ion-item *ngFor="let option of currentQuestion.options"
+                    lines="none"
+                    class="opcion"
+                    [class.opcion-elegida]="selectedAnswer === option"
+                    (click)="onOptionSelect(option)">
+            <ion-radio [value]="option" justify="start" labelPlacement="end">{{ option }}</ion-radio>
+          </ion-item>
+        </ion-radio-group>
+
+        <ion-button expand="block" (click)="submitAnswer()" [disabled]="!selectedAnswer || isProcessing">
+          <ion-spinner *ngIf="isProcessing" name="crescent"></ion-spinner>
+          <span *ngIf="!isProcessing">{{ isLastQuestion ? 'Terminar' : 'Siguiente' }}</span>
+        </ion-button>
+      </ng-container>
+
+      <ng-template #cuestionarioHecho>
+        <p>Ya has respondido el cuestionario de hoy. ¡Vuelve mañana!</p>
+      </ng-template>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- 2. Medidas (solo cuando toca) -->
+  <ion-card *ngIf="showFormAux">
+    <ion-card-content>
+      <form (ngSubmit)="registrarMedidas()" [formGroup]="measureForm">
+        <p class="etiqueta">Paso {{ pasoMedidas }} de 3</p>
+        <h2 class="pregunta">Apunta tus medidas</h2>
+
+        <ng-container *ngIf="showWeight">
+          <ion-input formControlName="weight" type="number" inputmode="decimal"
+                     label="Peso (kg)" labelPlacement="stacked" fill="outline"
+                     [helperText]="'Entre ' + rangos.weight.min + ' y ' + rangos.weight.max + ' kg'"></ion-input>
+          <ion-button expand="block" (click)="submitWeight()">Siguiente</ion-button>
+        </ng-container>
+
+        <ng-container *ngIf="showHeartRate">
+          <ion-input formControlName="heart_rate" type="number" inputmode="numeric"
+                     label="Pulso (pulsaciones por minuto)" labelPlacement="stacked" fill="outline"
+                     [helperText]="'Entre ' + rangos.heart_rate.min + ' y ' + rangos.heart_rate.max"></ion-input>
+          <ion-button expand="block" (click)="submitHeartRate()">Siguiente</ion-button>
+        </ng-container>
+
+        <ng-container *ngIf="showBloodPressure">
+          <ion-input formControlName="blood_pressure" type="text"
+                     label="Tensión (mmHg)" labelPlacement="stacked" fill="outline"
+                     helperText="Escríbela así: 120/80"></ion-input>
+          <ion-button expand="block" type="submit">Guardar medidas</ion-button>
+        </ng-container>
+      </form>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- 3. Medicación de hoy -->
+  <ng-container *ngIf="pastilleroHoy">
+    <h2 class="section-title">Medicación de hoy</h2>
+    <ion-card>
+      <ion-card-content>
+        <div class="momento">
+          <ion-icon name="sunny-outline" aria-hidden="true"></ion-icon>
+          <div>
+            <span class="momento-nombre">Mañana</span>
+            <span *ngIf="pastilleroHoy.morning; else nada" class="momento-medicacion">{{ pastilleroHoy.morning }}</span>
           </div>
-          
-          <div class="time-slot" *ngIf="pastilleroHoy.afternoon">
-            <div class="time-header">
-              <ion-icon name="partly-sunny-outline"></ion-icon>
-              <h3>Tarde</h3>
-            </div>
-            <p>{{ pastilleroHoy.afternoon }}</p>
+        </div>
+        <div class="momento">
+          <ion-icon name="partly-sunny-outline" aria-hidden="true"></ion-icon>
+          <div>
+            <span class="momento-nombre">Tarde</span>
+            <span *ngIf="pastilleroHoy.afternoon; else nada" class="momento-medicacion">{{ pastilleroHoy.afternoon }}</span>
           </div>
-          
-          <div class="time-slot" *ngIf="pastilleroHoy.night">
-            <div class="time-header">
-              <ion-icon name="moon-outline"></ion-icon>
-              <h3>Noche</h3>
-            </div>
-            <p>{{ pastilleroHoy.night }}</p>
+        </div>
+        <div class="momento">
+          <ion-icon name="moon-outline" aria-hidden="true"></ion-icon>
+          <div>
+            <span class="momento-nombre">Noche</span>
+            <span *ngIf="pastilleroHoy.night; else nada" class="momento-medicacion">{{ pastilleroHoy.night }}</span>
           </div>
-          
-          <div *ngIf="!pastilleroHoy.morning && !pastilleroHoy.afternoon && !pastilleroHoy.night" class="no-medication">
-            <p>No hay medicación programada para hoy</p>
-          </div>
-        </ion-card-content>
-      </ion-card>
-      
-      <!-- Botón para ver el pastillero completo -->
-      <ion-button expand="block" routerLink="/tratamiento" class="small-button">
-        <ion-icon  name="calendar-outline"></ion-icon>
-        Ver pastillero semanal
-      </ion-button>
-    </div>
-    <h2 style="margin-top: 50px;" class="task-title" routerLink="/ejercicios">Tareas Pendientes</h2>
-    <ion-list>
-      <ion-item class="itemx" *ngFor="let ex of exercise">
-        <ion-label>
-          <p>{{ ex.date | date:'dd/MM/yyyy HH:mm'}}</p>
-          <h3>{{ ex.description }}</h3>
-        </ion-label>
-        <ion-checkbox slot="end" [(ngModel)]="ex.checkpoint" (ionChange)="updateCheckpoint(ex)"></ion-checkbox>
-        
-      </ion-item>
-    </ion-list>
-    <ion-item *ngIf="exercise.length === 0">
-      <ion-label>
-        <p>No hay ejercicios disponibles.</p>
-      </ion-label>
+        </div>
+        <ng-template #nada><span class="momento-vacio">Nada que tomar</span></ng-template>
+      </ion-card-content>
+    </ion-card>
+    <ion-button expand="block" fill="outline" routerLink="/tratamiento">
+      <ion-icon slot="start" name="calendar-outline" aria-hidden="true"></ion-icon>
+      Ver toda la semana
+    </ion-button>
+  </ng-container>
+
+  <!-- 4. Ejercicios -->
+  <h2 class="section-title">Tus ejercicios</h2>
+  <ion-card *ngFor="let ex of exercise" class="ejercicio">
+    <ion-item lines="none">
+      <ion-checkbox [(ngModel)]="ex.checkpoint" (ionChange)="updateCheckpoint(ex)" justify="space-between">
+        <span class="ejercicio-texto">{{ ex.description }}</span>
+        <span class="ejercicio-estado">{{ ex.checkpoint ? 'Hecho' : 'Marcar como hecho' }}</span>
+      </ion-checkbox>
     </ion-item>
-      <!--  <h2 class="task-title" routerLink="/tratamiento">Tratamiento de hoy</h2>
-      <ion-list>
-        <ion-item class="itemx" *ngFor="let treatment of treatments">
-          <ion-label>
-            <p>{{ treatment.date | date:'dd/MM/yyyy HH:mm' }}</p>
-            <h3>{{ treatment.description }}</h3>
-          </ion-label>
-        </ion-item>
-      </ion-list>
-      <ion-item *ngIf="treatments.length === 0">
-        <ion-label>
-          <p>No hay tratamientos disponibles.</p>
-        </ion-label>
-      </ion-item>-->
+  </ion-card>
+  <p *ngIf="exercise.length === 0" class="empty-state">No tienes ejercicios pendientes.</p>
+  <ion-button *ngIf="exercise.length > 0" expand="block" fill="outline" routerLink="/ejercicios">
+    Ver todos los ejercicios
+  </ion-button>
 </ion-content>
-  

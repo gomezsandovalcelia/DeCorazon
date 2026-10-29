@@ -1,24 +1,30 @@
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-<ion-content class="ion-padding">
-  <div class="header-container">
-    <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button routerLink="/medico/dashboard" aria-label="Volver a mis pacientes">
+        <ion-icon slot="icon-only" name="arrow-back" aria-hidden="true"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Mi perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
 
-    <!-- Botón de perfil en la esquina superior derecha -->
-    <ion-button routerLink="/medico/dashboard" class="profile-icon" fill="clear">
-      <span style="color: #6b1a0b;" class="material-symbols-outlined">
-        home
-        </span>
-    </ion-button>
-  </div>
+<ion-content>
+  <ion-card *ngIf="medico">
+    <ion-card-content>
+      <div class="dato">
+        <span class="dato-label">Nombre</span>
+        <span class="dato-valor">{{ medico.nombre }} {{ medico.apellidos }}</span>
+      </div>
+      <div class="dato">
+        <span class="dato-label">Correo</span>
+        <span class="dato-valor">{{ medico.email }}</span>
+      </div>
+    </ion-card-content>
+  </ion-card>
 
-  <h2 class="task-title">Tu información</h2>
-  <ion-item *ngIf="medico">
-    <ion-label>
-      <p><strong>Nombre:</strong> {{ medico.nombre }} {{ medico.apellidos }}</p>
-      <p><strong>Correo:</strong> {{ medico.email }}</p>
-    </ion-label>
-  </ion-item>
-  <ion-button expand="block" (click)="logout()" style="--background: #6b1a0b; margin-top: 20px;" type="submit">
-    Cerrar Sesión
+  <ion-button expand="block" fill="outline" (click)="logout()" class="acciones">
+    <ion-icon slot="start" name="log-out-outline" aria-hidden="true"></ion-icon>
+    Cerrar sesión
   </ion-button>
 </ion-content>

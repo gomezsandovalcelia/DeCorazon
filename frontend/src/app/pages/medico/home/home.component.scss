@@ -1,128 +1,78 @@
-.header-container {
-  position: relative;
-  text-align: center;
-  margin-top: 10px;
-}
-
-.small-image {
-  width: 180px;
+.toolbar-logo {
+  width: 44px;
   height: auto;
-  display: inline-block;
+  margin-left: 12px;
 }
 
-.profile-icon {
-  position: absolute;
-  top: 0;
-  right: 10px;
-  font-size: 28px;
-  z-index: 10;
+ion-buttons ion-icon {
+  font-size: 34px;
+  color: var(--ion-color-secondary);
 }
 
-h2 {
-  text-align: center;
-  font-size: 20px;
-  font-weight: bold;
-  color: #333;
-  margin-top: -15px;
+.paciente {
+  margin-bottom: 14px;
+  border-left: 6px solid transparent;
+
+  &.con-alerta {
+    border-left-color: var(--app-estado-alarmante);
+  }
 }
 
-
-.image-container {
-  text-align: center;
-}
-
-.itemx {
-  margin-bottom: 15px;
-  --background: #fff;
-  border-width: 0px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --border-color: transparent;
-  --background: transparent;
+.paciente-cabecera {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  ion-icon {
+    font-size: 24px;
+    color: var(--app-text-suave);
+  }
 }
 
 .paciente-nombre {
-  font-size: 16px;
-  font-weight: bold;
-  color: #333333;
-  margin-bottom: 5px;
+  margin: 0;
 }
 
-/* Estilo para el email del paciente */
-.paciente-email {
-  font-size: 14px;
-  color: #666666;
-  margin-bottom: 10px;
-}
-
-/* Estilo para las mediciones */
-.mediciones p {
-  font-size: 14px;
-  color: #444444;
-  margin: 5px 0;
-}
-
-/* Resaltar los títulos de las mediciones */
-.mediciones strong {
-  color: #6b1a0b;
-}
-
-/* Estilos para el indicador de estado simplificado */
-.estado-indicador-simple {
+.paciente-estado {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  width: 50px;
-  text-align: center;
-  margin-right: 15px;
+  gap: 8px 12px;
+  margin: 10px 0 12px;
 }
 
-.estado-valor {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 2px;
+.alerta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--app-font-sm);
+  font-weight: 700;
+  color: var(--app-estado-alarmante);
+
+  ion-icon {
+    font-size: 20px;
+  }
 }
 
-.estado-label {
-  font-size: 11px;
-  color: #333333;
-  text-transform: uppercase;
-}
+.mediciones {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px 16px;
+  margin: 0;
 
-/* Colores para cada estado (solo aplicados al número) */
-.bien {
-  color: #00cc00; /* Verde */
-}
+  dt {
+    font-size: var(--app-font-sm);
+    color: var(--app-text-suave);
+  }
 
-.normal {
-  color: #cccc00; /* Amarillo */
-}
+  dd {
+    margin: 0;
+    font-weight: 700;
+  }
 
-.inestable {
-  color: #ff9900; /* Naranja */
+  small {
+    font-weight: 400;
+    font-size: var(--app-font-sm);
+  }
 }
-
-.alarmante {
-  color: #ff0000; /* Rojo */
-}
-
-.sin-datos {
-  color: #999999; /* Gris */
-}
-
-/* Mejorar el espaciado del icono de flecha */
-ion-icon[name="chevron-forward-outline"] {
-  font-size: 20px;
-  color: #999;
-}
-
-// En home.component.scss
-.alerta-badge {
-  margin-top: 5px;
-  color: #ff4961;
-  font-size: 20px;
-}
-

@@ -3,7 +3,7 @@ import { FormBuilder } from '@angular/forms';
 import { PacienteService } from 'src/app/services/paciente.service';
 import { QuestionService } from 'src/app/services/question.service';
 import { ToastController } from '@ionic/angular';
-import { VALIDADORES_MEDIDAS } from 'src/app/interfaces/measurements-form.interface';
+import { RANGOS_MEDIDAS, VALIDADORES_MEDIDAS } from 'src/app/interfaces/measurements-form.interface';
 
 // Horas que deben pasar entre dos registros de medidas
 const HORAS_ENTRE_MEDICIONES = 12;
@@ -19,6 +19,8 @@ export class HomeComponent implements OnInit {
   pacienteId: any;
   pastilleroHoy: any = null; 
   diaActual: string = '';
+  hoy = new Date();
+  rangos = RANGOS_MEDIDAS;
 
   currentQuestion: any = null;
   showQuestionnaire: boolean = true;
@@ -38,6 +40,11 @@ export class HomeComponent implements OnInit {
   showHeartRate = false;
   showBloodPressure = false;
   showFormAux = false;
+
+  get pasoMedidas(): number {
+    if (this.showWeight) return 1;
+    return this.showHeartRate ? 2 : 3;
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -155,7 +162,7 @@ export class HomeComponent implements OnInit {
       if (result.ok) {
         // Mostrar notificación al usuario
         this.showNotification(
-          'Notificación enviada al personal sanitario. Gracias por reportar tu estado.'
+          'Hemos avisado a tu médico. Gracias por contarnos cómo estás.', 'success'
         );
       }
     } catch (error) {
@@ -170,21 +177,21 @@ export class HomeComponent implements OnInit {
       this.showQuestionnaire = false;
       this.currentQuestion = null;
       
-      this.showNotification('Has completado el cuestionario diario. ¡Gracias!');
+      this.showNotification('Has completado el cuestionario de hoy. ¡Gracias!', 'success');
     } catch (error) {
       console.error('Error al finalizar cuestionario:', error);
     }
   }
 
-  async showNotification(message: string) {
+  async showNotification(message: string, color: 'success' | 'danger' = 'danger') {
     const toast = await this.toastController.create({
       message: message,
       duration: 5000,
-      position: 'middle',
-      color: 'primary',
+      position: 'top',
+      color,
       buttons: [
         {
-          text: 'OK',
+          text: 'Vale',
           role: 'cancel'
         }
       ]
@@ -280,6 +287,7 @@ export class HomeComponent implements OnInit {
         this.pacienteService.updateNewMeasurements(pacienteId, formData).subscribe(
           () => {
             this.hideForm();
+            this.showNotification('Medidas guardadas. ¡Gracias!', 'success');
           },
           error => {
             console.error('Error al actualizar medidas:', error);

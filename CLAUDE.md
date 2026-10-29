@@ -55,3 +55,8 @@ Authorization (all of these must run after `validarJWT`):
 - API calls go through the services in `services/`, which build URLs from `environment.apiUrl`. `interceptors/token.interceptor.ts` adds `x-token` to every API request and calls `AuthService.logout()` on a 401, so services must not set the header themselves.
 - `services/salud.service.ts` holds the BMI and 0–100 health score calculations used by the doctor's patient detail page and its chart. Shared types are in `interfaces/`; `VALIDADORES_MEDIDAS` mirrors the backend measurement ranges.
 - Charts use `chart.js` and alerts use `sweetalert2`.
+- Styling targets elderly users and is light mode only:
+  - Colors, the font (Atkinson Hyperlegible) and the `--app-*` tokens live in `theme/variables.scss`. The `--app-estado-*` tokens are the health-state colors, which the detail chart also reads.
+  - `global.scss` sets an 18px base size and large tap targets, and holds the shared classes (`page-logo`, `page-title`, `section-title`, `dato`, `momento`, `estado-badge`, `empty-state`, `auth-container`).
+  - Component SCSS should only add layout. Don't hardcode colors or set font sizes below 16px.
+  - Patients navigate with the bottom bar in `commons/menu`, where every item has an icon and a text label.

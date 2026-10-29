@@ -1,5 +1,7 @@
-<ion-content>
-    <router-outlet></router-outlet> <!-- Aquí se cargará el contenido dinámico -->
-</ion-content>
-  
-<app-menu *ngIf="role === 'PACIENTE'"></app-menu>
+<div class="layout">
+  <main class="layout-main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <app-menu *ngIf="role === 'PACIENTE'"></app-menu>
+</div>

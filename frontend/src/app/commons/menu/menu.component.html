@@ -1,32 +1,14 @@
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-<ion-header>
+<ion-footer class="ion-no-border">
   <ion-toolbar>
-    <ion-buttons slot="primary" class="navbar-buttons">
-      <ion-button routerLink="/home" routerLinkActive="active">
-        <span class="material-symbols-outlined">
-          home
-          </span>
-      </ion-button>
-      <ion-button routerLink="/medidas" routerLinkActive="active">
-        <span class="material-symbols-outlined">
-          monitor_weight
-          </span>
-      </ion-button>
-      <ion-button routerLink="/tratamiento" routerLinkActive="active">
-        <span class="material-symbols-outlined">
-          pill
-          </span>
-      </ion-button>
-      <ion-button routerLink="/ejercicios" routerLinkActive="active">
-        <span class="material-symbols-outlined">
-          exercise
-          </span>
-      </ion-button>
-      <ion-button routerLink="/perfil" routerLinkActive="active">
-        <span class="material-symbols-outlined">
-          account_circle
-          </span>
-      </ion-button>
-    </ion-buttons>
+    <nav class="menu" aria-label="Menú principal">
+      <a *ngFor="let item of items"
+         class="menu-item"
+         [routerLink]="item.ruta"
+         routerLinkActive="activo"
+         ariaCurrentWhenActive="page">
+        <span class="material-symbols-outlined" aria-hidden="true">{{ item.icono }}</span>
+        <span class="menu-texto">{{ item.texto }}</span>
+      </a>
+    </nav>
   </ion-toolbar>
-</ion-header>
+</ion-footer>

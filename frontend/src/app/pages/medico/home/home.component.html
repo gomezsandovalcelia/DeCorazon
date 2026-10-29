@@ -1,65 +1,66 @@
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-<ion-content class="ion-padding">
-  <!-- Imagen pequeña en la parte superior -->
-  <div class="header-container">
-    <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <img slot="start" src="assets/logo.png" alt="De Corazón" class="toolbar-logo">
+    <ion-title>Mis pacientes</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/medico/perfil" aria-label="Mi perfil">
+        <ion-icon slot="icon-only" name="person-circle-outline" aria-hidden="true"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
 
-    <!-- Botón de perfil en la esquina superior derecha -->
-    <ion-button routerLink="/medico/perfil" class="profile-icon" fill="clear">
-      <ion-icon style="color: #6b1a0b;" name="person-circle-outline" slot="icon-only"></ion-icon>
-    </ion-button>
+<ion-content>
+  <div *ngIf="loading" class="loading-state">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando pacientes...</p>
   </div>
 
-  <h2 class="task-title">Tus Pacientes</h2>
- 
-    <ion-list>
-      <ion-item class="itemx" *ngFor="let paciente of pacientes" (click)="verDetallePaciente(paciente._id)">
-        <!-- Indicador de estado simplificado -->
-        
-        <div class="estado-indicador-simple" slot="start">
-          
-          <div class="estado-valor" [ngClass]="evaluarEstadoSalud(paciente).estado">
-            {{ evaluarEstadoSalud(paciente).puntuacion }}
-          </div>
-          <div class="estado-label">
-            {{ getEstadoLabel(evaluarEstadoSalud(paciente).estado) }}
-          </div>
-          <span class="alerta-badge" *ngIf="pacienteTieneAlertas(paciente._id)">
-            <ion-icon name="warning-outline"></ion-icon>
-          </span>
-        </div>
-        
-        <ion-label>
-          <h3 class="paciente-nombre">
-            {{ paciente.nombre }} {{ paciente.apellidos }}
-            <!-- Mostrar alerta si el paciente tiene respuestas con alerta -->
-            
-          </h3>
-          <div class="mediciones">
-            <!--<p *ngIf="paciente.measurements.length > 0">
-              <strong>Altura:</strong> {{ paciente.altura || 'No disponible' }} cm
-            </p>-->
-            <p *ngIf="paciente.measurements.length > 0 && paciente.altura">
-              <strong>IMC:</strong> {{ calcularIMC(paciente) | number:'1.1-1' }}
-              ({{ getEstadoIMC(calcularIMC(paciente)) }})
-            </p>
-            <p *ngIf="paciente.measurements.length > 0">
-              <strong>Peso:</strong> {{ paciente.measurements.slice(-1)[0].weight }} kg
-            </p>
-            <p *ngIf="paciente.measurements.length > 0">
-              <strong>Frecuencia Cardíaca:</strong> {{ paciente.measurements.slice(-1)[0].heart_rate }} ppm
-            </p>
-            <p *ngIf="paciente.measurements.length > 0">
-              <strong>Presión Arterial:</strong> {{ paciente.measurements.slice(-1)[0].blood_pressure }}
-            </p>
-            <p *ngIf="paciente.measurements.length === 0">
-              No hay mediciones disponibles.
-            </p>
-          </div>
-        </ion-label>
-        
-        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
-      </ion-item>
-    </ion-list>
+  <p *ngIf="!loading && pacientes.length === 0" class="empty-state">Todavía no tienes pacientes asignados.</p>
 
+  <ion-card *ngFor="let paciente of pacientes"
+            button
+            class="paciente"
+            [class.con-alerta]="pacienteTieneAlertas(paciente._id)"
+            (click)="verDetallePaciente(paciente._id)">
+    <ion-card-content>
+      <div class="paciente-cabecera">
+        <h2 class="paciente-nombre">{{ paciente.nombre }} {{ paciente.apellidos }}</h2>
+        <ion-icon name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+      </div>
+
+      <div class="paciente-estado">
+        <span class="estado-badge" [ngClass]="evaluarEstadoSalud(paciente).estado">
+          {{ getEstadoLabel(evaluarEstadoSalud(paciente).estado) }}
+          <ng-container *ngIf="paciente.measurements.length > 0">· {{ evaluarEstadoSalud(paciente).puntuacion }}/100</ng-container>
+        </span>
+        <span class="alerta" *ngIf="pacienteTieneAlertas(paciente._id)">
+          <ion-icon name="warning" aria-hidden="true"></ion-icon>
+          Alerta en el cuestionario
+        </span>
+      </div>
+
+      <dl class="mediciones" *ngIf="paciente.measurements.length > 0; else sinMediciones">
+        <div>
+          <dt>Peso</dt>
+          <dd>{{ paciente.measurements.slice(-1)[0].weight }} kg</dd>
+        </div>
+        <div>
+          <dt>Pulso</dt>
+          <dd>{{ paciente.measurements.slice(-1)[0].heart_rate }} ppm</dd>
+        </div>
+        <div>
+          <dt>Tensión</dt>
+          <dd>{{ paciente.measurements.slice(-1)[0].blood_pressure }}</dd>
+        </div>
+        <div *ngIf="paciente.altura">
+          <dt>IMC</dt>
+          <dd>{{ calcularIMC(paciente) | number:'1.1-1' }} <small>({{ getEstadoIMC(calcularIMC(paciente)) }})</small></dd>
+        </div>
+      </dl>
+      <ng-template #sinMediciones>
+        <p class="texto-suave">Sin mediciones todavía.</p>
+      </ng-template>
+    </ion-card-content>
+  </ion-card>
 </ion-content>

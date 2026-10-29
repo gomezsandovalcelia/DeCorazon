@@ -1,57 +1,68 @@
-<!-- treatments.component.html -->
-<ion-content class="ion-padding">
-  <div class="image-container">
-    <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
-  </div>
-  
-  <h2 class="task-title">Mi Pastillero</h2>
-  
-  <div *ngIf="loading" class="loading-container">
-    <ion-spinner></ion-spinner>
+<ion-content>
+  <img src="assets/logo.png" alt="De Corazón" class="page-logo">
+  <h1 class="page-title">Mi pastillero</h1>
+
+  <div *ngIf="loading" class="loading-state">
+    <ion-spinner name="crescent"></ion-spinner>
     <p>Cargando...</p>
   </div>
-  
-  <div *ngIf="error" class="error-container">
+
+  <div *ngIf="error" class="empty-state">
     <p>{{ error }}</p>
     <ion-button (click)="ngOnInit()">Reintentar</ion-button>
   </div>
-  
-  <div *ngIf="!loading && !error && pastilleroOrdenado.length > 0" class="pastillero-container">
-    <!-- Día actual destacado -->
-    <ion-card *ngFor="let dia of pastilleroOrdenado; let i = index" 
-              [ngClass]="{'current-day': i === 0, 'other-day': i !== 0}">
-      <ion-card-header [ngClass]="{'current-day-header': i === 0}">
-        <ion-card-title style="color: white;">
-          {{ dia.day }}
-          <ion-badge *ngIf="i === 0" color="light">HOY</ion-badge>
-        </ion-card-title>
+
+  <ng-container *ngIf="!loading && !error && pastilleroOrdenado.length > 0">
+    <!-- Hoy, siempre visible -->
+    <ion-card class="hoy">
+      <ion-card-header>
+        <ion-card-title>Hoy, {{ pastilleroOrdenado[0].day }}</ion-card-title>
       </ion-card-header>
-      
       <ion-card-content>
-        <ion-grid class="medication-grid">
-          <ion-row>
-            <ion-col size="4">
-              <div class="time-label">Mañana</div>
-              <div class="medication" *ngIf="dia.morning">{{ dia.morning }}</div>
-              <div class="no-medication" *ngIf="!dia.morning">-</div>
-            </ion-col>
-            
-            <ion-col size="4">
-              <div class="time-label">Tarde</div>
-              <div class="medication" *ngIf="dia.afternoon">{{ dia.afternoon }}</div>
-              <div class="no-medication" *ngIf="!dia.afternoon">-</div>
-            </ion-col>
-            
-            <ion-col size="4">
-              <div class="time-label">Noche</div>
-              <div class="medication" *ngIf="dia.night">{{ dia.night }}</div>
-              <div class="no-medication" *ngIf="!dia.night">-</div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
+        <ng-container *ngTemplateOutlet="momentos; context: { $implicit: pastilleroOrdenado[0] }"></ng-container>
       </ion-card-content>
     </ion-card>
-  </div>
-  
-  <ion-button expand="block" routerLink="/perfil">Volver</ion-button>
+
+    <!-- Resto de la semana, plegado para no saturar -->
+    <h2 class="section-title">Resto de la semana</h2>
+    <ion-accordion-group>
+      <ion-accordion *ngFor="let dia of pastilleroOrdenado.slice(1)" [value]="dia.day">
+        <ion-item slot="header">
+          <ion-label>{{ dia.day }}</ion-label>
+        </ion-item>
+        <div slot="content" class="ion-padding">
+          <ng-container *ngTemplateOutlet="momentos; context: { $implicit: dia }"></ng-container>
+        </div>
+      </ion-accordion>
+    </ion-accordion-group>
+  </ng-container>
+
+  <p *ngIf="!loading && !error && pastilleroOrdenado.length === 0" class="empty-state">
+    Tu médico todavía no ha preparado tu pastillero.
+  </p>
+
+  <ng-template #momentos let-dia>
+    <div class="momento">
+      <ion-icon name="sunny-outline" aria-hidden="true"></ion-icon>
+      <div>
+        <span class="momento-nombre">Mañana</span>
+        <span *ngIf="dia.morning; else nada" class="momento-medicacion">{{ dia.morning }}</span>
+      </div>
+    </div>
+    <div class="momento">
+      <ion-icon name="partly-sunny-outline" aria-hidden="true"></ion-icon>
+      <div>
+        <span class="momento-nombre">Tarde</span>
+        <span *ngIf="dia.afternoon; else nada" class="momento-medicacion">{{ dia.afternoon }}</span>
+      </div>
+    </div>
+    <div class="momento">
+      <ion-icon name="moon-outline" aria-hidden="true"></ion-icon>
+      <div>
+        <span class="momento-nombre">Noche</span>
+        <span *ngIf="dia.night; else nada" class="momento-medicacion">{{ dia.night }}</span>
+      </div>
+    </div>
+  </ng-template>
+  <ng-template #nada><span class="momento-vacio">Nada que tomar</span></ng-template>
 </ion-content>

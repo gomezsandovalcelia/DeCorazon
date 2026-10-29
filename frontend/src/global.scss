@@ -25,13 +25,411 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
+/* Solo modo claro: no se importa ninguna paleta oscura de Ionic */
 
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import "@ionic/angular/css/palettes/dark.system.css";
+/* ----------------------------------------------------------------------------
+ * Base accesible: texto grande, zonas táctiles amplias y foco visible.
+ * Los componentes solo deben añadir su layout; colores y tamaños salen de aquí
+ * y de theme/variables.scss.
+ * ------------------------------------------------------------------------- */
+
+html {
+  font-size: var(--app-font-base);
+}
+
+body {
+  font-family: var(--ion-font-family);
+  font-size: var(--app-font-base);
+  line-height: 1.5;
+  color: var(--ion-text-color);
+  background: var(--ion-background-color);
+}
+
+h1, h2, h3 {
+  line-height: 1.25;
+  font-weight: 700;
+  color: var(--ion-text-color);
+}
+
+h1 { font-size: var(--app-font-xl); }
+h2 { font-size: var(--app-font-lg); }
+h3 { font-size: 20px; }
+
+p { margin: 0 0 8px; }
+
+a {
+  color: var(--ion-color-primary);
+  font-weight: 700;
+}
+
+:focus-visible {
+  outline: 3px solid var(--ion-color-primary);
+  outline-offset: 2px;
+}
+
+ion-content {
+  --padding-top: 16px;
+  --padding-bottom: 32px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+}
+
+ion-toolbar {
+  --min-height: 64px;
+}
+
+ion-title {
+  font-size: var(--app-font-lg);
+  font-weight: 700;
+}
+
+ion-button {
+  --border-radius: 14px;
+  --box-shadow: none;
+  min-height: var(--app-tap);
+  font-size: var(--app-font-base);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+ion-button.button-small {
+  min-height: 44px;
+  font-size: var(--app-font-sm);
+}
+
+ion-button[fill="outline"] {
+  --border-width: 2px;
+}
+
+ion-button ion-icon[slot="start"] {
+  margin-right: 8px;
+}
+
+ion-card {
+  --background: var(--app-superficie);
+  margin: 0 0 16px;
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-shadow);
+  color: var(--ion-text-color);
+}
+
+ion-card-content {
+  font-size: var(--app-font-base);
+  padding: 20px;
+}
+
+ion-card-title {
+  font-size: var(--app-font-lg);
+  font-weight: 700;
+}
+
+/* Ionic reduce los encabezados dentro de las tarjetas; se recupera la escala */
+ion-card-content h2 {
+  font-size: var(--app-font-lg) !important;
+  font-weight: 700;
+}
+
+ion-card-content h3 {
+  font-size: 20px !important;
+  font-weight: 700;
+}
+
+ion-card-content p {
+  font-size: var(--app-font-base);
+}
+
+ion-back-button {
+  text-transform: none;
+  font-size: var(--app-font-sm);
+}
+
+ion-item {
+  --min-height: 56px;
+  font-size: var(--app-font-base);
+}
+
+ion-label {
+  font-size: var(--app-font-base) !important;
+  white-space: normal !important;
+}
+
+ion-label p,
+ion-item p {
+  font-size: var(--app-font-sm) !important;
+  color: var(--app-text-suave) !important;
+}
+
+ion-input,
+ion-textarea,
+ion-select {
+  font-size: var(--app-font-base) !important;
+  --highlight-color-focused: var(--ion-color-primary);
+}
+
+/* La etiqueta "stacked" se escala al 75%: con 22px queda en ~16px */
+ion-input .label-text,
+ion-textarea .label-text {
+  font-size: 22px;
+  color: var(--ion-text-color);
+}
+
+/* El hueco del borde "outline" debe medir lo mismo que la etiqueta escalada */
+ion-input .notch-spacer,
+ion-textarea .notch-spacer {
+  font-size: calc(22px * 0.75) !important;
+}
+
+ion-input .helper-text,
+ion-input .error-text {
+  font-size: var(--app-font-sm);
+}
+
+ion-input .helper-text {
+  color: var(--app-text-suave);
+}
+
+ion-input.input-fill-outline,
+ion-textarea.textarea-fill-outline {
+  --border-radius: 12px;
+  --border-width: 2px;
+  --border-color: #b9aea5;
+  --background: #ffffff;
+  min-height: 60px;
+}
+
+ion-checkbox {
+  --size: 30px;
+  --border-width: 2px;
+  --border-color: #6f6660;
+  --border-radius: 8px;
+}
+
+ion-radio {
+  --border-width: 2px;
+  --color: #6f6660;
+}
+
+ion-radio::part(container) {
+  width: 28px;
+  height: 28px;
+}
+
+ion-badge {
+  font-size: var(--app-font-sm);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+ion-segment-button {
+  min-height: 52px;
+  font-size: var(--app-font-sm);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+ion-toast {
+  --border-radius: 14px;
+  font-size: var(--app-font-base);
+}
+
+ion-accordion ion-item[slot="header"] {
+  --min-height: 60px;
+}
+
+/* ---------- Clases compartidas entre páginas ---------- */
+
+.page-logo {
+  display: block;
+  width: 96px;
+  height: auto;
+  margin: 0 auto 4px;
+}
+
+.page-title {
+  font-size: var(--app-font-xl);
+  font-weight: 700;
+  text-align: center;
+  margin: 4px 0 20px;
+}
+
+.section-title {
+  font-size: var(--app-font-lg);
+  font-weight: 700;
+  margin: 28px 0 12px;
+}
+
+.texto-suave {
+  color: var(--app-text-suave);
+}
+
+.empty-state,
+.loading-state {
+  text-align: center;
+  padding: 24px 16px;
+  color: var(--app-text-suave);
+  font-size: var(--app-font-base);
+}
+
+.loading-state ion-spinner {
+  width: 40px;
+  height: 40px;
+  color: var(--ion-color-primary);
+}
+
+/* Lista de datos "etiqueta arriba, valor grande" (perfiles) */
+.dato {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ion-border-color);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.dato-label {
+  display: block;
+  font-size: var(--app-font-sm);
+  color: var(--app-text-suave);
+}
+
+.dato-valor {
+  display: block;
+  font-size: var(--app-font-lg);
+  font-weight: 700;
+}
+
+/* Momentos del día (pastillero) */
+.momento {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--ion-border-color);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  ion-icon {
+    flex-shrink: 0;
+    font-size: 30px;
+    color: var(--ion-color-secondary);
+  }
+}
+
+.momento-nombre {
+  display: block;
+  font-weight: 700;
+  color: var(--ion-color-secondary);
+}
+
+.momento-medicacion {
+  display: block;
+  font-size: var(--app-font-base);
+}
+
+.momento-vacio {
+  display: block;
+  color: var(--app-text-suave);
+}
+
+/* Estados de salud: color + icono + texto, nunca solo color */
+.estado-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: var(--app-font-sm);
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--app-estado-sin-datos);
+
+  ion-icon {
+    font-size: 18px;
+  }
+
+  &.bien { background: var(--app-estado-bien); }
+  &.normal { background: var(--app-estado-normal); }
+  &.inestable { background: var(--app-estado-inestable); }
+  &.alarmante { background: var(--app-estado-alarmante); }
+  &.sin-datos { background: var(--app-estado-sin-datos); }
+}
+
+.acciones {
+  margin-top: 24px;
+}
+
+/* Las etiquetas de casillas y radios pueden ocupar varias líneas */
+ion-checkbox::part(label),
+ion-radio::part(label) {
+  white-space: normal;
+  overflow: visible;
+}
+
+/* ---------- Pantallas de acceso (landing, login, registro) ---------- */
+
+.auth-container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px 0 24px;
+
+  h1 {
+    text-align: center;
+    margin: 8px 0 20px;
+  }
+
+  ion-input {
+    margin-bottom: 16px;
+  }
+}
+
+.auth-logo {
+  display: block;
+  width: 180px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.auth-logo-pequeno {
+  width: 110px;
+}
+
+.auth-intro {
+  font-size: 20px;
+  margin-bottom: 28px;
+}
+
+.auth-alternativa {
+  text-align: center;
+  margin: 28px 0 0;
+  color: var(--app-text-suave);
+}
+
+/* ---------- SweetAlert2 con el tema de la app ---------- */
+
+.swal2-popup {
+  font-family: var(--ion-font-family) !important;
+  border-radius: 20px !important;
+  font-size: var(--app-font-base) !important;
+}
+
+.swal2-title {
+  font-size: var(--app-font-xl) !important;
+  color: var(--ion-text-color) !important;
+}
+
+.swal2-html-container {
+  font-size: var(--app-font-base) !important;
+}
+
+.swal2-styled.swal2-confirm {
+  background: var(--ion-color-primary) !important;
+  border-radius: 14px !important;
+  font-size: var(--app-font-base) !important;
+  min-height: var(--app-tap);
+  padding: 0 28px !important;
+}

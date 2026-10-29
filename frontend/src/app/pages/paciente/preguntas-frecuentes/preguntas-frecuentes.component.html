@@ -1,41 +1,39 @@
-<ion-content class="ion-padding">
-  <div class="image-container">
-    <img src="assets/logo.png" alt="Imagen pequeña" class="small-image">
-  </div>
-  <div class="faq-container">
-    <h2 class="task-title">Preguntas frecuentes</h2>
-    
-    <div class="faq-sections">
-      <div class="faq-section" *ngFor="let section of faqSections">
-        <div class="section-header" (click)="toggleSection(section)">
-          <p>{{ section.title }}</p>
-          <ion-icon [name]="section.isOpen ? 'chevron-up' : 'chevron-down'"></ion-icon>
-        </div>
-        
-        <div class="section-content" [class.open]="section.isOpen">
-          <ion-list>
-            <ion-accordion-group>
-              <ion-accordion *ngFor="let item of section.items">
-                <ion-item slot="header">
-                  <ion-label>{{ item.question }}</ion-label>
-                </ion-item>
-                
-                <div slot="content" class="accordion-content">
-                  <p>{{ item.answer }}</p>
-                  
-                  <div *ngIf="item.videoUrl" class="video-container">
-                    <video controls>
-                      <source [src]="item.videoUrl" type="video/mp4">
-                      Tu navegador no soporta la reproducción de videos.
-                    </video>
-                  </div>
-                </div>
-              </ion-accordion>
-            </ion-accordion-group>
-          </ion-list>
-        </div>
-      </div>
+<ion-content>
+  <img src="assets/logo.png" alt="De Corazón" class="page-logo">
+  <h1 class="page-title">Preguntas frecuentes</h1>
+
+  <section class="faq-section" *ngFor="let section of faqSections; let i = index">
+    <button type="button"
+            class="section-header"
+            [attr.aria-expanded]="section.isOpen"
+            [attr.aria-controls]="'faq-seccion-' + i"
+            (click)="toggleSection(section)">
+      <span>{{ section.title }}</span>
+      <ion-icon [name]="section.isOpen ? 'chevron-up' : 'chevron-down'" aria-hidden="true"></ion-icon>
+    </button>
+
+    <div class="section-content" [id]="'faq-seccion-' + i" *ngIf="section.isOpen">
+      <ion-accordion-group>
+        <ion-accordion *ngFor="let item of section.items">
+          <ion-item slot="header">
+            <ion-label>{{ item.question }}</ion-label>
+          </ion-item>
+
+          <div slot="content" class="accordion-content">
+            <p>{{ item.answer }}</p>
+
+            <video *ngIf="item.videoUrl" controls preload="metadata">
+              <source [src]="item.videoUrl" type="video/mp4">
+              Tu navegador no puede reproducir este vídeo.
+            </video>
+          </div>
+        </ion-accordion>
+      </ion-accordion-group>
     </div>
-    <ion-button expand="block" routerLink="/perfil">Volver</ion-button>
-  </div>
+  </section>
+
+  <ion-button expand="block" fill="outline" routerLink="/perfil" class="acciones">
+    <ion-icon slot="start" name="arrow-back" aria-hidden="true"></ion-icon>
+    Volver a mi perfil
+  </ion-button>
 </ion-content>

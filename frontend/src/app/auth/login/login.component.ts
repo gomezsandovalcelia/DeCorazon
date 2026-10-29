@@ -63,7 +63,7 @@ login() {
             // 429: demasiados intentos (límite del backend)
             text: err.status === 429 ? err.error?.msg : 'Usuario o contraseña incorrectos',
             icon: 'error',
-            confirmButtonText: 'Ok',
+            confirmButtonText: 'Vale',
             heightAuto: false
           });
         }

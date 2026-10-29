@@ -1,0 +1,23 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.layout-main {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+// Cada página ocupa todo el hueco y apila su cabecera y su ion-content
+:host ::ng-deep .layout-main > :not(router-outlet) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}

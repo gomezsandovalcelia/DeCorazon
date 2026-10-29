@@ -1,222 +1,70 @@
-
-.small-image {
-  width: 180px; 
-  height: auto; 
-  display: block;
-  margin: 0 auto; 
-}
-  
-.image-container {
-  text-align: center;
-}
-  
-
-ion-button {
-  //--background: black;
-  --background: #1f1b1b;
-  //--background-hover: #2c7450;
-  --background-activated: #6b1a0b;
-  --background-focused: #6b1a0b;
-  color: white;
-  margin-bottom: 20px;
+.tarjeta-destacada {
+  border-top: 6px solid var(--ion-color-primary);
 }
 
-h2{
-  text-align: center;
-  margin-top: 20px;
-  font-size: 20px;
-  font-weight: bold; 
-  color: #333;
-}
-.formulario{
-  margin-bottom: 10px;
-}
-.task-title {
-  font-size: 17px; 
-  font-weight: bold; 
-  color: #333; 
-  margin-top: 10px; 
-  text-align: center; 
+.etiqueta {
+  font-size: var(--app-font-sm);
+  font-weight: 700;
+  color: var(--ion-color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
 }
 
-.task-title:active {
-  color: #6b1a0b; 
-}
-ion-label {
-  font-size: 16px; 
-  color: #333; 
-}
-ion-list {
-  padding: 10px; 
-}
-  
-.itemx {
-  margin-bottom: 15px; 
-  --background: #fff; 
-  border-width: 0px; 
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
-  --border-color: transparent; 
-  --background: transparent;
+.pregunta {
+  margin: 0 0 16px;
 }
 
-ion-checkbox {
-  --border-color: #000000; 
-  --background: transparent; 
-  --checkbox-background-checked:#b30000;
-  --border-color-checked: #b30000;
-  --checkmark-color:#ffffff;
-}
-
-/* Estilos para los ítems de radio */
-.radio-item {
-  --padding-start: 16px;
-  --inner-padding-end: 16px;
-  --background: #f8f8f8;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  --border-width: 0px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  position: relative;
-}
-
-/* Estilo cuando el ítem está seleccionado */
-.radio-item.item-radio-checked {
-  --background: #fff0f0;
-  border-left: 4px solid #b30000;
-}
-
-/* Hacer que todo el ítem sea clickable */
-.radio-item::part(native) {
-  cursor: pointer;
-}
-
-/* Estilos para los radio buttons */
-ion-radio {
-  --color: #b30000;
-  --color-checked: #b30000;
-  --border-radius: 50%;
-  --inner-border-radius: 50%;
-  --border-width: 2px;
-  --border-color: #b30000;
-  margin-right: 8px;
-}
-
-/* Estilo para el contenedor del radio - hacerlo más grande */
-ion-radio::part(container) {
-  width: 24px;
-  height: 24px;
-  display: block !important;
-}
-
-/* Estilo para el label */
-ion-item ion-label {
-  margin-left: 8px;
-  font-size: 16px;
-  color: #333;
-}
-
-/* Estilo para grupo de radio buttons */
 ion-radio-group {
   display: block;
-  width: 100%;
-  margin: 16px 0;
+  margin-bottom: 8px;
 }
 
-/* Añadir un indicador visual adicional */
-.radio-item::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 8px;
-  pointer-events: none;
-  transition: background-color 0.2s;
-}
+.opcion {
+  --background: var(--ion-color-light);
+  --border-radius: 14px;
+  --min-height: 60px;
+  margin-bottom: 10px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  cursor: pointer;
 
-.radio-item:active::after {
-  background-color: rgba(179, 0, 0, 0.1);
-}
-
-// Añadir estos estilos a tu home.component.scss
-
-.pastillero-hoy {
-  margin: 20px 0;
-}
-
-.medication-card {
-  box-shadow: 0 4px 8px rgba(107, 26, 11, 0.1);
-  border-radius: 10px;
-  margin-bottom: 16px;
-  
-  ion-card-content {
-    padding: 0;
-  }
-}
-
-.time-slot {
-  padding: 12px 16px;
-  border-bottom: 1px solid #f0f0f0;
-  
-  &:last-child {
-    border-bottom: none;
-  }
-  
-  p {
-    margin: 5px 0 0 28px;
-    color: #333;
-    font-size: 14px;
-  }
-}
-
-.time-header {
-  display: flex;
-  align-items: center;
-  
-  ion-icon {
+  ion-radio {
     font-size: 20px;
-    margin-right: 8px;
-    color: #6b1a0b;
-  }
-  
-  h3 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: #6b1a0b;
   }
 }
 
-.no-medication {
-  padding: 16px;
-  text-align: center;
-  color: #888;
-  font-style: italic;
+.opcion-elegida {
+  --background: var(--app-primario-suave);
+  border-color: var(--ion-color-primary);
 }
 
-.small-button {
-  margin-top: 0;
-  --padding-top: 8px;
-  --padding-bottom: 8px;
-  
-  ion-icon {
-    margin-right: 8px;
+ion-input {
+  margin-bottom: 8px;
+}
+
+.ejercicio {
+  margin-bottom: 12px;
+
+  ion-item {
+    --padding-start: 16px;
+    --inner-padding-end: 16px;
+    --min-height: 72px;
+  }
+
+  ion-checkbox {
+    width: 100%;
   }
 }
 
-/* Iconos específicos para cada momento del día */
-ion-icon[name="sunny-outline"] {
-  color: #f39c12; /* Amarillo para la mañana */
+.ejercicio-texto {
+  display: block;
+  font-weight: 700;
+  white-space: normal;
 }
 
-ion-icon[name="partly-sunny-outline"] {
-  color: #e67e22; /* Naranja para la tarde */
-}
-
-ion-icon[name="moon-outline"] {
-  color: #34495e; /* Azul oscuro para la noche */
+.ejercicio-estado {
+  display: block;
+  font-size: var(--app-font-sm);
+  color: var(--app-text-suave);
 }
